@@ -2,6 +2,32 @@
 
 Turn your random pantry ingredients into delicious meal ideas with FridGPT! This AI-powered recipe recommender helps you discover what to cook based on the ingredients you have, powered by modern language models and smart ingredient matching.
 
+## 🚀 Getting Started
+
+### Backend Setup
+
+1. Create and activate a Python virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+
+3. Start the development server:
+   ```bash
+   cd backend
+   uvicorn main:app --reload
+   ```
+
+4. Access the API:
+   - API Root: http://127.0.0.1:8000/
+   - Interactive API Documentation: http://127.0.0.1:8000/docs
+   - Alternative API Documentation: http://127.0.0.1:8000/redoc
+
 ## 🌟 Key Features
 
 - **Ingredient-Based Recipe Search**: Simply list what's in your fridge and pantry
