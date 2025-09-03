@@ -1,17 +1,19 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from app.db import engine
+from app.cache import redis_client
 
-from app.api.routes import router as api_router
+app = FastAPI()
 
-app = FastAPI(title="FridGPT API", version="0.1.0")
+@app.get("/health")
+def health():
+    ok_db = True
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as e:
+        ok_db = False
+        print(f"Database connection error: {str(e)}")
 
-# CORS middleware configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Modify in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(api_router, prefix="/api")
+    ok_redis = redis_client.ping() if redis_client else False
+    return {"db": ok_db, "redis": ok_redis}
