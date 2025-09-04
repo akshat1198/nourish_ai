@@ -1,6 +1,6 @@
-# FridGPT 🥗 - Your Smart Recipe Recommender
+# NourishAI 🥗 - Your Smart Recipe Recommender
 
-Turn your random pantry ingredients into delicious meal ideas with FridGPT! This AI-powered recipe recommender helps you discover what to cook based on the ingredients you have, powered by modern language models and smart ingredient matching.
+Turn your random pantry ingredients into delicious meal ideas with NourishAI! This AI-powered recipe recommender helps you discover what to cook based on the ingredients you have, powered by modern language models and smart ingredient matching.
 
 ## 🚀 Getting Started
 
