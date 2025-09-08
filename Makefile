@@ -1,3 +1,6 @@
+setup:
+	@./dev-setup.sh
+
 up:
 	@docker compose up -d
 
