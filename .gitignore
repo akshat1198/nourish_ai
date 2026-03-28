@@ -66,3 +66,4 @@ htmlcov/
 .env.test.local
 .env.production.local
 JIRA_TASKS.md
+db/init/
