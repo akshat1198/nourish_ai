@@ -39,8 +39,15 @@ class RecipeCandidate(BaseModel):
     total_essential: int
 
 
+class RankedRecipe(RecipeCandidate):
+    """A candidate with a computed relevance score and a human explanation."""
+
+    score: float
+    why: str
+
+
 class RecommendResponse(BaseModel):
-    results: list[RecipeCandidate]
+    results: list[RankedRecipe]
     unmatched_pantry: list[str] = Field(
         default_factory=list, description="Pantry names that resolved to no ingredient"
     )
