@@ -1,0 +1,1771 @@
+[
+ {
+  "name": "chicken breast",
+  "category": "protein",
+  "aliases": [
+   "chicken"
+  ],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 165,
+   "protein_g": 31,
+   "carbs_g": 0,
+   "fat_g": 3.6
+  }
+ },
+ {
+  "name": "chicken thigh",
+  "category": "protein",
+  "aliases": [
+   "chicken thighs"
+  ],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 209,
+   "protein_g": 26,
+   "carbs_g": 0,
+   "fat_g": 11
+  }
+ },
+ {
+  "name": "ground beef",
+  "category": "protein",
+  "aliases": [
+   "beef mince",
+   "minced beef"
+  ],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 250,
+   "protein_g": 26,
+   "carbs_g": 0,
+   "fat_g": 15
+  }
+ },
+ {
+  "name": "beef sirloin",
+  "category": "protein",
+  "aliases": [
+   "steak",
+   "beef steak"
+  ],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 206,
+   "protein_g": 26,
+   "carbs_g": 0,
+   "fat_g": 11
+  }
+ },
+ {
+  "name": "pork loin",
+  "category": "protein",
+  "aliases": [
+   "pork"
+  ],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 242,
+   "protein_g": 27,
+   "carbs_g": 0,
+   "fat_g": 14
+  }
+ },
+ {
+  "name": "bacon",
+  "category": "protein",
+  "aliases": [],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "slice",
+  "grams_per_unit": 15,
+  "per_100g": {
+   "calories": 541,
+   "protein_g": 37,
+   "carbs_g": 1.4,
+   "fat_g": 42
+  }
+ },
+ {
+  "name": "turkey",
+  "category": "protein",
+  "aliases": [
+   "ground turkey"
+  ],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 189,
+   "protein_g": 29,
+   "carbs_g": 0,
+   "fat_g": 7
+  }
+ },
+ {
+  "name": "salmon",
+  "category": "protein",
+  "aliases": [
+   "salmon fillet"
+  ],
+  "allergens": [
+   "fish"
+  ],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 208,
+   "protein_g": 20,
+   "carbs_g": 0,
+   "fat_g": 13
+  }
+ },
+ {
+  "name": "cod",
+  "category": "protein",
+  "aliases": [
+   "white fish"
+  ],
+  "allergens": [
+   "fish"
+  ],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 82,
+   "protein_g": 18,
+   "carbs_g": 0,
+   "fat_g": 0.7
+  }
+ },
+ {
+  "name": "tuna",
+  "category": "protein",
+  "aliases": [
+   "canned tuna"
+  ],
+  "allergens": [
+   "fish"
+  ],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 132,
+   "protein_g": 28,
+   "carbs_g": 0,
+   "fat_g": 1.3
+  }
+ },
+ {
+  "name": "shrimp",
+  "category": "protein",
+  "aliases": [
+   "prawns"
+  ],
+  "allergens": [
+   "shellfish"
+  ],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 99,
+   "protein_g": 24,
+   "carbs_g": 0.2,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "tofu",
+  "category": "protein",
+  "aliases": [
+   "bean curd"
+  ],
+  "allergens": [
+   "soy"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 76,
+   "protein_g": 8,
+   "carbs_g": 1.9,
+   "fat_g": 4.8
+  }
+ },
+ {
+  "name": "tempeh",
+  "category": "protein",
+  "aliases": [],
+  "allergens": [
+   "soy"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 192,
+   "protein_g": 20,
+   "carbs_g": 7.6,
+   "fat_g": 11
+  }
+ },
+ {
+  "name": "eggs",
+  "category": "protein",
+  "aliases": [
+   "egg"
+  ],
+  "allergens": [
+   "egg"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 50,
+  "per_100g": {
+   "calories": 155,
+   "protein_g": 13,
+   "carbs_g": 1.1,
+   "fat_g": 11
+  }
+ },
+ {
+  "name": "paneer",
+  "category": "protein",
+  "aliases": [],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 265,
+   "protein_g": 18,
+   "carbs_g": 1.2,
+   "fat_g": 21
+  }
+ },
+ {
+  "name": "chickpeas",
+  "category": "protein",
+  "aliases": [
+   "garbanzo beans"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 164,
+   "protein_g": 8.9,
+   "carbs_g": 27,
+   "fat_g": 2.6
+  }
+ },
+ {
+  "name": "black beans",
+  "category": "protein",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 132,
+   "protein_g": 8.9,
+   "carbs_g": 24,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "kidney beans",
+  "category": "protein",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 127,
+   "protein_g": 8.7,
+   "carbs_g": 23,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "lentils",
+  "category": "protein",
+  "aliases": [
+   "red lentils"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 116,
+   "protein_g": 9,
+   "carbs_g": 20,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "pasta",
+  "category": "grain",
+  "aliases": [
+   "spaghetti",
+   "penne"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 157,
+   "protein_g": 5.8,
+   "carbs_g": 31,
+   "fat_g": 0.9
+  }
+ },
+ {
+  "name": "rice",
+  "category": "grain",
+  "aliases": [
+   "white rice"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 130,
+   "protein_g": 2.7,
+   "carbs_g": 28,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "brown rice",
+  "category": "grain",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 111,
+   "protein_g": 2.6,
+   "carbs_g": 23,
+   "fat_g": 0.9
+  }
+ },
+ {
+  "name": "arborio rice",
+  "category": "grain",
+  "aliases": [
+   "risotto rice"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 130,
+   "protein_g": 2.4,
+   "carbs_g": 29,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "quinoa",
+  "category": "grain",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 120,
+   "protein_g": 4.4,
+   "carbs_g": 21,
+   "fat_g": 1.9
+  }
+ },
+ {
+  "name": "rice noodles",
+  "category": "grain",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 109,
+   "protein_g": 0.9,
+   "carbs_g": 25,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "egg noodles",
+  "category": "grain",
+  "aliases": [],
+  "allergens": [
+   "gluten",
+   "egg"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 138,
+   "protein_g": 4.5,
+   "carbs_g": 25,
+   "fat_g": 2.1
+  }
+ },
+ {
+  "name": "couscous",
+  "category": "grain",
+  "aliases": [],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 112,
+   "protein_g": 3.8,
+   "carbs_g": 23,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "bread",
+  "category": "grain",
+  "aliases": [
+   "sourdough",
+   "buns"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "slice",
+  "grams_per_unit": 40,
+  "per_100g": {
+   "calories": 265,
+   "protein_g": 9,
+   "carbs_g": 49,
+   "fat_g": 3.2
+  }
+ },
+ {
+  "name": "tortillas",
+  "category": "grain",
+  "aliases": [
+   "wraps"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 45,
+  "per_100g": {
+   "calories": 306,
+   "protein_g": 8.2,
+   "carbs_g": 49,
+   "fat_g": 7.7
+  }
+ },
+ {
+  "name": "oats",
+  "category": "grain",
+  "aliases": [
+   "rolled oats"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 389,
+   "protein_g": 17,
+   "carbs_g": 66,
+   "fat_g": 7
+  }
+ },
+ {
+  "name": "flour",
+  "category": "grain",
+  "aliases": [
+   "all-purpose flour"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 364,
+   "protein_g": 10,
+   "carbs_g": 76,
+   "fat_g": 1
+  }
+ },
+ {
+  "name": "potatoes",
+  "category": "starch",
+  "aliases": [
+   "potato"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 77,
+   "protein_g": 2,
+   "carbs_g": 17,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "sweet potato",
+  "category": "starch",
+  "aliases": [
+   "sweet potatoes"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 86,
+   "protein_g": 1.6,
+   "carbs_g": 20,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "tomato",
+  "category": "vegetable",
+  "aliases": [
+   "tomatoes",
+   "cherry tomatoes"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 120,
+  "per_100g": {
+   "calories": 18,
+   "protein_g": 0.9,
+   "carbs_g": 3.9,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "garlic",
+  "category": "vegetable",
+  "aliases": [
+   "garlic cloves"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "clove",
+  "grams_per_unit": 5,
+  "per_100g": {
+   "calories": 149,
+   "protein_g": 6.4,
+   "carbs_g": 33,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "onion",
+  "category": "vegetable",
+  "aliases": [
+   "yellow onion",
+   "onions"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 110,
+  "per_100g": {
+   "calories": 40,
+   "protein_g": 1.1,
+   "carbs_g": 9.3,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "red onion",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 110,
+  "per_100g": {
+   "calories": 40,
+   "protein_g": 1.1,
+   "carbs_g": 9.3,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "bell pepper",
+  "category": "vegetable",
+  "aliases": [
+   "capsicum",
+   "red pepper"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 120,
+  "per_100g": {
+   "calories": 31,
+   "protein_g": 1,
+   "carbs_g": 6,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "zucchini",
+  "category": "vegetable",
+  "aliases": [
+   "courgette"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 200,
+  "per_100g": {
+   "calories": 17,
+   "protein_g": 1.2,
+   "carbs_g": 3.1,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "spinach",
+  "category": "vegetable",
+  "aliases": [
+   "baby spinach"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 23,
+   "protein_g": 2.9,
+   "carbs_g": 3.6,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "kale",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 49,
+   "protein_g": 4.3,
+   "carbs_g": 8.8,
+   "fat_g": 0.9
+  }
+ },
+ {
+  "name": "broccoli",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 34,
+   "protein_g": 2.8,
+   "carbs_g": 6.6,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "carrot",
+  "category": "vegetable",
+  "aliases": [
+   "carrots"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 60,
+  "per_100g": {
+   "calories": 41,
+   "protein_g": 0.9,
+   "carbs_g": 9.6,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "celery",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "stalk",
+  "grams_per_unit": 40,
+  "per_100g": {
+   "calories": 16,
+   "protein_g": 0.7,
+   "carbs_g": 3,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "mushroom",
+  "category": "vegetable",
+  "aliases": [
+   "mushrooms",
+   "cremini"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 22,
+   "protein_g": 3.1,
+   "carbs_g": 3.3,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "green beans",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 31,
+   "protein_g": 1.8,
+   "carbs_g": 7,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "peas",
+  "category": "vegetable",
+  "aliases": [
+   "frozen peas"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 81,
+   "protein_g": 5.4,
+   "carbs_g": 14,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "corn",
+  "category": "vegetable",
+  "aliases": [
+   "sweet corn"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 86,
+   "protein_g": 3.3,
+   "carbs_g": 19,
+   "fat_g": 1.4
+  }
+ },
+ {
+  "name": "cucumber",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 200,
+  "per_100g": {
+   "calories": 15,
+   "protein_g": 0.7,
+   "carbs_g": 3.6,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "lettuce",
+  "category": "vegetable",
+  "aliases": [
+   "romaine"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 15,
+   "protein_g": 1.4,
+   "carbs_g": 2.9,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "avocado",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 150,
+  "per_100g": {
+   "calories": 160,
+   "protein_g": 2,
+   "carbs_g": 8.5,
+   "fat_g": 15
+  }
+ },
+ {
+  "name": "cauliflower",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 25,
+   "protein_g": 1.9,
+   "carbs_g": 5,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "eggplant",
+  "category": "vegetable",
+  "aliases": [
+   "aubergine"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 300,
+  "per_100g": {
+   "calories": 25,
+   "protein_g": 1,
+   "carbs_g": 5.9,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "scallion",
+  "category": "vegetable",
+  "aliases": [
+   "green onion",
+   "spring onion"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 15,
+  "per_100g": {
+   "calories": 32,
+   "protein_g": 1.8,
+   "carbs_g": 7.3,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "ginger",
+  "category": "vegetable",
+  "aliases": [
+   "fresh ginger"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 80,
+   "protein_g": 1.8,
+   "carbs_g": 18,
+   "fat_g": 0.8
+  }
+ },
+ {
+  "name": "cabbage",
+  "category": "vegetable",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 25,
+   "protein_g": 1.3,
+   "carbs_g": 5.8,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "basil",
+  "category": "herb",
+  "aliases": [
+   "fresh basil"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 23,
+   "protein_g": 3.2,
+   "carbs_g": 2.7,
+   "fat_g": 0.6
+  }
+ },
+ {
+  "name": "cilantro",
+  "category": "herb",
+  "aliases": [
+   "coriander",
+   "fresh coriander"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 23,
+   "protein_g": 2.1,
+   "carbs_g": 3.7,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "parsley",
+  "category": "herb",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 36,
+   "protein_g": 3,
+   "carbs_g": 6.3,
+   "fat_g": 0.8
+  }
+ },
+ {
+  "name": "lemon",
+  "category": "fruit",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 60,
+  "per_100g": {
+   "calories": 29,
+   "protein_g": 1.1,
+   "carbs_g": 9.3,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "lime",
+  "category": "fruit",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 50,
+  "per_100g": {
+   "calories": 30,
+   "protein_g": 0.7,
+   "carbs_g": 11,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "banana",
+  "category": "fruit",
+  "aliases": [
+   "bananas"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "unit",
+  "grams_per_unit": 120,
+  "per_100g": {
+   "calories": 89,
+   "protein_g": 1.1,
+   "carbs_g": 23,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "butter",
+  "category": "dairy",
+  "aliases": [],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 717,
+   "protein_g": 0.9,
+   "carbs_g": 0.1,
+   "fat_g": 81
+  }
+ },
+ {
+  "name": "milk",
+  "category": "dairy",
+  "aliases": [
+   "whole milk"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "ml",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 61,
+   "protein_g": 3.2,
+   "carbs_g": 4.8,
+   "fat_g": 3.3
+  }
+ },
+ {
+  "name": "heavy cream",
+  "category": "dairy",
+  "aliases": [
+   "double cream"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "ml",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 340,
+   "protein_g": 2.1,
+   "carbs_g": 2.8,
+   "fat_g": 36
+  }
+ },
+ {
+  "name": "cheddar",
+  "category": "dairy",
+  "aliases": [
+   "cheddar cheese"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 403,
+   "protein_g": 25,
+   "carbs_g": 1.3,
+   "fat_g": 33
+  }
+ },
+ {
+  "name": "parmesan",
+  "category": "dairy",
+  "aliases": [
+   "parmesan cheese"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 431,
+   "protein_g": 38,
+   "carbs_g": 4.1,
+   "fat_g": 29
+  }
+ },
+ {
+  "name": "mozzarella",
+  "category": "dairy",
+  "aliases": [],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 280,
+   "protein_g": 28,
+   "carbs_g": 3.1,
+   "fat_g": 17
+  }
+ },
+ {
+  "name": "feta",
+  "category": "dairy",
+  "aliases": [
+   "feta cheese"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 264,
+   "protein_g": 14,
+   "carbs_g": 4.1,
+   "fat_g": 21
+  }
+ },
+ {
+  "name": "greek yogurt",
+  "category": "dairy",
+  "aliases": [
+   "yogurt"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 59,
+   "protein_g": 10,
+   "carbs_g": 3.6,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "cream cheese",
+  "category": "dairy",
+  "aliases": [],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 342,
+   "protein_g": 6.2,
+   "carbs_g": 4.1,
+   "fat_g": 34
+  }
+ },
+ {
+  "name": "olive oil",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 14,
+  "per_100g": {
+   "calories": 884,
+   "protein_g": 0,
+   "carbs_g": 0,
+   "fat_g": 100
+  }
+ },
+ {
+  "name": "vegetable oil",
+  "category": "pantry",
+  "aliases": [
+   "canola oil"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 14,
+  "per_100g": {
+   "calories": 884,
+   "protein_g": 0,
+   "carbs_g": 0,
+   "fat_g": 100
+  }
+ },
+ {
+  "name": "sesame oil",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [
+   "sesame"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 14,
+  "per_100g": {
+   "calories": 884,
+   "protein_g": 0,
+   "carbs_g": 0,
+   "fat_g": 100
+  }
+ },
+ {
+  "name": "soy sauce",
+  "category": "sauce",
+  "aliases": [],
+  "allergens": [
+   "soy",
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 16,
+  "per_100g": {
+   "calories": 53,
+   "protein_g": 8.1,
+   "carbs_g": 4.9,
+   "fat_g": 0.6
+  }
+ },
+ {
+  "name": "coconut milk",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "ml",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 230,
+   "protein_g": 2.3,
+   "carbs_g": 5.5,
+   "fat_g": 24
+  }
+ },
+ {
+  "name": "curry paste",
+  "category": "sauce",
+  "aliases": [
+   "thai curry paste"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 20,
+  "per_100g": {
+   "calories": 120,
+   "protein_g": 2,
+   "carbs_g": 12,
+   "fat_g": 7
+  }
+ },
+ {
+  "name": "curry powder",
+  "category": "spice",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 3,
+  "per_100g": {
+   "calories": 325,
+   "protein_g": 14,
+   "carbs_g": 56,
+   "fat_g": 14
+  }
+ },
+ {
+  "name": "cumin",
+  "category": "spice",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 3,
+  "per_100g": {
+   "calories": 375,
+   "protein_g": 18,
+   "carbs_g": 44,
+   "fat_g": 22
+  }
+ },
+ {
+  "name": "paprika",
+  "category": "spice",
+  "aliases": [
+   "smoked paprika"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 3,
+  "per_100g": {
+   "calories": 282,
+   "protein_g": 14,
+   "carbs_g": 54,
+   "fat_g": 13
+  }
+ },
+ {
+  "name": "chili flakes",
+  "category": "spice",
+  "aliases": [
+   "red pepper flakes"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 2,
+  "per_100g": {
+   "calories": 318,
+   "protein_g": 12,
+   "carbs_g": 57,
+   "fat_g": 17
+  }
+ },
+ {
+  "name": "oregano",
+  "category": "spice",
+  "aliases": [
+   "dried oregano"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 2,
+  "per_100g": {
+   "calories": 265,
+   "protein_g": 9,
+   "carbs_g": 69,
+   "fat_g": 4.3
+  }
+ },
+ {
+  "name": "thyme",
+  "category": "spice",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 2,
+  "per_100g": {
+   "calories": 276,
+   "protein_g": 9.1,
+   "carbs_g": 64,
+   "fat_g": 7.4
+  }
+ },
+ {
+  "name": "black pepper",
+  "category": "spice",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 3,
+  "per_100g": {
+   "calories": 251,
+   "protein_g": 10,
+   "carbs_g": 64,
+   "fat_g": 3.3
+  }
+ },
+ {
+  "name": "salt",
+  "category": "spice",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 6,
+  "per_100g": {
+   "calories": 0,
+   "protein_g": 0,
+   "carbs_g": 0,
+   "fat_g": 0
+  }
+ },
+ {
+  "name": "vinegar",
+  "category": "pantry",
+  "aliases": [
+   "rice vinegar"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 15,
+  "per_100g": {
+   "calories": 18,
+   "protein_g": 0,
+   "carbs_g": 0.9,
+   "fat_g": 0
+  }
+ },
+ {
+  "name": "honey",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 21,
+  "per_100g": {
+   "calories": 304,
+   "protein_g": 0.3,
+   "carbs_g": 82,
+   "fat_g": 0
+  }
+ },
+ {
+  "name": "maple syrup",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 20,
+  "per_100g": {
+   "calories": 260,
+   "protein_g": 0,
+   "carbs_g": 67,
+   "fat_g": 0
+  }
+ },
+ {
+  "name": "sugar",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 12,
+  "per_100g": {
+   "calories": 387,
+   "protein_g": 0,
+   "carbs_g": 100,
+   "fat_g": 0
+  }
+ },
+ {
+  "name": "tomato paste",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 16,
+  "per_100g": {
+   "calories": 82,
+   "protein_g": 4.3,
+   "carbs_g": 19,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "canned tomatoes",
+  "category": "pantry",
+  "aliases": [
+   "crushed tomatoes",
+   "diced tomatoes"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 18,
+   "protein_g": 0.9,
+   "carbs_g": 3.9,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "vegetable broth",
+  "category": "pantry",
+  "aliases": [
+   "vegetable stock"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "ml",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 5,
+   "protein_g": 0.2,
+   "carbs_g": 1,
+   "fat_g": 0
+  }
+ },
+ {
+  "name": "chicken broth",
+  "category": "pantry",
+  "aliases": [
+   "chicken stock"
+  ],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "ml",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 7,
+   "protein_g": 0.6,
+   "carbs_g": 0.9,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "peanut butter",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [
+   "nuts"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 16,
+  "per_100g": {
+   "calories": 588,
+   "protein_g": 25,
+   "carbs_g": 20,
+   "fat_g": 50
+  }
+ },
+ {
+  "name": "peanuts",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [
+   "nuts"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 567,
+   "protein_g": 26,
+   "carbs_g": 16,
+   "fat_g": 49
+  }
+ },
+ {
+  "name": "cashews",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [
+   "nuts"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 553,
+   "protein_g": 18,
+   "carbs_g": 30,
+   "fat_g": 44
+  }
+ },
+ {
+  "name": "almonds",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [
+   "nuts"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 579,
+   "protein_g": 21,
+   "carbs_g": 22,
+   "fat_g": 50
+  }
+ },
+ {
+  "name": "walnuts",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [
+   "nuts"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1,
+  "per_100g": {
+   "calories": 654,
+   "protein_g": 15,
+   "carbs_g": 14,
+   "fat_g": 65
+  }
+ },
+ {
+  "name": "tahini",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [
+   "sesame"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 15,
+  "per_100g": {
+   "calories": 595,
+   "protein_g": 17,
+   "carbs_g": 21,
+   "fat_g": 54
+  }
+ }
+]
