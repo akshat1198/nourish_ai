@@ -45,6 +45,11 @@ class LLMClient:
             )
         return self._client
 
+    def raw(self):
+        """The underlying anthropic.Anthropic client (for the agent loop, which
+        needs direct messages.create/parse access). Raises LLMError if disabled."""
+        return self._ensure()
+
     def generate(
         self, messages: list[dict], *, model: Optional[str] = None, max_tokens: int = 1024
     ) -> str:
