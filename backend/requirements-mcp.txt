@@ -1,0 +1,13 @@
+# MCP server deps — the tool registry WITHOUT FastAPI (avoids the mcp<->starlette
+# conflict). Enough to import app.agent.tools + app.db and run search_recipes.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+pydantic==2.11.7
+pydantic-settings==2.10.1
+SQLAlchemy==2.0.43
+psycopg2-binary==2.9.10
+pgvector==0.3.6
+numpy==1.26.4
+torch==2.2.2
+sentence-transformers==5.1.0
+mcp==1.13.0

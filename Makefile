@@ -30,3 +30,12 @@ psql:
 
 redis:
 	@docker exec -it pantryplate-redis redis-cli
+
+# MCP server (Stage 4.1) — separate image (no FastAPI), spawned by MCP clients.
+mcp-build:
+	@docker build -f backend/Dockerfile.mcp -t nourish-mcp backend
+
+mcp-verify:
+	@docker run --rm --network nourish_ai_default \
+		-e DATABASE_URL='postgresql+psycopg2://pantry:pantrypw@db:5432/pantrydb' \
+		nourish-mcp python scripts/verify_mcp.py

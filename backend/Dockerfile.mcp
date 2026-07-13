@@ -1,0 +1,21 @@
+# MCP server image — the tool registry over stdio, without FastAPI.
+# Built separately from the API image so mcp's starlette requirement can't
+# clash with FastAPI's. Spawned on demand by an MCP client (Claude Desktop).
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+COPY requirements-mcp.txt .
+RUN pip install --no-cache-dir -r requirements-mcp.txt
+
+# Pre-bake the embedding model so search_recipes works offline and fast.
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
+COPY app ./app
+COPY scripts ./scripts
+
+# stdio server — the client attaches over stdin/stdout.
+CMD ["python", "-m", "app.mcp_server"]
