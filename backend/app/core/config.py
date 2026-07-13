@@ -26,5 +26,9 @@ class Settings(BaseSettings):
     # Recommendation cache (RETR-04)
     CACHE_TTL_SECONDS: int = 300
 
+    # Low-confidence fallback (RETR-05): if the top recipe covers fewer than
+    # this fraction of its essential ingredients, switch to a fallback mode.
+    FALLBACK_COVERAGE_THRESHOLD: float = 0.34
+
 
 settings = Settings()

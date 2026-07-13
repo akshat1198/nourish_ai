@@ -6,6 +6,7 @@ from app.api.deps import get_session
 from app.schemas.recommend import RecommendRequest, RecommendResponse
 from app.services.cache import get_cached, recommend_key, set_cached
 from app.services.embedder import get_embedder
+from app.services.fallback import apply_fallback
 from app.services.ingredients import resolve_pantry
 from app.services.pantry_text import parse_pantry_text
 from app.services.ranking import annotate, rank
@@ -48,7 +49,9 @@ def recommend(
             max_time=req.max_time_minutes,
             limit=CANDIDATE_POOL,
         )
-        results = annotate(candidates, limit=req.limit)
+        # Rank the full pool; apply_fallback trims to req.limit (it may need the
+        # wider pool to find swap-eligible recipes).
+        pool = annotate(candidates, limit=CANDIDATE_POOL)
     else:
         candidates = fetch_candidates(
             session,
@@ -58,9 +61,17 @@ def recommend(
             max_time=req.max_time_minutes,
             limit=CANDIDATE_POOL,
         )
-        results = rank(candidates, limit=req.limit)
+        pool = rank(candidates, limit=CANDIDATE_POOL)
 
-    payload = RecommendResponse(results=results, unmatched_pantry=resolved.unmatched)
+    fb_mode, explanation, results = apply_fallback(
+        session, pool, resolved.ingredient_ids, limit=req.limit
+    )
+    payload = RecommendResponse(
+        results=results,
+        mode=fb_mode,
+        explanation=explanation,
+        unmatched_pantry=resolved.unmatched,
+    )
     set_cached(key, payload.model_dump())
     response.headers["X-Cache"] = "miss"
     return payload
