@@ -51,3 +51,21 @@ def test_limit_trims_results():
         for i in range(10)
     ]
     assert len(rank(cands, limit=3)) == 3
+
+
+def test_disliked_recipe_sinks_below_clean_but_remains():
+    # 'Bad' has the BEST base fit but is disliked; 'OK' is a weaker clean match.
+    bad = _candidate("Bad", matched_ess=3, total_ess=3, matched=["x", "y", "z"], missing=[])
+    ok = _candidate("OK", matched_ess=1, total_ess=3, matched=["x"], missing=["y", "z"])
+    ranked = rank([bad, ok], limit=10, disliked_ids={bad.id})
+    assert [r.title for r in ranked] == ["OK", "Bad"]  # disliked sank beneath clean
+    assert ranked[-1].title == "Bad"                    # but is still present
+    assert ranked[-1].score < ranked[0].score
+    assert "dislike" in ranked[-1].why                  # and the demotion is explained
+
+
+def test_no_disliked_ids_leaves_ranking_unchanged():
+    a = _candidate("A", matched_ess=3, total_ess=3, matched=["x", "y", "z"], missing=[])
+    b = _candidate("B", matched_ess=1, total_ess=3, matched=["x"], missing=["y", "z"])
+    assert [r.title for r in rank([a, b], limit=10)] == ["A", "B"]
+    assert [r.title for r in rank([a, b], limit=10, disliked_ids=set())] == ["A", "B"]

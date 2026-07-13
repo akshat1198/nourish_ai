@@ -24,9 +24,9 @@ from app.agent.tools import anthropic_tools, call_tool
 from app.agent.tracing import persist_trace
 from app.agent.validator import validate_plan
 from app.core.config import settings
-from app.models import GenerationEvent
+from app.models import GenerationEvent, Recipe
 from app.schemas.agent import AgentRequest, AgentResult, MealPlanItem, MealPlanResponse
-from app.services.ingredients import resolve_pantry
+from app.services.ingredients import normalize, resolve_pantry
 from app.services.ranking import rank
 from app.services.retrieval import fetch_candidates
 
@@ -102,9 +102,28 @@ def _parse_plan(client, system: str, messages: list[dict]):
         return None, 0, 0
 
 
+def _disliked_recipe_ids(session, candidates, disliked_ingredients: list[str]) -> set[int]:
+    """Which candidate recipes contain a disliked ingredient (retrieval can't
+    filter these, so ranking demotes them instead — see rank())."""
+    disliked = {normalize(d) for d in disliked_ingredients}
+    if not disliked:
+        return set()
+    hits: set[int] = set()
+    for c in candidates:
+        recipe = session.get(Recipe, c.id)
+        if recipe is None:
+            continue
+        names = {normalize(i["name"]) for i in (recipe.ingredients or [])}
+        if disliked & names:
+            hits.add(c.id)
+    return hits
+
+
 def deterministic_plan(session: Session, request: AgentRequest) -> MealPlanResponse:
     """Constraint-clean fallback: SQL retrieval applies the hard filters, so the
-    resulting plan can never violate diet/allergen/time."""
+    resulting plan can never violate diet/allergen/time. Disliked ingredients
+    aren't a hard filter (they're a soft preference), so instead of excluding
+    them we demote them in ranking — they surface only if nothing clean fits."""
     resolved = resolve_pantry(session, request.pantry)
     candidates = fetch_candidates(
         session,
@@ -114,7 +133,8 @@ def deterministic_plan(session: Session, request: AgentRequest) -> MealPlanRespo
         max_time=request.max_time_minutes,
         limit=50,
     )
-    ranked = rank(candidates, limit=request.limit)
+    disliked_ids = _disliked_recipe_ids(session, candidates, request.disliked_ingredients)
+    ranked = rank(candidates, limit=request.limit, disliked_ids=disliked_ids)
     items = [MealPlanItem(recipe_id=r.id, title=r.title, why=r.why) for r in ranked]
     return MealPlanResponse(
         recipes=items,

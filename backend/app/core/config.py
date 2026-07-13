@@ -19,11 +19,15 @@ class Settings(BaseSettings):
 
     # Ranking weights (RETR-03). Bump RANKING_VERSION on any change so the
     # recommendation cache (RETR-04) invalidates.
-    RANKING_VERSION: str = "v1"
+    RANKING_VERSION: str = "v2"  # v2: soft dislike penalty
     RANK_W_COVERAGE: float = 0.6  # reward covering essential ingredients
     RANK_W_MISSING: float = 0.3  # penalize missing ingredients
     RANK_W_TIME: float = 0.1  # reward fitting the time budget
     RANK_TIME_REFERENCE: int = 60  # minutes; time_fit = 1 - time/reference (clamped)
+    # Soft demotion for a disliked ingredient: large enough to dominate the base
+    # score span (~[-0.3, 0.7]) so disliked recipes sink beneath every clean one,
+    # but they stay in the list — chosen only if nothing clean fits.
+    RANK_W_DISLIKE: float = 1.0
 
     # Recommendation cache (RETR-04)
     CACHE_TTL_SECONDS: int = 300

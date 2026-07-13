@@ -20,7 +20,7 @@ from app.core.config import settings
 from app.schemas.recommend import RankedRecipe, RecipeCandidate
 
 
-def _score(candidate: RecipeCandidate) -> float:
+def _score(candidate: RecipeCandidate, disliked_ids: set[int] | None = None) -> float:
     coverage = (
         candidate.matched_essential / candidate.total_essential
         if candidate.total_essential
@@ -33,11 +33,15 @@ def _score(candidate: RecipeCandidate) -> float:
     time_fit = 1 - candidate.time_minutes / settings.RANK_TIME_REFERENCE
     time_fit = max(0.0, min(1.0, time_fit))
 
-    return (
+    score = (
         settings.RANK_W_COVERAGE * coverage
         - settings.RANK_W_MISSING * missing_norm
         + settings.RANK_W_TIME * time_fit
     )
+    # Soft demotion: sink disliked recipes beneath clean ones without removing them.
+    if disliked_ids and candidate.id in disliked_ids:
+        score -= settings.RANK_W_DISLIKE
+    return score
 
 
 def _why(candidate: RecipeCandidate) -> str:
@@ -60,13 +64,26 @@ def _why(candidate: RecipeCandidate) -> str:
     return "; ".join(parts)
 
 
-def _to_ranked(c: RecipeCandidate) -> RankedRecipe:
-    return RankedRecipe(**c.model_dump(), score=round(_score(c), 4), why=_why(c))
+def _to_ranked(c: RecipeCandidate, disliked_ids: set[int] | None = None) -> RankedRecipe:
+    why = _why(c)
+    if disliked_ids and c.id in disliked_ids:
+        why += "; deprioritized (contains an ingredient you dislike)"
+    return RankedRecipe(**c.model_dump(), score=round(_score(c, disliked_ids), 4), why=why)
 
 
-def rank(candidates: list[RecipeCandidate], *, limit: int) -> list[RankedRecipe]:
-    """Score, then re-order by score (SQL path)."""
-    ranked = [_to_ranked(c) for c in candidates]
+def rank(
+    candidates: list[RecipeCandidate],
+    *,
+    limit: int,
+    disliked_ids: set[int] | None = None,
+) -> list[RankedRecipe]:
+    """Score, then re-order by score (SQL path).
+
+    `disliked_ids` (recipe ids containing a disliked ingredient) get a soft
+    penalty so they sink to the bottom but remain — picked only if nothing clean
+    fits. Omitted => behaviour is identical to before.
+    """
+    ranked = [_to_ranked(c, disliked_ids) for c in candidates]
     ranked.sort(key=lambda r: r.score, reverse=True)
     return ranked[:limit]
 
