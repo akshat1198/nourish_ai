@@ -46,6 +46,9 @@ class FakeClient:
 
 @pytest.fixture(autouse=True)
 def stub_tools(monkeypatch):
+    """Stub the tools and (by default) the validator so these tests exercise the
+    LOOP, not tool execution or DB-backed validation. Repair tests override
+    validate_plan with their own sequence."""
     calls = []
 
     def fake_call_tool(session, name, tool_input):
@@ -53,6 +56,7 @@ def stub_tools(monkeypatch):
         return {"ok": True, "name": name}
 
     monkeypatch.setattr(loop_mod, "call_tool", fake_call_tool)
+    monkeypatch.setattr(loop_mod, "validate_plan", lambda session, plan, req: [])
     return calls
 
 
@@ -145,3 +149,60 @@ def test_tool_error_becomes_is_error_result(monkeypatch):
         if isinstance(b, dict) and b.get("type") == "tool_result"
     ]
     assert all_blocks and all_blocks[0]["is_error"] is True
+
+
+# --------------------------------------------------------------------------- #
+# Validation + repair (LLM-04/05)
+# --------------------------------------------------------------------------- #
+def _bad_plan():
+    return MealPlanResponse(
+        recipes=[MealPlanItem(recipe_id=99, title="Creamy Dairy Pasta", why="tasty")],
+        summary="oops, dairy",
+    )
+
+
+def test_repair_turn_fixes_violation(monkeypatch):
+    # end_turn immediately -> first parse gives a BAD plan (dairy), validator
+    # flags it, one repair turn returns a GOOD plan.
+    creates = [_resp("end_turn", [_text("here")])]
+    client = FakeClient(creates, None)
+    # parse returns bad first, then good.
+    plans = iter([_bad_plan(), _plan()])
+    client.messages.parse = lambda **kw: SimpleNamespace(parsed_output=next(plans))
+    # validator: violations for the bad plan, clean for the good one.
+    verdicts = iter([[{"recipe_id": 99, "type": "allergen", "detail": "dairy"}], []])
+    monkeypatch.setattr(loop_mod, "validate_plan", lambda s, p, r: next(verdicts))
+
+    result = loop_mod.run_agent(
+        session=None, request=AgentRequest(pantry=["pasta"], exclude_allergens=["dairy"]),
+        client=client,
+    )
+    assert result.repaired is True
+    assert result.degraded is False
+    assert result.violations == []
+    assert result.plan.recipes[0].recipe_id == 1
+
+
+def test_repairs_exhausted_falls_back(monkeypatch):
+    creates = [_resp("end_turn", [_text("here")])]
+    client = FakeClient(creates, _bad_plan())  # parse always returns the bad plan
+    # validator always flags a violation -> repairs exhausted -> deterministic fallback.
+    monkeypatch.setattr(
+        loop_mod, "validate_plan",
+        lambda s, p, r: [{"recipe_id": 99, "type": "allergen", "detail": "dairy"}],
+    )
+    monkeypatch.setattr(
+        loop_mod, "deterministic_plan",
+        lambda s, r: MealPlanResponse(
+            recipes=[MealPlanItem(recipe_id=1, title="Safe Salad", why="deterministic")],
+            summary="fallback",
+        ),
+    )
+    result = loop_mod.run_agent(
+        session=None, request=AgentRequest(pantry=["pasta"], exclude_allergens=["dairy"]),
+        client=client,
+    )
+    assert result.degraded is True
+    assert result.repaired is True
+    assert result.violations  # the unresolved violation is reported
+    assert result.plan.recipes[0].title == "Safe Salad"  # deterministic fallback

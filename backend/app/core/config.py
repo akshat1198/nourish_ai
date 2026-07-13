@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     LLM_MODEL_FAST: str = "claude-haiku-4-5"  # cheap/fast (pantry-text parsing)
     LLM_MODEL_JUDGE: str = "claude-opus-4-8"  # offline eval judge only
     LLM_TIMEOUT_SECONDS: float = 20.0
+    PROMPT_VERSION: str = "v1"  # logged per run; real versioning in 3.4
+    REPAIR_MAX_ATTEMPTS: int = 2  # LLM-05: repair turns before deterministic fallback
 
     # Ranking weights (RETR-03). Bump RANKING_VERSION on any change so the
     # recommendation cache (RETR-04) invalidates.

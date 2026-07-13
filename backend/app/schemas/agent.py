@@ -31,7 +31,11 @@ class MealPlanResponse(BaseModel):
 class AgentResult(BaseModel):
     plan: Optional[MealPlanResponse] = None
     degraded: bool = Field(
-        False, description="True when the agent couldn't produce a validated plan"
+        False, description="True when a validated agent plan couldn't be produced (fell back)"
+    )
+    repaired: bool = Field(False, description="True if a repair turn was needed")
+    violations: list[dict] = Field(
+        default_factory=list, description="Unresolved constraint violations (empty when clean)"
     )
     stop_reason: str
     iterations: int
