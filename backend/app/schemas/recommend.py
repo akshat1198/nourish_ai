@@ -17,6 +17,10 @@ class RecommendRequest(BaseModel):
     exclude_allergens: list[str] = Field(
         default_factory=list, description="Allergens to exclude, e.g. dairy, gluten, nuts"
     )
+    disliked_ingredients: list[str] = Field(
+        default_factory=list,
+        description="Soft preference: recipes containing these are demoted (not excluded)",
+    )
     max_time_minutes: Optional[int] = Field(None, ge=0)
     limit: int = Field(10, ge=1, le=50)
 

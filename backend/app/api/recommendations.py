@@ -7,7 +7,7 @@ from app.schemas.recommend import RecommendRequest, RecommendResponse
 from app.services.cache import get_cached, recommend_key, set_cached
 from app.services.embedder import get_embedder
 from app.services.fallback import apply_fallback
-from app.services.ingredients import resolve_pantry
+from app.services.ingredients import disliked_recipe_ids, resolve_pantry
 from app.services.pantry_text import parse_pantry_text
 from app.services.ranking import annotate, rank
 from app.services.retrieval import fetch_candidates, fetch_hybrid
@@ -49,9 +49,14 @@ def recommend(
             max_time=req.max_time_minutes,
             limit=CANDIDATE_POOL,
         )
+        # Disliked ingredients aren't hard-filtered by retrieval (soft preference);
+        # demote them in ranking so they sink but remain if nothing clean fits.
+        disliked_ids = disliked_recipe_ids(
+            session, [c.id for c in candidates], req.disliked_ingredients
+        )
         # Rank the full pool; apply_fallback trims to req.limit (it may need the
         # wider pool to find swap-eligible recipes).
-        pool = annotate(candidates, limit=CANDIDATE_POOL)
+        pool = annotate(candidates, limit=CANDIDATE_POOL, disliked_ids=disliked_ids)
     else:
         candidates = fetch_candidates(
             session,
@@ -61,10 +66,13 @@ def recommend(
             max_time=req.max_time_minutes,
             limit=CANDIDATE_POOL,
         )
-        pool = rank(candidates, limit=CANDIDATE_POOL)
+        disliked_ids = disliked_recipe_ids(
+            session, [c.id for c in candidates], req.disliked_ingredients
+        )
+        pool = rank(candidates, limit=CANDIDATE_POOL, disliked_ids=disliked_ids)
 
     fb_mode, explanation, results = apply_fallback(
-        session, pool, resolved.ingredient_ids, limit=req.limit
+        session, pool, resolved.ingredient_ids, limit=req.limit, disliked_ids=disliked_ids
     )
     payload = RecommendResponse(
         results=results,

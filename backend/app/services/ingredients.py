@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Ingredient
+from app.models import Ingredient, Recipe
 
 
 def normalize(name: str) -> str:
@@ -75,3 +75,26 @@ def resolve_pantry(session: Session, raw_names: list[str]) -> ResolvedPantry:
             matched[ing_id] = id_to_name[ing_id]
 
     return ResolvedPantry(ingredient_ids=ids, matched_names=matched, unmatched=unmatched)
+
+
+def disliked_recipe_ids(
+    session: Session, recipe_ids: list[int], disliked_ingredients: list[str]
+) -> set[int]:
+    """Which of these recipes contain a disliked ingredient.
+
+    Dislikes aren't a hard retrieval filter (they're a soft preference), so
+    ranking demotes these ids rather than excluding them. Shared by the agent
+    fallback and the /recommendations endpoint so both tiers behave the same.
+    """
+    disliked = {normalize(d) for d in disliked_ingredients}
+    if not disliked or not recipe_ids:
+        return set()
+    rows = session.execute(
+        select(Recipe.id, Recipe.ingredients).where(Recipe.id.in_(recipe_ids))
+    ).all()
+    hits: set[int] = set()
+    for rid, ingredients in rows:
+        names = {normalize(i["name"]) for i in (ingredients or [])}
+        if disliked & names:
+            hits.add(rid)
+    return hits

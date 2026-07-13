@@ -29,6 +29,7 @@ def recommend_key(payload: dict) -> str:
         "pantry_text": (payload.get("pantry_text") or "").strip().lower(),
         "diet": payload.get("diet"),
         "exclude_allergens": sorted(payload.get("exclude_allergens") or []),
+        "disliked_ingredients": sorted(payload.get("disliked_ingredients") or []),
         "max_time_minutes": payload.get("max_time_minutes"),
         "limit": payload.get("limit"),
         "mode": payload.get("mode", "hybrid"),

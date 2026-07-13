@@ -81,13 +81,17 @@ def apply_fallback(
     pantry_ids: Iterable[int],
     *,
     limit: int = 50,
+    disliked_ids: Optional[set[int]] = None,
 ) -> tuple[str, Optional[str], list[RankedRecipe]]:
     """Classify confidence and return (mode, explanation, results[:limit]).
 
     `ranked` should be the WIDE candidate pool (not pre-trimmed to `limit`), so
     the substitution search can reach low-coverage-but-swappable recipes that
-    fall outside the top-`limit`.
+    fall outside the top-`limit`. `disliked_ids` keeps the soft dislike demotion
+    intact through the substitution_first re-sort (a disliked recipe shouldn't
+    jump the queue just because it's swap-enabled).
     """
+    disliked_ids = disliked_ids or set()
     threshold = settings.FALLBACK_COVERAGE_THRESHOLD
     top_cov = _coverage(ranked[0]) if ranked else 0.0
     if ranked and top_cov >= threshold:
@@ -97,8 +101,12 @@ def apply_fallback(
     sugg = substitution_suggestions(session, [r.id for r in ranked], pantry_ids)
     if sugg:
         enriched = [r.model_copy(update={"substitutions": sugg.get(r.id, [])}) for r in ranked]
-        # Swap-enabled recipes first (then by score), so they surface into top-`limit`.
-        enriched.sort(key=lambda r: (len(r.substitutions), r.score), reverse=True)
+        # Clean before disliked, then swap-enabled first, then by score — so a
+        # disliked recipe never outranks a clean one just for being swappable.
+        enriched.sort(
+            key=lambda r: (r.id not in disliked_ids, len(r.substitutions), r.score),
+            reverse=True,
+        )
         n = sum(1 for r in enriched if r.substitutions)
         return (
             "substitution_first",

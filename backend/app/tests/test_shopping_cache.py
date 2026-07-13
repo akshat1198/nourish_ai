@@ -29,6 +29,17 @@ def test_cache_key_distinguishes_mode():
     assert recommend_key({**base, "mode": "sql"}) != recommend_key({**base, "mode": "hybrid"})
 
 
+def test_cache_key_distinguishes_disliked_ingredients():
+    base = {"pantry": ["tomato"], "diet": None, "exclude_allergens": [],
+            "max_time_minutes": None, "limit": 5}
+    # a dislike changes ranking, so it must not share a cache entry
+    assert recommend_key(base) != recommend_key({**base, "disliked_ingredients": ["garlic"]})
+    # but order within the dislike set is irrelevant
+    assert recommend_key({**base, "disliked_ingredients": ["garlic", "onion"]}) == recommend_key(
+        {**base, "disliked_ingredients": ["onion", "garlic"]}
+    )
+
+
 @requires_db
 def test_shopping_list_aggregates_missing_across_recipes(session):
     # Two tomato/garlic pasta-family recipes; empty pantry -> everything missing,

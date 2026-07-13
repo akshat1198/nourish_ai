@@ -88,10 +88,21 @@ def rank(
     return ranked[:limit]
 
 
-def annotate(candidates: list[RecipeCandidate], *, limit: int) -> list[RankedRecipe]:
+def annotate(
+    candidates: list[RecipeCandidate],
+    *,
+    limit: int,
+    disliked_ids: set[int] | None = None,
+) -> list[RankedRecipe]:
     """Score + explain but PRESERVE incoming order (hybrid path keeps RRF order).
 
     `score` is the ingredient-fit score for display/explanation; ordering is the
-    caller's (fusion) relevance order, not re-sorted by score.
+    caller's (fusion) relevance order, not re-sorted by score. When `disliked_ids`
+    is given, disliked recipes are stably moved to the bottom (RRF order preserved
+    within the clean group and within the disliked group) — the fusion-order
+    analogue of rank()'s score penalty.
     """
-    return [_to_ranked(c) for c in candidates[:limit]]
+    ranked = [_to_ranked(c, disliked_ids) for c in candidates[:limit]]
+    if disliked_ids:
+        ranked.sort(key=lambda r: r.id in disliked_ids)  # stable: disliked sink last
+    return ranked

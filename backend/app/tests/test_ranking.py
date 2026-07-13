@@ -1,6 +1,6 @@
 """Ranking tests (RETR-03) — pure, no DB required."""
 from app.schemas.recommend import RecipeCandidate
-from app.services.ranking import rank
+from app.services.ranking import annotate, rank
 
 
 def _candidate(title, *, matched_ess, total_ess, matched, missing, time=30):
@@ -69,3 +69,21 @@ def test_no_disliked_ids_leaves_ranking_unchanged():
     b = _candidate("B", matched_ess=1, total_ess=3, matched=["x"], missing=["y", "z"])
     assert [r.title for r in rank([a, b], limit=10)] == ["A", "B"]
     assert [r.title for r in rank([a, b], limit=10, disliked_ids=set())] == ["A", "B"]
+
+
+def test_annotate_demotes_disliked_preserving_rrf_order_within_groups():
+    # incoming (RRF) order interleaves disliked (D) and clean (C): D1, C1, D2, C2
+    d1 = _candidate("D1", matched_ess=3, total_ess=3, matched=["x", "y", "z"], missing=[])
+    c1 = _candidate("C1", matched_ess=1, total_ess=3, matched=["x"], missing=["y", "z"])
+    d2 = _candidate("D2", matched_ess=2, total_ess=3, matched=["x", "y"], missing=["z"])
+    c2 = _candidate("C2", matched_ess=1, total_ess=3, matched=["x"], missing=["y", "z"])
+    out = annotate([d1, c1, d2, c2], limit=10, disliked_ids={d1.id, d2.id})
+    # clean first (original order kept), then disliked (original order kept)
+    assert [r.title for r in out] == ["C1", "C2", "D1", "D2"]
+
+
+def test_annotate_without_disliked_preserves_incoming_order():
+    # annotate must NOT re-sort by score when no dislikes (hybrid keeps RRF order)
+    strong = _candidate("Strong", matched_ess=3, total_ess=3, matched=["x", "y", "z"], missing=[])
+    weak = _candidate("Weak", matched_ess=1, total_ess=3, matched=["x"], missing=["y", "z"])
+    assert [r.title for r in annotate([weak, strong], limit=10)] == ["Weak", "Strong"]
