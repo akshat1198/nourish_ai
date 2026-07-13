@@ -1,12 +1,14 @@
-# NourishAI backend — runtime dependencies (intentional pins, py3.9–3.12 compatible)
-# Stage 4 will add: langgraph, langchain-anthropic, fastmcp
+# NourishAI backend — runtime dependencies (intentional pins, Python 3.12).
+# Local venv and the Docker image are both 3.12, so there's one dep set.
+# Stage 4 will add: langgraph, langchain-anthropic
 
 # CPU-only torch wheels keep the image lean on linux (Risk 1); on macOS pip
 # falls back to the platform wheel from PyPI automatically.
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Web/API
-fastapi==0.116.1
+# Web/API — fastapi 0.139 accepts starlette 1.x (same as mcp needs, so they
+# coexist; the old 0.116 pin was the source of the mcp<->fastapi clash).
+fastapi==0.139.0
 uvicorn[standard]==0.35.0
 pydantic==2.11.7
 pydantic-settings==2.10.1
@@ -28,3 +30,6 @@ pgvector==0.3.6
 
 # LLM (Stage 2.3) — Claude adapter
 anthropic==0.116.0
+
+# MCP server (Stage 4.1) — now in the main image (needs Python >=3.10, fastapi 0.139)
+mcp==1.13.0

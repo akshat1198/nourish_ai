@@ -5,10 +5,9 @@ to any MCP client (Claude Desktop, the MCP inspector). This is an EDGE ADAPTER:
 internal callers keep calling the plain Python functions; nothing is rerouted
 through MCP. stdio transport only, no auth (local dev tool).
 
-Run (inside the MCP image, on the compose network so `db` resolves):
-    docker run --rm -i --network nourish_ai_default \
-      -e DATABASE_URL=postgresql+psycopg2://pantry:pantrypw@db:5432/pantrydb \
-      nourish-mcp
+Runs on the same 3.12 venv as the app (needs the DB up for the tools to query):
+    cd backend && ../.venv/bin/python -m app.mcp_server
+See MCP.md for the Claude Desktop config.
 """
 from __future__ import annotations
 

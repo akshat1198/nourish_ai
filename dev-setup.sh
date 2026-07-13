@@ -41,11 +41,12 @@ if ! docker info > /dev/null 2>&1; then
 fi
 echo -e "${GREEN}✅ Docker is running${NC}"
 
-# Step 2: Check and create virtual environment
+# Step 2: Check and create virtual environment (Python 3.12, matching Docker)
 echo -e "${BLUE}🐍 Setting up Python virtual environment...${NC}"
+PYTHON312=$(command -v python3.12 || echo /opt/homebrew/opt/python@3.12/bin/python3.12)
 if [ ! -d ".venv" ]; then
-    echo -e "${YELLOW}📦 Creating virtual environment...${NC}"
-    python3 -m venv .venv
+    echo -e "${YELLOW}📦 Creating virtual environment (${PYTHON312})...${NC}"
+    "$PYTHON312" -m venv .venv || { echo -e "${RED}Need Python 3.12 (brew install python@3.12)${NC}"; exit 1; }
 fi
 
 # Activate virtual environment

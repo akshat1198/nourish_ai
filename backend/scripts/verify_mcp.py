@@ -10,17 +10,17 @@ works without needing the external inspector.
 import asyncio
 import json
 import os
+import sys
 
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
 
 async def main() -> None:
-    # stdio_client spawns the server with a restricted env by default; pass ours
-    # through so the server sees DATABASE_URL / HOME (model cache). In real
-    # Claude Desktop use, `docker run -e` sets these on the container directly.
+    # Spawn the SAME interpreter (this venv), and pass our env through — stdio_client
+    # otherwise restricts the subprocess env, dropping DATABASE_URL/HOME.
     params = StdioServerParameters(
-        command="python", args=["-m", "app.mcp_server"], env=dict(os.environ)
+        command=sys.executable, args=["-m", "app.mcp_server"], env=dict(os.environ)
     )
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:

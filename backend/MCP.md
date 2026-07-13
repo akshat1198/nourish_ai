@@ -6,48 +6,40 @@ client over stdio. It's an **edge adapter** over `app.agent.tools.TOOLS` — the
 app's internal callers still use the plain Python functions; nothing is
 rerouted through MCP.
 
-Built as a **separate image** (`Dockerfile.mcp`) without FastAPI, because the
-`mcp` package requires a newer `starlette` than FastAPI allows. Latest `mcp`,
-no conflict.
+Runs on the project's own venv (Python 3.12) — no separate image. `mcp` lives
+in the main `requirements.txt` alongside FastAPI (0.139, which accepts the same
+`starlette` `mcp` needs).
 
-## Build & verify
+## Verify
 
 ```sh
-make up            # DB must be running (the tools query it)
-make mcp-build     # builds the nourish-mcp image (torch + embedding model baked in)
-make mcp-verify    # spawns the server over stdio, lists + calls tools
+make up          # DB must be running (the tools query it)
+make mcp-verify  # spawns the server over stdio, lists + calls all-5 tools
 ```
 
 ## Use it from Claude Desktop
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`
+(the DB must be up — `make up`; the tools query `localhost:5432`):
 
 ```json
 {
   "mcpServers": {
     "nourishai": {
-      "command": "docker",
-      "args": [
-        "run", "--rm", "-i",
-        "--network", "nourish_ai_default",
-        "-e", "DATABASE_URL=postgresql+psycopg2://pantry:pantrypw@db:5432/pantrydb",
-        "nourish-mcp"
-      ]
+      "command": "/Applications/NourishAI/nourish_ai/.venv/bin/python",
+      "args": ["-m", "app.mcp_server"],
+      "cwd": "/Applications/NourishAI/nourish_ai/backend"
     }
   }
 }
 ```
 
 Restart Claude Desktop. The NourishAI tools appear in the tools menu; ask e.g.
-*"what can I cook with eggs and rice?"* and it will call `search_recipes`.
-
-**Requirements:** the compose stack must be up (`make up`) so the `db` service is
-reachable on `nourish_ai_default`, and the `nourish-mcp` image must be built.
+*"what can I cook with eggs and rice?"* and it calls `search_recipes`.
 
 ## Inspector (optional)
 
 ```sh
-npx @modelcontextprotocol/inspector \
-  docker run --rm -i --network nourish_ai_default \
-  -e DATABASE_URL='postgresql+psycopg2://pantry:pantrypw@db:5432/pantrydb' nourish-mcp
+cd backend
+npx @modelcontextprotocol/inspector ../.venv/bin/python -m app.mcp_server
 ```
