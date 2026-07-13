@@ -33,3 +33,7 @@ anthropic==0.116.0
 
 # MCP server (Stage 4.1) — now in the main image (needs Python >=3.10, fastapi 0.139)
 mcp==1.13.0
+
+# Multi-agent orchestration (Stage 4.2)
+langgraph==1.2.9
+langchain-anthropic==1.4.8

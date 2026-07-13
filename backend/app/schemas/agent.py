@@ -30,6 +30,22 @@ class MealPlanResponse(BaseModel):
     summary: str = Field(description="One or two sentences tying the plan together")
 
 
+class DraftPlan(BaseModel):
+    """recipe_planner's structured output (recipes only; supervisor adds the summary)."""
+
+    recipes: list[MealPlanItem]
+
+
+class OrchestrateResponse(BaseModel):
+    plan: Optional[MealPlanResponse] = None
+    degraded: bool = False
+    violations: list[dict] = Field(default_factory=list)
+    nutrition: list[dict] = Field(default_factory=list)
+    shopping_list: dict = Field(default_factory=dict)
+    repair_count: int = 0
+    trace: list[dict] = Field(default_factory=list)
+
+
 class AgentResult(BaseModel):
     plan: Optional[MealPlanResponse] = None
     degraded: bool = Field(
