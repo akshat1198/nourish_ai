@@ -1,0 +1,69 @@
+"""Recipe ranking (RETR-03).
+
+Turns raw match stats from retrieval into a scored, explained ordering.
+
+    score = W_COVERAGE * coverage
+          - W_MISSING  * missing_norm
+          + W_TIME     * time_fit
+
+where
+    coverage     = matched_essential / total_essential   (1.0 if no essentials)
+    missing_norm = missing_count / (missing_count + matched_count)
+    time_fit     = clamp(1 - time_minutes / TIME_REFERENCE, 0, 1)
+
+Weights live in config so they are tunable without code changes; bump
+RANKING_VERSION when they change (invalidates the recommendation cache).
+"""
+from __future__ import annotations
+
+from app.core.config import settings
+from app.schemas.recommend import RankedRecipe, RecipeCandidate
+
+
+def _score(candidate: RecipeCandidate) -> float:
+    coverage = (
+        candidate.matched_essential / candidate.total_essential
+        if candidate.total_essential
+        else 1.0
+    )
+    matched_n = len(candidate.matched_ingredients)
+    missing_n = len(candidate.missing_ingredients)
+    denom = matched_n + missing_n
+    missing_norm = missing_n / denom if denom else 0.0
+    time_fit = 1 - candidate.time_minutes / settings.RANK_TIME_REFERENCE
+    time_fit = max(0.0, min(1.0, time_fit))
+
+    return (
+        settings.RANK_W_COVERAGE * coverage
+        - settings.RANK_W_MISSING * missing_norm
+        + settings.RANK_W_TIME * time_fit
+    )
+
+
+def _why(candidate: RecipeCandidate) -> str:
+    parts = []
+    if candidate.total_essential:
+        parts.append(
+            f"uses {candidate.matched_essential}/{candidate.total_essential} "
+            "key ingredients"
+        )
+    else:
+        parts.append(f"uses {len(candidate.matched_ingredients)} of your ingredients")
+    missing = candidate.missing_ingredients
+    if not missing:
+        parts.append("nothing missing")
+    elif len(missing) <= 3:
+        parts.append("missing only " + ", ".join(missing))
+    else:
+        parts.append(f"missing {len(missing)} items")
+    parts.append(f"ready in {candidate.time_minutes} min")
+    return "; ".join(parts)
+
+
+def rank(candidates: list[RecipeCandidate], *, limit: int) -> list[RankedRecipe]:
+    ranked = [
+        RankedRecipe(**c.model_dump(), score=round(_score(c), 4), why=_why(c))
+        for c in candidates
+    ]
+    ranked.sort(key=lambda r: r.score, reverse=True)
+    return ranked[:limit]

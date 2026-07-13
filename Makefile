@@ -1,6 +1,18 @@
 setup:
 	@./dev-setup.sh
 
+api:
+	@cd backend && ../.venv/bin/uvicorn app.main:app --reload
+
+test:
+	@cd backend && ../.venv/bin/pytest
+
+migrate:
+	@cd backend && ../.venv/bin/alembic upgrade head
+
+revision:
+	@cd backend && ../.venv/bin/alembic revision -m "$(m)"
+
 up:
 	@docker compose up -d
 

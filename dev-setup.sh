@@ -79,11 +79,9 @@ sleep 5
 echo -e "${BLUE}📊 Checking service status...${NC}"
 make ps
 
-# Step 5: Run database setup if needed
-if [ -f "db-setup.sh" ]; then
-    echo -e "${BLUE}🗄️  Setting up database...${NC}"
-    ./db-setup.sh
-fi
+# Step 5: Apply database migrations (Alembic owns the schema)
+echo -e "${BLUE}🗄️  Applying database migrations...${NC}"
+(cd backend && ../.venv/bin/alembic upgrade head)
 
 # Step 6: Start the API server in background
 echo -e "${BLUE}🚀 Starting FastAPI server...${NC}"

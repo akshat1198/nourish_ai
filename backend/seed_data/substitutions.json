@@ -1,0 +1,429 @@
+[
+ {
+  "ingredient": "butter",
+  "substitute": "olive oil",
+  "ratio": "1:0.75",
+  "confidence": 0.9,
+  "diet_ok": [
+   "vegan",
+   "dairy_free"
+  ]
+ },
+ {
+  "ingredient": "heavy cream",
+  "substitute": "coconut milk",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": [
+   "vegan",
+   "dairy_free"
+  ]
+ },
+ {
+  "ingredient": "milk",
+  "substitute": "coconut milk",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": [
+   "vegan",
+   "dairy_free"
+  ]
+ },
+ {
+  "ingredient": "greek yogurt",
+  "substitute": "coconut milk",
+  "ratio": "1:0.75",
+  "confidence": 0.6,
+  "diet_ok": [
+   "vegan",
+   "dairy_free"
+  ]
+ },
+ {
+  "ingredient": "paneer",
+  "substitute": "tofu",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": [
+   "vegan",
+   "dairy_free"
+  ]
+ },
+ {
+  "ingredient": "cheddar",
+  "substitute": "mozzarella",
+  "ratio": "1:1",
+  "confidence": 0.8,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "mozzarella",
+  "substitute": "cheddar",
+  "ratio": "1:1",
+  "confidence": 0.75,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "parmesan",
+  "substitute": "cheddar",
+  "ratio": "1:0.75",
+  "confidence": 0.6,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "cream cheese",
+  "substitute": "greek yogurt",
+  "ratio": "1:1",
+  "confidence": 0.65,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "chicken breast",
+  "substitute": "tofu",
+  "ratio": "1:1",
+  "confidence": 0.8,
+  "diet_ok": [
+   "vegan",
+   "vegetarian"
+  ]
+ },
+ {
+  "ingredient": "chicken breast",
+  "substitute": "chickpeas",
+  "ratio": "1:0.8",
+  "confidence": 0.7,
+  "diet_ok": [
+   "vegan",
+   "vegetarian"
+  ]
+ },
+ {
+  "ingredient": "chicken thigh",
+  "substitute": "tofu",
+  "ratio": "1:1",
+  "confidence": 0.75,
+  "diet_ok": [
+   "vegan",
+   "vegetarian"
+  ]
+ },
+ {
+  "ingredient": "ground beef",
+  "substitute": "lentils",
+  "ratio": "1:0.75",
+  "confidence": 0.8,
+  "diet_ok": [
+   "vegan",
+   "vegetarian"
+  ]
+ },
+ {
+  "ingredient": "ground beef",
+  "substitute": "black beans",
+  "ratio": "1:0.8",
+  "confidence": 0.75,
+  "diet_ok": [
+   "vegan",
+   "vegetarian"
+  ]
+ },
+ {
+  "ingredient": "beef sirloin",
+  "substitute": "tempeh",
+  "ratio": "1:0.8",
+  "confidence": 0.7,
+  "diet_ok": [
+   "vegan",
+   "vegetarian"
+  ]
+ },
+ {
+  "ingredient": "pork loin",
+  "substitute": "chicken breast",
+  "ratio": "1:1",
+  "confidence": 0.8,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "turkey",
+  "substitute": "chicken breast",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "shrimp",
+  "substitute": "tofu",
+  "ratio": "1:1",
+  "confidence": 0.65,
+  "diet_ok": [
+   "vegan",
+   "vegetarian",
+   "shellfish_free"
+  ]
+ },
+ {
+  "ingredient": "salmon",
+  "substitute": "tofu",
+  "ratio": "1:1",
+  "confidence": 0.6,
+  "diet_ok": [
+   "vegan",
+   "vegetarian",
+   "fish_free"
+  ]
+ },
+ {
+  "ingredient": "cod",
+  "substitute": "tofu",
+  "ratio": "1:1",
+  "confidence": 0.6,
+  "diet_ok": [
+   "vegan",
+   "vegetarian",
+   "fish_free"
+  ]
+ },
+ {
+  "ingredient": "tuna",
+  "substitute": "chickpeas",
+  "ratio": "1:1",
+  "confidence": 0.7,
+  "diet_ok": [
+   "vegan",
+   "vegetarian",
+   "fish_free"
+  ]
+ },
+ {
+  "ingredient": "eggs",
+  "substitute": "tofu",
+  "ratio": "1:0.6",
+  "confidence": 0.55,
+  "diet_ok": [
+   "vegan",
+   "egg_free"
+  ]
+ },
+ {
+  "ingredient": "pasta",
+  "substitute": "rice noodles",
+  "ratio": "1:1",
+  "confidence": 0.8,
+  "diet_ok": [
+   "gluten_free"
+  ]
+ },
+ {
+  "ingredient": "pasta",
+  "substitute": "quinoa",
+  "ratio": "1:0.7",
+  "confidence": 0.55,
+  "diet_ok": [
+   "gluten_free"
+  ]
+ },
+ {
+  "ingredient": "egg noodles",
+  "substitute": "rice noodles",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": [
+   "gluten_free",
+   "egg_free"
+  ]
+ },
+ {
+  "ingredient": "couscous",
+  "substitute": "quinoa",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": [
+   "gluten_free"
+  ]
+ },
+ {
+  "ingredient": "rice",
+  "substitute": "quinoa",
+  "ratio": "1:1",
+  "confidence": 0.8,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "rice",
+  "substitute": "brown rice",
+  "ratio": "1:1",
+  "confidence": 0.9,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "quinoa",
+  "substitute": "rice",
+  "ratio": "1:1",
+  "confidence": 0.8,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "potatoes",
+  "substitute": "sweet potato",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "spinach",
+  "substitute": "kale",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "kale",
+  "substitute": "spinach",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "broccoli",
+  "substitute": "cauliflower",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "cauliflower",
+  "substitute": "broccoli",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "zucchini",
+  "substitute": "eggplant",
+  "ratio": "1:1",
+  "confidence": 0.75,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "mushroom",
+  "substitute": "eggplant",
+  "ratio": "1:1",
+  "confidence": 0.6,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "cilantro",
+  "substitute": "parsley",
+  "ratio": "1:1",
+  "confidence": 0.7,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "basil",
+  "substitute": "parsley",
+  "ratio": "1:1",
+  "confidence": 0.55,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "lime",
+  "substitute": "lemon",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "lemon",
+  "substitute": "lime",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "scallion",
+  "substitute": "onion",
+  "ratio": "1:0.5",
+  "confidence": 0.6,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "onion",
+  "substitute": "red onion",
+  "ratio": "1:1",
+  "confidence": 0.9,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "honey",
+  "substitute": "maple syrup",
+  "ratio": "1:1",
+  "confidence": 0.9,
+  "diet_ok": [
+   "vegan"
+  ]
+ },
+ {
+  "ingredient": "sugar",
+  "substitute": "maple syrup",
+  "ratio": "1:0.75",
+  "confidence": 0.7,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "peanut butter",
+  "substitute": "tahini",
+  "ratio": "1:1",
+  "confidence": 0.75,
+  "diet_ok": [
+   "nut_free"
+  ]
+ },
+ {
+  "ingredient": "peanuts",
+  "substitute": "cashews",
+  "ratio": "1:1",
+  "confidence": 0.85,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "cashews",
+  "substitute": "almonds",
+  "ratio": "1:1",
+  "confidence": 0.8,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "walnuts",
+  "substitute": "almonds",
+  "ratio": "1:1",
+  "confidence": 0.8,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "chicken broth",
+  "substitute": "vegetable broth",
+  "ratio": "1:1",
+  "confidence": 0.9,
+  "diet_ok": [
+   "vegan",
+   "vegetarian"
+  ]
+ },
+ {
+  "ingredient": "vegetable oil",
+  "substitute": "olive oil",
+  "ratio": "1:1",
+  "confidence": 0.9,
+  "diet_ok": []
+ },
+ {
+  "ingredient": "sesame oil",
+  "substitute": "olive oil",
+  "ratio": "1:0.75",
+  "confidence": 0.5,
+  "diet_ok": [
+   "sesame_free"
+  ]
+ }
+]

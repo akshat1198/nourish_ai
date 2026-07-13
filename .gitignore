@@ -67,3 +67,7 @@ htmlcov/
 .env.production.local
 JIRA_TASKS.md
 db/init/
+
+# Local session-recovery artifacts (never committed)
+PLAN.md
+tasks/
