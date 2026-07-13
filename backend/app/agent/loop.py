@@ -77,7 +77,15 @@ def _repair_prompt(violations: list[dict]) -> str:
     )
 
 
+def _usage(resp) -> tuple[int, int]:
+    u = getattr(resp, "usage", None)
+    if not u:
+        return 0, 0
+    return (getattr(u, "input_tokens", 0) or 0, getattr(u, "output_tokens", 0) or 0)
+
+
 def _parse_plan(client, system: str, messages: list[dict]):
+    """Returns (plan_or_none, input_tokens, output_tokens)."""
     try:
         parsed = client.messages.parse(
             model=settings.LLM_MODEL_MAIN,
@@ -86,10 +94,11 @@ def _parse_plan(client, system: str, messages: list[dict]):
             messages=messages,
             output_format=MealPlanResponse,
         )
-        return parsed.parsed_output
+        uin, uout = _usage(parsed)
+        return parsed.parsed_output, uin, uout
     except Exception as e:
         logger.warning("structuring failed: %s", e)
-        return None
+        return None, 0, 0
 
 
 def deterministic_plan(session: Session, request: AgentRequest) -> MealPlanResponse:
@@ -151,6 +160,7 @@ def run_agent(
     ]
     tool_calls = 0
     iterations = 0
+    usage = {"in": 0, "out": 0}
 
     def ms() -> int:
         return int((time.perf_counter() - t0) * 1000)
@@ -159,7 +169,8 @@ def run_agent(
         _log_event(session, request, [], repaired=False, degraded=True, latency_ms=ms())
         return AgentResult(
             plan=None, degraded=True, stop_reason=stop, iterations=iterations,
-            tool_calls=tool_calls, error=error,
+            tool_calls=tool_calls, input_tokens=usage["in"], output_tokens=usage["out"],
+            error=error,
         )
 
     # --- tool loop ---------------------------------------------------------- #
@@ -172,6 +183,9 @@ def run_agent(
             tools=anthropic_tools(),
             thinking={"type": "adaptive"},
         )
+        uin, uout = _usage(resp)
+        usage["in"] += uin
+        usage["out"] += uout
         stop = resp.stop_reason
 
         if stop == "tool_use":
@@ -206,7 +220,9 @@ def run_agent(
 
     # --- structure + validate + repair (LLM-04/05) -------------------------- #
     messages.append({"role": "user", "content": FINAL_INSTRUCTION})
-    plan = _parse_plan(client, system, messages)
+    plan, uin, uout = _parse_plan(client, system, messages)
+    usage["in"] += uin
+    usage["out"] += uout
     if plan is None:
         return degraded_no_plan("end_turn", "no structured plan returned")
 
@@ -218,7 +234,9 @@ def run_agent(
         repaired = True
         messages.append({"role": "assistant", "content": plan.model_dump_json()})
         messages.append({"role": "user", "content": _repair_prompt(violations)})
-        plan = _parse_plan(client, system, messages)
+        plan, uin, uout = _parse_plan(client, system, messages)
+        usage["in"] += uin
+        usage["out"] += uout
         if plan is None:
             break
         violations = validate_plan(session, plan, request)
@@ -229,6 +247,7 @@ def run_agent(
         return AgentResult(
             plan=fallback, degraded=True, repaired=repaired, violations=violations,
             stop_reason="end_turn", iterations=iterations, tool_calls=tool_calls,
+            input_tokens=usage["in"], output_tokens=usage["out"],
             error="plan failed validation after repair attempts",
         )
 
@@ -236,4 +255,5 @@ def run_agent(
     return AgentResult(
         plan=plan, degraded=False, repaired=repaired, violations=[],
         stop_reason="end_turn", iterations=iterations, tool_calls=tool_calls,
+        input_tokens=usage["in"], output_tokens=usage["out"],
     )

@@ -42,4 +42,6 @@ class AgentResult(BaseModel):
     stop_reason: str
     iterations: int
     tool_calls: int
+    input_tokens: int = 0
+    output_tokens: int = 0
     error: Optional[str] = None
