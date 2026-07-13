@@ -40,6 +40,22 @@ def test_cache_key_distinguishes_disliked_ingredients():
     )
 
 
+def test_cache_key_distinguishes_stage5_filters():
+    base = {"pantry": ["tomato"], "diet": None, "exclude_allergens": [],
+            "max_time_minutes": None, "limit": 5}
+    # each new filter must fork the cache entry (proven bug class)
+    assert recommend_key(base) != recommend_key({**base, "cuisines": ["italian"]})
+    assert recommend_key(base) != recommend_key({**base, "meal_type": "dinner"})
+    assert recommend_key(base) != recommend_key({**base, "nutrition_goals": ["high_protein"]})
+    # but set order is irrelevant
+    assert recommend_key({**base, "cuisines": ["a", "b"]}) == recommend_key(
+        {**base, "cuisines": ["b", "a"]}
+    )
+    assert recommend_key({**base, "nutrition_goals": ["low_fat", "high_protein"]}) == recommend_key(
+        {**base, "nutrition_goals": ["high_protein", "low_fat"]}
+    )
+
+
 @requires_db
 def test_shopping_list_aggregates_missing_across_recipes(session):
     # Two tomato/garlic pasta-family recipes; empty pantry -> everything missing,

@@ -21,6 +21,17 @@ class RecommendRequest(BaseModel):
         default_factory=list,
         description="Soft preference: recipes containing these are demoted (not excluded)",
     )
+    cuisines: list[str] = Field(
+        default_factory=list,
+        description="Taxonomy ids (OR): 'indian' (any region) or 'indian/gujarati'",
+    )
+    meal_type: Optional[str] = Field(
+        None, description="breakfast | lunch | dinner | snack | dessert"
+    )
+    nutrition_goals: list[str] = Field(
+        default_factory=list,
+        description="AND: high_protein | low_calorie | low_fat | low_carb (per-serving thresholds)",
+    )
     max_time_minutes: Optional[int] = Field(None, ge=0)
     limit: int = Field(10, ge=1, le=50)
 
@@ -39,6 +50,9 @@ class RecipeCandidate(BaseModel):
     diet_labels: list[str]
     allergens: list[str]
     tags: list[str]
+    cuisine: Optional[str] = None
+    region: Optional[str] = None
+    meal_types: list[str] = Field(default_factory=list)
     nutrition: dict
     matched_ingredients: list[str]
     missing_ingredients: list[str]

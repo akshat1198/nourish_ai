@@ -1,0 +1,124 @@
+"""Stage 5 UI endpoint tests — pantry CRUD, ingredient autocomplete, new filters.
+
+DB-backed (require the seeded corpus + migration 0007 applied). Auth stays in
+disabled mode (default), so identity is the X-User-Key header.
+"""
+from fastapi.testclient import TestClient
+
+from app.main import app
+from app.tests.conftest import requires_db
+
+client = TestClient(app)
+
+
+# --------------------------------------------------------------------------- #
+# Pantry
+# --------------------------------------------------------------------------- #
+@requires_db
+def test_pantry_put_get_roundtrip_and_staples():
+    hdr = {"X-User-Key": "test-pantry-user"}
+    try:
+        r = client.put(
+            "/v1/pantry",
+            json={"items": [
+                {"ingredient": "tomato", "is_staple": True},
+                {"ingredient": "garlic", "is_staple": False},
+            ]},
+            headers=hdr,
+        )
+        assert r.status_code == 200
+        items = {i["ingredient"]: i["is_staple"] for i in r.json()["items"]}
+        assert items.get("tomato") is True and items.get("garlic") is False
+
+        got = client.get("/v1/pantry", headers=hdr).json()["items"]
+        assert {i["ingredient"] for i in got} == {"tomato", "garlic"}
+    finally:
+        client.put("/v1/pantry", json={"items": []}, headers=hdr)
+
+
+@requires_db
+def test_pantry_put_replaces_whole_set():
+    hdr = {"X-User-Key": "test-pantry-replace"}
+    try:
+        client.put("/v1/pantry", json={"items": [{"ingredient": "tomato"}]}, headers=hdr)
+        r = client.put("/v1/pantry", json={"items": [{"ingredient": "garlic"}]}, headers=hdr)
+        names = {i["ingredient"] for i in r.json()["items"]}
+        assert names == {"garlic"}  # tomato is gone (whole-set replace)
+    finally:
+        client.put("/v1/pantry", json={"items": []}, headers=hdr)
+
+
+@requires_db
+def test_pantry_reports_unmatched():
+    hdr = {"X-User-Key": "test-pantry-unmatched"}
+    try:
+        r = client.put(
+            "/v1/pantry",
+            json={"items": [{"ingredient": "tomato"}, {"ingredient": "zzznotreal"}]},
+            headers=hdr,
+        )
+        body = r.json()
+        assert "zzznotreal" in body["unmatched"]
+        assert {i["ingredient"] for i in body["items"]} == {"tomato"}
+    finally:
+        client.put("/v1/pantry", json={"items": []}, headers=hdr)
+
+
+@requires_db
+def test_pantry_isolated_per_user():
+    a, b = {"X-User-Key": "iso-a"}, {"X-User-Key": "iso-b"}
+    try:
+        client.put("/v1/pantry", json={"items": [{"ingredient": "tomato"}]}, headers=a)
+        assert client.get("/v1/pantry", headers=b).json()["items"] == []
+    finally:
+        client.put("/v1/pantry", json={"items": []}, headers=a)
+
+
+# --------------------------------------------------------------------------- #
+# Ingredient autocomplete
+# --------------------------------------------------------------------------- #
+@requires_db
+def test_ingredients_autocomplete_prefix():
+    names = [s["name"] for s in client.get("/v1/ingredients", params={"q": "tom"}).json()]
+    assert any("tomato" in n for n in names)
+
+
+@requires_db
+def test_ingredients_empty_query_returns_some():
+    assert len(client.get("/v1/ingredients").json()) > 0
+
+
+# --------------------------------------------------------------------------- #
+# New recommendation filters
+# --------------------------------------------------------------------------- #
+@requires_db
+def test_recommendations_cuisine_filter_only_italian():
+    r = client.post(
+        "/v1/recommendations",
+        json={"pantry": ["pasta", "tomato", "garlic", "olive oil"],
+              "cuisines": ["italian"], "limit": 10},
+    )
+    assert r.status_code == 200
+    results = r.json()["results"]
+    assert results  # italian recipes exist in the seed
+    assert all(rec["cuisine"] == "italian" for rec in results)
+
+
+@requires_db
+def test_recommendations_high_protein_goal():
+    r = client.post(
+        "/v1/recommendations",
+        json={"pantry": ["chicken breast", "rice", "broccoli"],
+              "nutrition_goals": ["high_protein"], "limit": 10},
+    )
+    results = r.json()["results"]
+    assert all(rec["nutrition"].get("protein_g", 0) >= 25 for rec in results)
+
+
+@requires_db
+def test_recommendations_rejects_unknown_cuisine():
+    r = client.post(
+        "/v1/recommendations",
+        json={"pantry": ["tomato"], "cuisines": ["klingon"], "limit": 5},
+    )
+    assert r.status_code == 422

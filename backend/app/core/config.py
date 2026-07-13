@@ -39,5 +39,26 @@ class Settings(BaseSettings):
     # Orchestrator checkpointing (AGENT-04): memory | postgres
     CHECKPOINT_BACKEND: str = "memory"
 
+    # Auth (Stage 5). "disabled" (default) keeps the API open and honours an
+    # X-User-Key header (dev/test); "jwt" verifies an HS256 bearer minted by the
+    # Next.js Auth.js layer with AUTH_SHARED_SECRET.
+    AUTH_MODE: str = "disabled"  # disabled | jwt
+    AUTH_SHARED_SECRET: str = ""
+    AUTH_JWT_ISS: str = "nourish-web"
+    AUTH_JWT_AUD: str = "nourish-api"
+    # Comma-separated browser origins allowed by CORS (Stage 5 frontend).
+    CORS_ORIGINS: str = "http://localhost:3000"
+
+    # Nutrition-goal thresholds (Stage 5) — deterministic per-serving cutoffs
+    # over recipes.nutrition. A recipe passes a goal if it meets the cutoff.
+    NUTRI_HIGH_PROTEIN_G: float = 25.0  # protein_g >=
+    NUTRI_LOW_CALORIE_KCAL: float = 400.0  # calories <=
+    NUTRI_LOW_FAT_G: float = 10.0  # fat_g <=
+    NUTRI_LOW_CARB_G: float = 20.0  # carbs_g <=
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+
 
 settings = Settings()

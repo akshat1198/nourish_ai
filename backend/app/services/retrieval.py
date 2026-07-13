@@ -13,6 +13,8 @@ from typing import Iterable, Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from app.core.config import settings
+from app.core.cuisines import cuisine_matches
 from app.models import Ingredient, Recipe
 from app.schemas.recommend import RecipeCandidate
 
@@ -51,6 +53,9 @@ def _build_candidate(
         diet_labels=recipe.diet_labels,
         allergens=recipe.allergens,
         tags=recipe.tags,
+        cuisine=recipe.cuisine,
+        region=recipe.region,
+        meal_types=recipe.meal_types or [],
         nutrition=recipe.nutrition,
         matched_ingredients=matched,
         missing_ingredients=missing,
@@ -59,17 +64,43 @@ def _build_candidate(
     )
 
 
+def _nutrition_ok(nutrition: dict, goals: Iterable[str]) -> bool:
+    """AND semantics: the recipe must meet every requested per-serving goal."""
+    n = nutrition or {}
+    for g in goals:
+        if g == "high_protein" and n.get("protein_g", 0) < settings.NUTRI_HIGH_PROTEIN_G:
+            return False
+        if g == "low_calorie" and n.get("calories", float("inf")) > settings.NUTRI_LOW_CALORIE_KCAL:
+            return False
+        if g == "low_fat" and n.get("fat_g", float("inf")) > settings.NUTRI_LOW_FAT_G:
+            return False
+        if g == "low_carb" and n.get("carbs_g", float("inf")) > settings.NUTRI_LOW_CARB_G:
+            return False
+    return True
+
+
 def _passes_filters(
     c: RecipeCandidate,
     diet: Optional[str],
     exclude_allergens: Iterable[str],
     max_time: Optional[int],
+    cuisines: Iterable[str] = (),
+    meal_type: Optional[str] = None,
+    nutrition_goals: Iterable[str] = (),
 ) -> bool:
     if diet and diet not in c.diet_labels:
         return False
     if set(exclude_allergens) & set(c.allergens):
         return False
     if max_time is not None and c.time_minutes > max_time:
+        return False
+    cuisines = list(cuisines)
+    if cuisines and not cuisine_matches(c.cuisine, c.region, cuisines):
+        return False
+    if meal_type and meal_type not in (c.meal_types or []):
+        return False
+    nutrition_goals = list(nutrition_goals)
+    if nutrition_goals and not _nutrition_ok(c.nutrition, nutrition_goals):
         return False
     return True
 
@@ -84,6 +115,9 @@ def fetch_candidates(
     diet: Optional[str] = None,
     exclude_allergens: Iterable[str] = (),
     max_time: Optional[int] = None,
+    cuisines: Iterable[str] = (),
+    meal_type: Optional[str] = None,
+    nutrition_goals: Iterable[str] = (),
     limit: int = 10,
 ) -> list[RecipeCandidate]:
     """Recipes sharing >=1 ingredient with the pantry, after hard filters.
@@ -107,6 +141,9 @@ def fetch_candidates(
         c
         for recipe in session.execute(query).scalars()
         if (c := _build_candidate(recipe, pantry_set, id_to_name)).matched_ingredients
+        and _passes_filters(
+            c, diet, exclude, max_time, cuisines, meal_type, nutrition_goals
+        )
     ]
     candidates.sort(
         key=lambda c: (c.matched_essential, -len(c.missing_ingredients)), reverse=True
@@ -160,6 +197,9 @@ def fetch_hybrid(
     diet: Optional[str] = None,
     exclude_allergens: Iterable[str] = (),
     max_time: Optional[int] = None,
+    cuisines: Iterable[str] = (),
+    meal_type: Optional[str] = None,
+    nutrition_goals: Iterable[str] = (),
     limit: int = 10,
 ) -> list[RecipeCandidate]:
     """Fuse SQL match + vector similarity, then apply hard filters post-fusion."""
@@ -188,7 +228,9 @@ def fetch_hybrid(
         if recipe is None:
             continue
         c = _build_candidate(recipe, pantry_set, id_to_name)
-        if _passes_filters(c, diet, exclude_allergens, max_time):
+        if _passes_filters(
+            c, diet, exclude_allergens, max_time, cuisines, meal_type, nutrition_goals
+        ):
             results.append(c)
         if len(results) >= limit:
             break

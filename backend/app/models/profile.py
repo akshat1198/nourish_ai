@@ -13,6 +13,8 @@ class UserProfile(Base):
     __tablename__ = "user_profiles"
 
     user_key: Mapped[str] = mapped_column(Text, primary_key=True)
+    email: Mapped[str] = mapped_column(Text, nullable=True)  # from the Google token
+    name: Mapped[str] = mapped_column(Text, nullable=True)
     diet: Mapped[str] = mapped_column(Text, nullable=True)
     allergens: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     disliked_ingredients: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)

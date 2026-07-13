@@ -24,6 +24,12 @@ class Recipe(Base):
     tags: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     diet_labels: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     allergens: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
+    # Normalized cuisine taxonomy (Stage 5): cuisine="indian", region="gujarati";
+    # region is NULL when the source has no sub-cuisine. meal_types ⊆
+    # {breakfast,lunch,dinner,snack,dessert}.
+    cuisine: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    region: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    meal_types: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     time_minutes: Mapped[int] = mapped_column(Integer)
     servings: Mapped[int] = mapped_column(Integer, default=2)
     # {calories, protein_g, carbs_g, fat_g} per serving

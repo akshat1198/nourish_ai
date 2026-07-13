@@ -1,8 +1,9 @@
 """Recommendations endpoint (API-01) — SQL and hybrid retrieval."""
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_session
+from app.core.cuisines import VALID_CUISINE_IDS
 from app.schemas.recommend import RecommendRequest, RecommendResponse
 from app.services.cache import get_cached, recommend_key, set_cached
 from app.services.embedder import get_embedder
@@ -25,6 +26,10 @@ def recommend(
     session: Session = Depends(get_session),
     mode: str = Query("hybrid", pattern="^(sql|hybrid)$"),
 ):
+    bad = [c for c in req.cuisines if c not in VALID_CUISINE_IDS]
+    if bad:
+        raise HTTPException(422, f"unknown cuisine id(s): {', '.join(bad)}")
+
     key = recommend_key({**req.model_dump(), "mode": mode})
     cached = get_cached(key)
     if cached is not None:
@@ -47,6 +52,9 @@ def recommend(
             diet=req.diet,
             exclude_allergens=req.exclude_allergens,
             max_time=req.max_time_minutes,
+            cuisines=req.cuisines,
+            meal_type=req.meal_type,
+            nutrition_goals=req.nutrition_goals,
             limit=CANDIDATE_POOL,
         )
         # Disliked ingredients aren't hard-filtered by retrieval (soft preference);
@@ -64,6 +72,9 @@ def recommend(
             diet=req.diet,
             exclude_allergens=req.exclude_allergens,
             max_time=req.max_time_minutes,
+            cuisines=req.cuisines,
+            meal_type=req.meal_type,
+            nutrition_goals=req.nutrition_goals,
             limit=CANDIDATE_POOL,
         )
         disliked_ids = disliked_recipe_ids(
