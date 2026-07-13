@@ -8,6 +8,9 @@ from pydantic import BaseModel, Field
 
 class RecommendRequest(BaseModel):
     pantry: list[str] = Field(default_factory=list, description="On-hand ingredient names")
+    pantry_text: Optional[str] = Field(
+        None, description="Free-text pantry ('leftover chicken and a sad zucchini'); LLM-parsed and merged into pantry"
+    )
     diet: Optional[str] = Field(
         None, description="Required diet label, e.g. vegan/vegetarian/gluten_free"
     )

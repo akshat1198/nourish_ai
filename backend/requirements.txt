@@ -1,5 +1,4 @@
 # NourishAI backend — runtime dependencies (intentional pins, py3.9–3.12 compatible)
-# Stage 2 will add: anthropic (step 2.3)
 # Stage 4 will add: langgraph, langchain-anthropic, fastmcp
 
 # CPU-only torch wheels keep the image lean on linux (Risk 1); on macOS pip
@@ -26,3 +25,6 @@ numpy==1.26.4
 torch==2.2.2
 sentence-transformers==5.1.0
 pgvector==0.3.6
+
+# LLM (Stage 2.3) — Claude adapter
+anthropic==0.116.0

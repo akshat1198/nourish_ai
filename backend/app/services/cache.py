@@ -26,6 +26,7 @@ def recommend_key(payload: dict) -> str:
     """
     canonical = {
         "pantry": sorted(payload.get("pantry") or []),
+        "pantry_text": (payload.get("pantry_text") or "").strip().lower(),
         "diet": payload.get("diet"),
         "exclude_allergens": sorted(payload.get("exclude_allergens") or []),
         "max_time_minutes": payload.get("max_time_minutes"),

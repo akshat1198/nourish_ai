@@ -7,6 +7,14 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+psycopg2://pantry:pantrypw@localhost:5432/pantrydb"
     REDIS_URL: str = "redis://localhost:6379/0"
 
+    # LLM adapter (Stage 2.3). Feature is disabled if ANTHROPIC_API_KEY is unset
+    # — the deterministic path still works (fail-open).
+    ANTHROPIC_API_KEY: str = ""
+    LLM_MODEL_MAIN: str = "claude-sonnet-5"  # workhorse (Stage 3 agent)
+    LLM_MODEL_FAST: str = "claude-haiku-4-5"  # cheap/fast (pantry-text parsing)
+    LLM_MODEL_JUDGE: str = "claude-opus-4-8"  # offline eval judge only
+    LLM_TIMEOUT_SECONDS: float = 20.0
+
     # Ranking weights (RETR-03). Bump RANKING_VERSION on any change so the
     # recommendation cache (RETR-04) invalidates.
     RANKING_VERSION: str = "v1"

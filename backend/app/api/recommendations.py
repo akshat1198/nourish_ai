@@ -7,6 +7,7 @@ from app.schemas.recommend import RecommendRequest, RecommendResponse
 from app.services.cache import get_cached, recommend_key, set_cached
 from app.services.embedder import get_embedder
 from app.services.ingredients import resolve_pantry
+from app.services.pantry_text import parse_pantry_text
 from app.services.ranking import annotate, rank
 from app.services.retrieval import fetch_candidates, fetch_hybrid
 
@@ -29,11 +30,15 @@ def recommend(
         response.headers["X-Cache"] = "hit"
         return RecommendResponse(**cached)
 
-    resolved = resolve_pantry(session, req.pantry)
+    # LLM-parse free-text pantry (fail-open) and merge into the ingredient list.
+    parsed = parse_pantry_text(req.pantry_text) if req.pantry_text else []
+    pantry = req.pantry + parsed
+    resolved = resolve_pantry(session, pantry)
 
     if mode == "hybrid":
-        # Query text for the vector arm: the raw pantry terms.
-        query_vec = get_embedder().embed([" ".join(req.pantry)])[0] if req.pantry else []
+        # Query text for the vector arm: pantry terms + the raw free-text.
+        query_str = " ".join(pantry + ([req.pantry_text] if req.pantry_text else []))
+        query_vec = get_embedder().embed([query_str])[0] if query_str.strip() else []
         candidates = fetch_hybrid(
             session,
             resolved.ingredient_ids,
