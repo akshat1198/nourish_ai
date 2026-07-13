@@ -15,10 +15,21 @@ and requires --yes for more than 3 (so a full run is always deliberate); `both`
 runs every case through BOTH engines, so it spends ~2x. Do a small run first
 (default 2) to project the full cost.
 
-Baseline (2026-07-13, sonnet-5, 30 cases, single): constraint pass-rate 1.00
-(30/30), 0 degraded, 1.6 mean tool calls, p50 15.3s, ~$1.02. A perfect score
-reflects an easy gold set (structured queries, clear-cut constraints) — the
-repair/fallback path never fired; it's proven by unit tests instead.
+Baseline (2026-07-13, sonnet-5, 30 cases, --engine both):
+                       single        graph
+  pass-rate (1st)       1.00          1.00     (same deterministic validator)
+  degraded              0/30          0/30
+  p50 latency          18.1s          6.8s
+  tokens in         210,374        35,074
+  tokens out         24,809         6,863
+  est. cost          $1.003        $0.208
+The perfect pass-rate reflects an easy gold set (structured queries, clear-cut
+constraints) — the repair/fallback path never fired; it's proven by unit tests
+instead. The headline surprise is cost/latency, NOT correctness: the graph is
+~4.8x cheaper and ~2.7x faster because the raw single loop resends tool schemas
+and accumulates adaptive-thinking every turn, while the graph confines the LLM
+to picking from a code-pre-filtered shortlist + writing the summary. (Predicted
+the reverse; measuring corrected it.)
 
 Run:  python -m app.evals.run_agent                          # 2-case single dry run
       python -m app.evals.run_agent --engine both --limit 30 --yes
