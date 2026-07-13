@@ -60,10 +60,21 @@ def _why(candidate: RecipeCandidate) -> str:
     return "; ".join(parts)
 
 
+def _to_ranked(c: RecipeCandidate) -> RankedRecipe:
+    return RankedRecipe(**c.model_dump(), score=round(_score(c), 4), why=_why(c))
+
+
 def rank(candidates: list[RecipeCandidate], *, limit: int) -> list[RankedRecipe]:
-    ranked = [
-        RankedRecipe(**c.model_dump(), score=round(_score(c), 4), why=_why(c))
-        for c in candidates
-    ]
+    """Score, then re-order by score (SQL path)."""
+    ranked = [_to_ranked(c) for c in candidates]
     ranked.sort(key=lambda r: r.score, reverse=True)
     return ranked[:limit]
+
+
+def annotate(candidates: list[RecipeCandidate], *, limit: int) -> list[RankedRecipe]:
+    """Score + explain but PRESERVE incoming order (hybrid path keeps RRF order).
+
+    `score` is the ingredient-fit score for display/explanation; ordering is the
+    caller's (fusion) relevance order, not re-sorted by score.
+    """
+    return [_to_ranked(c) for c in candidates[:limit]]

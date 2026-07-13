@@ -23,6 +23,12 @@ def test_cache_key_changes_with_diet():
     assert recommend_key(base) != recommend_key(other)
 
 
+def test_cache_key_distinguishes_mode():
+    base = {"pantry": ["tomato"], "diet": None, "exclude_allergens": [],
+            "max_time_minutes": None, "limit": 5}
+    assert recommend_key({**base, "mode": "sql"}) != recommend_key({**base, "mode": "hybrid"})
+
+
 @requires_db
 def test_shopping_list_aggregates_missing_across_recipes(session):
     # Two tomato/garlic pasta-family recipes; empty pantry -> everything missing,

@@ -19,13 +19,18 @@ MISSES_KEY = "metrics:cache:misses"
 
 
 def recommend_key(payload: dict) -> str:
-    """Stable cache key. Lists that are semantically sets are sorted first."""
+    """Stable cache key. Lists that are semantically sets are sorted first.
+
+    `mode` is part of the key: sql and hybrid produce different results for the
+    same request and must not share a cache entry.
+    """
     canonical = {
         "pantry": sorted(payload.get("pantry") or []),
         "diet": payload.get("diet"),
         "exclude_allergens": sorted(payload.get("exclude_allergens") or []),
         "max_time_minutes": payload.get("max_time_minutes"),
         "limit": payload.get("limit"),
+        "mode": payload.get("mode", "hybrid"),
     }
     blob = json.dumps(canonical, sort_keys=True, separators=(",", ":"))
     digest = hashlib.sha256(blob.encode()).hexdigest()
