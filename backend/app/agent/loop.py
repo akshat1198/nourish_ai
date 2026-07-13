@@ -19,6 +19,7 @@ import time
 
 from sqlalchemy.orm import Session
 
+from app.agent.prompts import system_prompt
 from app.agent.tools import anthropic_tools, call_tool
 from app.agent.validator import validate_plan
 from app.core.config import settings
@@ -30,22 +31,13 @@ from app.services.retrieval import fetch_candidates
 
 logger = logging.getLogger(__name__)
 
-SYSTEM = (
-    "You are NourishAI, a recipe assistant. Given a user's pantry and request, "
-    "use the tools to find recipes that fit, verify they respect any allergen or "
-    "diet constraints, and suggest ingredient substitutions when they help. "
-    "Prefer recipes that use more of the pantry. Call tools as needed; you can "
-    "call several at once. When you have a final recommendation, stop calling "
-    "tools and give a short answer — you'll then be asked to format it as JSON."
-)
-
 FINAL_INSTRUCTION = (
     "Now return your final recommendation as JSON matching the required schema. "
     "Use recipe_ids from the tool results. Do not call any more tools."
 )
 
 
-def _build_user_prompt(req: AgentRequest) -> str:
+def _build_user_prompt(req: AgentRequest, recent: list[dict] | None = None) -> str:
     parts = []
     if req.pantry:
         parts.append(f"Pantry: {', '.join(req.pantry)}")
@@ -57,8 +49,20 @@ def _build_user_prompt(req: AgentRequest) -> str:
         parts.append(f"Diet: {req.diet}")
     if req.exclude_allergens:
         parts.append(f"Avoid allergens: {', '.join(req.exclude_allergens)}")
+    if req.disliked_ingredients:
+        parts.append(
+            f"Never use these disliked ingredients: {', '.join(req.disliked_ingredients)}"
+        )
+    if req.cuisine_prefs:
+        parts.append(f"Preferred cuisines (soft): {', '.join(req.cuisine_prefs)}")
     if req.max_time_minutes is not None:
         parts.append(f"Max time: {req.max_time_minutes} minutes")
+    if recent:
+        titles = ", ".join(r["title"] for r in recent)
+        parts.append(
+            f"Recently recommended to this user (avoid repeating unless clearly "
+            f"the best fit): {titles}"
+        )
     parts.append(f"Recommend up to {req.limit} recipe(s).")
     return "\n".join(parts)
 
@@ -73,12 +77,12 @@ def _repair_prompt(violations: list[dict]) -> str:
     )
 
 
-def _parse_plan(client, messages: list[dict]):
+def _parse_plan(client, system: str, messages: list[dict]):
     try:
         parsed = client.messages.parse(
             model=settings.LLM_MODEL_MAIN,
             max_tokens=2048,
-            system=SYSTEM,
+            system=system,
             messages=messages,
             output_format=MealPlanResponse,
         )
@@ -137,10 +141,14 @@ def run_agent(
     request: AgentRequest,
     *,
     client,
+    recent_recipe_ids: list[dict] | None = None,
     max_iterations: int = 8,
 ) -> AgentResult:
     t0 = time.perf_counter()
-    messages: list[dict] = [{"role": "user", "content": _build_user_prompt(request)}]
+    system = system_prompt()
+    messages: list[dict] = [
+        {"role": "user", "content": _build_user_prompt(request, recent_recipe_ids)}
+    ]
     tool_calls = 0
     iterations = 0
 
@@ -159,7 +167,7 @@ def run_agent(
         resp = client.messages.create(
             model=settings.LLM_MODEL_MAIN,
             max_tokens=2048,
-            system=SYSTEM,
+            system=system,
             messages=messages,
             tools=anthropic_tools(),
             thinking={"type": "adaptive"},
@@ -198,7 +206,7 @@ def run_agent(
 
     # --- structure + validate + repair (LLM-04/05) -------------------------- #
     messages.append({"role": "user", "content": FINAL_INSTRUCTION})
-    plan = _parse_plan(client, messages)
+    plan = _parse_plan(client, system, messages)
     if plan is None:
         return degraded_no_plan("end_turn", "no structured plan returned")
 
@@ -210,7 +218,7 @@ def run_agent(
         repaired = True
         messages.append({"role": "assistant", "content": plan.model_dump_json()})
         messages.append({"role": "user", "content": _repair_prompt(violations)})
-        plan = _parse_plan(client, messages)
+        plan = _parse_plan(client, system, messages)
         if plan is None:
             break
         violations = validate_plan(session, plan, request)

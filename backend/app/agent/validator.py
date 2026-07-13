@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Recipe
 from app.schemas.agent import AgentRequest, MealPlanResponse
+from app.services.ingredients import normalize
 
 
 def validate_plan(
@@ -23,6 +24,7 @@ def validate_plan(
         return [{"type": "empty_plan", "detail": "no recipes recommended"}]
 
     exclude = set(request.exclude_allergens)
+    disliked = {normalize(d) for d in request.disliked_ingredients}
     for item in plan.recipes:
         recipe = session.get(Recipe, item.recipe_id)
         if recipe is None:
@@ -50,4 +52,12 @@ def validate_plan(
                 {"recipe_id": item.recipe_id, "type": "time",
                  "detail": f"{recipe.time_minutes} min > {request.max_time_minutes} min"}
             )
+        if disliked:
+            recipe_names = {normalize(i["name"]) for i in (recipe.ingredients or [])}
+            hit = sorted(disliked & recipe_names)
+            if hit:
+                violations.append(
+                    {"recipe_id": item.recipe_id, "type": "disliked",
+                     "detail": f"contains disliked ingredient(s): {', '.join(hit)}"}
+                )
     return violations

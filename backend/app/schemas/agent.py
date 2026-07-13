@@ -13,6 +13,8 @@ class AgentRequest(BaseModel):
     question: Optional[str] = Field(None, description="e.g. 'something high-protein tonight, no dairy'")
     diet: Optional[str] = None
     exclude_allergens: list[str] = Field(default_factory=list)
+    disliked_ingredients: list[str] = Field(default_factory=list)
+    cuisine_prefs: list[str] = Field(default_factory=list)
     max_time_minutes: Optional[int] = None
     limit: int = Field(3, ge=1, le=10)
 
