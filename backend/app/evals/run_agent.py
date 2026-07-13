@@ -168,14 +168,24 @@ def _print_compare(a: dict, b: dict) -> None:
     print("   above for this run rather than assuming which way it goes.)")
 
 
+def _safe(fn, case) -> Row:
+    """Run one case; on any failure record a degraded row so the run completes."""
+    try:
+        return fn()
+    except Exception as e:  # noqa: BLE001 - eval must survive a single bad case
+        print(f"  !! case {case.name!r} errored ({type(e).__name__}: {e}) — counted degraded")
+        return Row(name=case.name, clean=False, degraded=True, repaired=False,
+                   tool_calls=-1, wall=0.0, tin=0, tout=0, top="(error)")
+
+
 def run(engine: str, limit: int, verbose: bool) -> None:
     cases = load_cases()[:limit]
     with SessionLocal() as session:
         if engine in ("single", "both"):
             client = get_llm().raw()
-            single = [_run_single(session, c, client) for c in cases]
+            single = [_safe(lambda c=c: _run_single(session, c, client), c) for c in cases]
         if engine in ("graph", "both"):
-            graph_rows = [_run_graph(c) for c in cases]
+            graph_rows = [_safe(lambda c=c: _run_graph(c), c) for c in cases]
 
     if verbose:
         rows = single if engine != "graph" else graph_rows

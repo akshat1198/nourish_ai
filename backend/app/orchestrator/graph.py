@@ -52,6 +52,18 @@ def _trace(state: PlanState, event: dict) -> list:
 # --------------------------------------------------------------------------- #
 # LLM helpers (monkeypatched in tests)
 # --------------------------------------------------------------------------- #
+def _chat(max_tokens: int) -> ChatAnthropic:
+    """ChatAnthropic with a bounded timeout + retry budget so a stalled request
+    fails fast instead of hanging the graph forever (the raw Stage-3 client sets
+    the same timeout via the anthropic SDK; langchain defaults to None = infinite)."""
+    return ChatAnthropic(
+        model=settings.LLM_MODEL_MAIN,
+        max_tokens=max_tokens,
+        timeout=settings.LLM_TIMEOUT_SECONDS,
+        max_retries=2,
+    )
+
+
 def _plan_llm(
     req: AgentRequest,
     candidates: list[dict],
@@ -60,9 +72,7 @@ def _plan_llm(
 ) -> DraftPlan:
     # json_schema (native structured output) is more reliable than tool-calling
     # for nested-list schemas, which occasionally get stringified.
-    llm = ChatAnthropic(
-        model=settings.LLM_MODEL_MAIN, max_tokens=1024
-    ).with_structured_output(DraftPlan, method="json_schema")
+    llm = _chat(1024).with_structured_output(DraftPlan, method="json_schema")
     cand_lines = "\n".join(
         f"{c['id']}: {c['title']} — diet={c['diet_labels']}, allergens={c['allergens']}, "
         f"{c['time_minutes']}min, missing {len(c['missing_ingredients'])}"
@@ -89,7 +99,7 @@ def _plan_llm(
 
 
 def _summary_llm(req: AgentRequest, draft: dict, nutrition: list[dict]) -> str:
-    llm = ChatAnthropic(model=settings.LLM_MODEL_MAIN, max_tokens=512)
+    llm = _chat(512)
     titles = ", ".join(r["title"] for r in draft["recipes"]) or "(none)"
     prompt = (
         f"Write one or two sentences summarizing this meal plan for the user's request "
@@ -219,7 +229,12 @@ def node_supervisor(state: PlanState) -> dict:
     t0 = time.perf_counter()
     req = AgentRequest(**state["request"])
     degraded = bool(state.get("violations"))  # survived the repair budget
-    summary = _summary_llm(req, state["draft"], state.get("nutrition", []))
+    try:
+        summary = _summary_llm(req, state["draft"], state.get("nutrition", []))
+    except Exception as e:  # a summary hiccup must not sink a valid plan
+        logger.warning("supervisor summary LLM failed, using a plain summary: %s", e)
+        titles = ", ".join(r["title"] for r in state["draft"]["recipes"]) or "your request"
+        summary = f"Here are {len(state['draft']['recipes'])} recipe(s) for you: {titles}."
     return {
         "summary": summary,
         "degraded": degraded,
