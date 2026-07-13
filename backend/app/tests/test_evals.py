@@ -1,5 +1,5 @@
 """Guard: the eval harness runs and the SQL path never violates hard constraints."""
-from app.evals.common import load_cases
+from app.evals.common import QUERIES_PATH, load_cases
 from app.evals.run_retrieval import run
 from app.tests.conftest import requires_db
 
@@ -12,7 +12,7 @@ def test_eval_cases_load():
 
 @requires_db
 def test_sql_path_has_zero_constraint_violations_and_resolves_gold():
-    metrics = run(mode="sql")
+    metrics = run(mode="sql", cases_path=QUERIES_PATH)
     assert not metrics.missing_gold, f"unresolved gold titles: {metrics.missing_gold}"
     # SQL retrieval enforces filters, so returned results must never violate them.
     assert metrics.constraint_violations == 0

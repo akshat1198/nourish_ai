@@ -1,6 +1,9 @@
 # NourishAI backend — runtime dependencies (intentional pins, py3.9–3.12 compatible)
-# Stage 2 will add: sentence-transformers (CPU torch), pgvector, anthropic
 # Stage 4 will add: langgraph, langchain-anthropic, fastmcp
+
+# CPU-only torch wheels keep the image lean on linux (Risk 1); on macOS pip
+# falls back to the platform wheel from PyPI automatically.
+--extra-index-url https://download.pytorch.org/whl/cpu
 
 # Web/API
 fastapi==0.116.1
@@ -15,3 +18,13 @@ SQLAlchemy==2.0.43
 psycopg2-binary==2.9.10
 alembic==1.16.4
 redis==6.4.0
+
+# Embeddings & vector search (Stage 2)
+# numpy pinned <2: torch 2.2.2 is built against the NumPy 1.x ABI.
+numpy==1.26.4
+torch==2.2.2
+sentence-transformers==5.1.0
+pgvector==0.3.6
+
+# LLM (Stage 2.3) — Claude adapter
+anthropic==0.116.0

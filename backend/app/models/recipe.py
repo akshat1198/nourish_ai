@@ -1,10 +1,14 @@
 from datetime import datetime
+from typing import Optional
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+EMBED_DIM = 384
 
 
 class Recipe(Base):
@@ -26,6 +30,10 @@ class Recipe(Base):
     nutrition: Mapped[dict] = mapped_column(JSONB, default=dict)
     # title + ingredient names + tags; FTS now, embedding input in Stage 2
     search_text: Mapped[str] = mapped_column(Text)
+    # Dense embedding of search_text (Stage 2.1); null until backfilled.
+    embedding: Mapped[Optional[list[float]]] = mapped_column(
+        Vector(EMBED_DIM), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

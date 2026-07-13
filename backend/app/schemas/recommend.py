@@ -8,6 +8,9 @@ from pydantic import BaseModel, Field
 
 class RecommendRequest(BaseModel):
     pantry: list[str] = Field(default_factory=list, description="On-hand ingredient names")
+    pantry_text: Optional[str] = Field(
+        None, description="Free-text pantry ('leftover chicken and a sad zucchini'); LLM-parsed and merged into pantry"
+    )
     diet: Optional[str] = Field(
         None, description="Required diet label, e.g. vegan/vegetarian/gluten_free"
     )
@@ -39,15 +42,27 @@ class RecipeCandidate(BaseModel):
     total_essential: int
 
 
+class SubstitutionSuggestion(BaseModel):
+    missing: str  # essential ingredient the recipe needs and pantry lacks
+    use: str  # pantry ingredient that can substitute for it
+    ratio: str
+
+
 class RankedRecipe(RecipeCandidate):
     """A candidate with a computed relevance score and a human explanation."""
 
     score: float
     why: str
+    substitutions: list[SubstitutionSuggestion] = Field(default_factory=list)
 
 
 class RecommendResponse(BaseModel):
     results: list[RankedRecipe]
+    mode: str = Field(
+        "normal",
+        description="normal | substitution_first | shopping_assisted (RETR-05 low-confidence fallback)",
+    )
+    explanation: Optional[str] = None
     unmatched_pantry: list[str] = Field(
         default_factory=list, description="Pantry names that resolved to no ingredient"
     )
