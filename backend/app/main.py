@@ -6,6 +6,7 @@ from app.api.profile import router as profile_router
 from app.api.recommendations import router as recommendations_router
 from app.api.shopping_list import router as shopping_router
 from app.api.substitutions import router as substitutions_router
+from app.api.traces import router as traces_router
 
 # Create FastAPI application
 app = FastAPI(
@@ -20,6 +21,7 @@ app.include_router(substitutions_router)
 app.include_router(agent_router)
 app.include_router(profile_router)
 app.include_router(orchestrate_router)
+app.include_router(traces_router)
 
 
 # Root endpoint

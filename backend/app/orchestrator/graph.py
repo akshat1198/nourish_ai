@@ -21,9 +21,15 @@ them and exercise the compiled graph with no API or DB.
 from __future__ import annotations
 
 import logging
+import time
 
 from langchain_anthropic import ChatAnthropic
 from langgraph.graph import END, START, StateGraph
+
+try:  # captures token usage across all langchain LLM calls in one run
+    from langchain_core.callbacks import get_usage_metadata_callback
+except Exception:  # pragma: no cover - older langchain-core
+    get_usage_metadata_callback = None
 
 from app.agent.tools import call_tool
 from app.agent.validator import validate_plan
@@ -97,6 +103,7 @@ def _summary_llm(req: AgentRequest, draft: dict, nutrition: list[dict]) -> str:
 # Nodes
 # --------------------------------------------------------------------------- #
 def node_pantry_analyst(state: PlanState) -> dict:
+    t0 = time.perf_counter()
     req = AgentRequest(**state["request"])
     if req.pantry or req.pantry_text:
         parsed = parse_pantry_text(req.pantry_text) if req.pantry_text else []
@@ -104,10 +111,17 @@ def node_pantry_analyst(state: PlanState) -> dict:
     else:
         # Refinement turn: no pantry resent — keep the checkpointed one (AGENT-04).
         pantry = state.get("pantry", [])
-    return {"pantry": pantry, "trace": _trace(state, {"node": "pantry_analyst", "pantry": pantry})}
+    return {
+        "pantry": pantry,
+        "trace": _trace(state, {
+            "node": "pantry_analyst", "event_type": "node",
+            "latency_ms": int((time.perf_counter() - t0) * 1000), "pantry": pantry,
+        }),
+    }
 
 
 def node_recipe_planner(state: PlanState) -> dict:
+    t0 = time.perf_counter()
     req = AgentRequest(**state["request"])
     is_repair = bool(state.get("violations"))
     repair_count = state.get("repair_count", 0) + (1 if is_repair else 0)
@@ -144,11 +158,16 @@ def node_recipe_planner(state: PlanState) -> dict:
         "candidates": candidates,
         "draft": draft.model_dump(),
         "repair_count": repair_count,
-        "trace": _trace(state, {"node": "recipe_planner", "repair": is_repair, "n": len(draft.recipes)}),
+        "trace": _trace(state, {
+            "node": "recipe_planner", "event_type": "llm",
+            "latency_ms": int((time.perf_counter() - t0) * 1000),
+            "repair": is_repair, "n": len(draft.recipes),
+        }),
     }
 
 
 def node_safety_nutritionist(state: PlanState) -> dict:
+    t0 = time.perf_counter()
     req = AgentRequest(**state["request"])
     plan = MealPlanResponse(
         recipes=[MealPlanItem(**r) for r in state["draft"]["recipes"]], summary=""
@@ -162,7 +181,11 @@ def node_safety_nutritionist(state: PlanState) -> dict:
     return {
         "violations": violations,
         "nutrition": nutrition,
-        "trace": _trace(state, {"node": "safety_nutritionist", "violations": len(violations)}),
+        "trace": _trace(state, {
+            "node": "safety_nutritionist", "event_type": "node",
+            "latency_ms": int((time.perf_counter() - t0) * 1000),
+            "violations": len(violations),
+        }),
     }
 
 
@@ -173,6 +196,7 @@ def route_after_safety(state: PlanState) -> str:
 
 
 def node_shopping_planner(state: PlanState) -> dict:
+    t0 = time.perf_counter()
     with SessionLocal() as session:
         shopping = call_tool(
             session,
@@ -182,17 +206,27 @@ def node_shopping_planner(state: PlanState) -> dict:
                 "pantry": state["pantry"],
             },
         )
-    return {"shopping_list": shopping, "trace": _trace(state, {"node": "shopping_planner"})}
+    return {
+        "shopping_list": shopping,
+        "trace": _trace(state, {
+            "node": "shopping_planner", "event_type": "node",
+            "latency_ms": int((time.perf_counter() - t0) * 1000),
+        }),
+    }
 
 
 def node_supervisor(state: PlanState) -> dict:
+    t0 = time.perf_counter()
     req = AgentRequest(**state["request"])
     degraded = bool(state.get("violations"))  # survived the repair budget
     summary = _summary_llm(req, state["draft"], state.get("nutrition", []))
     return {
         "summary": summary,
         "degraded": degraded,
-        "trace": _trace(state, {"node": "supervisor", "degraded": degraded}),
+        "trace": _trace(state, {
+            "node": "supervisor", "event_type": "llm",
+            "latency_ms": int((time.perf_counter() - t0) * 1000), "degraded": degraded,
+        }),
     }
 
 
@@ -218,3 +252,22 @@ def build_graph(checkpointer=None):
     g.add_edge("shopping_planner", "supervisor")
     g.add_edge("supervisor", END)
     return g.compile(checkpointer=checkpointer)
+
+
+def invoke_graph(graph, state_in: dict, config: dict | None = None) -> tuple[dict, int, int]:
+    """Invoke a compiled graph, returning (final_state, input_tokens, output_tokens).
+
+    Token usage is aggregated across every langchain LLM call in the run via
+    get_usage_metadata_callback — so the comparative eval and the endpoint can
+    report graph cost without threading usage through PlanState. (pantry_analyst
+    parses free text through the raw SDK, not langchain; the eval set uses
+    structured pantries so that call doesn't fire — see run_agent's --engine graph.)
+    """
+    if get_usage_metadata_callback is None:
+        final = graph.invoke(state_in, config) if config else graph.invoke(state_in)
+        return final, 0, 0
+    with get_usage_metadata_callback() as cb:
+        final = graph.invoke(state_in, config) if config else graph.invoke(state_in)
+    tin = sum(v.get("input_tokens", 0) for v in cb.usage_metadata.values())
+    tout = sum(v.get("output_tokens", 0) for v in cb.usage_metadata.values())
+    return final, tin, tout

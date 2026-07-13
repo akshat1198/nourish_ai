@@ -46,6 +46,8 @@ class OrchestrateResponse(BaseModel):
     nutrition: list[dict] = Field(default_factory=list)
     shopping_list: dict = Field(default_factory=dict)
     repair_count: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
     trace: list[dict] = Field(default_factory=list)
 
 

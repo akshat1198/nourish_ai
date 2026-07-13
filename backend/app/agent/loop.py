@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 
 from app.agent.prompts import system_prompt
 from app.agent.tools import anthropic_tools, call_tool
+from app.agent.tracing import persist_trace
 from app.agent.validator import validate_plan
 from app.core.config import settings
 from app.models import GenerationEvent
@@ -161,12 +162,23 @@ def run_agent(
     tool_calls = 0
     iterations = 0
     usage = {"in": 0, "out": 0}
+    trace: list[dict] = []  # AGENT-05: the single-engine trail (mirrors the graph's)
 
     def ms() -> int:
         return int((time.perf_counter() - t0) * 1000)
 
+    def finish(node: str, **fields) -> None:
+        """Append a run-summary event and persist the trail (no-op without session_id)."""
+        trace.append({
+            "node": node, "event_type": "summary",
+            "tokens": usage["in"] + usage["out"], "latency_ms": ms(),
+            "tool_calls": tool_calls, "iterations": iterations, **fields,
+        })
+        persist_trace(session, request.session_id, "single", trace)
+
     def degraded_no_plan(stop, error) -> AgentResult:
         _log_event(session, request, [], repaired=False, degraded=True, latency_ms=ms())
+        finish("_run", degraded=True, stop_reason=stop, error=error)
         return AgentResult(
             plan=None, degraded=True, stop_reason=stop, iterations=iterations,
             tool_calls=tool_calls, input_tokens=usage["in"], output_tokens=usage["out"],
@@ -175,6 +187,7 @@ def run_agent(
 
     # --- tool loop ---------------------------------------------------------- #
     for iterations in range(1, max_iterations + 1):
+        tcall = time.perf_counter()
         resp = client.messages.create(
             model=settings.LLM_MODEL_MAIN,
             max_tokens=2048,
@@ -187,6 +200,11 @@ def run_agent(
         usage["in"] += uin
         usage["out"] += uout
         stop = resp.stop_reason
+        trace.append({
+            "node": "agent", "event_type": "llm", "iteration": iterations,
+            "stop_reason": stop, "tokens": uin + uout,
+            "latency_ms": int((time.perf_counter() - tcall) * 1000),
+        })
 
         if stop == "tool_use":
             messages.append({"role": "assistant", "content": resp.content})
@@ -201,6 +219,10 @@ def run_agent(
                 except Exception as e:
                     content, is_error = f"error: {e}", True
                     logger.warning("tool %s failed: %s", getattr(block, "name", "?"), e)
+                trace.append({
+                    "node": f"tool:{getattr(block, 'name', '?')}",
+                    "event_type": "tool_use", "is_error": is_error,
+                })
                 results.append(
                     {"type": "tool_result", "tool_use_id": block.id,
                      "content": content, "is_error": is_error}
@@ -227,6 +249,10 @@ def run_agent(
         return degraded_no_plan("end_turn", "no structured plan returned")
 
     violations = validate_plan(session, plan, request)
+    trace.append({
+        "node": "structure", "event_type": "llm",
+        "tokens": uin + uout, "violations": len(violations),
+    })
     repaired = False
     attempt = 0
     while violations and attempt < settings.REPAIR_MAX_ATTEMPTS:
@@ -238,12 +264,17 @@ def run_agent(
         usage["in"] += uin
         usage["out"] += uout
         if plan is None:
+            trace.append({"node": "repair", "event_type": "llm", "attempt": attempt,
+                          "tokens": uin + uout, "failed": True})
             break
         violations = validate_plan(session, plan, request)
+        trace.append({"node": "repair", "event_type": "llm", "attempt": attempt,
+                      "tokens": uin + uout, "violations": len(violations)})
 
     if plan is None or violations:
         fallback = deterministic_plan(session, request)
         _log_event(session, request, violations, repaired=repaired, degraded=True, latency_ms=ms())
+        finish("_run", degraded=True, repaired=repaired, violations=len(violations))
         return AgentResult(
             plan=fallback, degraded=True, repaired=repaired, violations=violations,
             stop_reason="end_turn", iterations=iterations, tool_calls=tool_calls,
@@ -252,6 +283,7 @@ def run_agent(
         )
 
     _log_event(session, request, [], repaired=repaired, degraded=False, latency_ms=ms())
+    finish("_run", degraded=False, repaired=repaired, violations=0)
     return AgentResult(
         plan=plan, degraded=False, repaired=repaired, violations=[],
         stop_reason="end_turn", iterations=iterations, tool_calls=tool_calls,
