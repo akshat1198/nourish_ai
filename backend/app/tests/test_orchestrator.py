@@ -25,7 +25,7 @@ def _draft():
 def stub_graph(monkeypatch):
     monkeypatch.setattr(g, "SessionLocal", lambda: _FakeCM())
     monkeypatch.setattr(g, "parse_pantry_text", lambda text: [])
-    monkeypatch.setattr(g, "_plan_llm", lambda req, cands, viol: _draft())
+    monkeypatch.setattr(g, "_plan_llm", lambda req, cands, viol, prior_recipes=None: _draft())
     monkeypatch.setattr(g, "_summary_llm", lambda req, draft, nutr: "A quick pasta.")
 
     def fake_call_tool(session, name, args):
@@ -89,3 +89,55 @@ def test_repairs_exhausted_marks_degraded(stub_graph, monkeypatch):
     assert final["repair_count"] == g.MAX_REPAIRS
     assert final["degraded"] is True
     assert final["violations"]  # reported
+
+
+# --------------------------------------------------------------------------- #
+# Checkpointing / multi-turn (Stage 4.3)
+# --------------------------------------------------------------------------- #
+def test_checkpoint_preserves_pantry_and_passes_prior_on_refinement(stub_graph, monkeypatch):
+    from langgraph.checkpoint.memory import MemorySaver
+
+    monkeypatch.setattr(g, "validate_plan", lambda s, p, r: [])
+    # Record what recipe_planner received so we can assert the refinement path.
+    seen = {}
+
+    def spy_plan(req, cands, viol, prior_recipes=None):
+        seen["pantry_used"] = [c["id"] for c in cands]  # candidates from search
+        seen["prior"] = prior_recipes
+        return _draft()
+
+    monkeypatch.setattr(g, "_plan_llm", spy_plan)
+
+    graph = g.build_graph(checkpointer=MemorySaver())
+    cfg = {"configurable": {"thread_id": "sess-1"}}
+
+    # Turn 1: full pantry.
+    graph.invoke({"request": {"pantry": ["pasta"]}, "repair_count": 0, "violations": [], "trace": []}, cfg)
+    assert not seen["prior"]  # first turn, no prior draft (empty/falsy)
+
+    # Turn 2: refinement — NO pantry resent, just a question.
+    final2 = graph.invoke(
+        {"request": {"pantry": [], "question": "something spicier"}, "repair_count": 0,
+         "violations": [], "trace": []},
+        cfg,
+    )
+    # Pantry preserved from the checkpoint (analyst didn't blank it).
+    assert final2["pantry"] == ["pasta"]
+    # The planner was told about the prior recommendation (refinement path).
+    assert seen["prior"] and seen["prior"][0]["title"] == "Tomato Garlic Pasta"
+
+
+def test_distinct_threads_dont_share_state(stub_graph, monkeypatch):
+    from langgraph.checkpoint.memory import MemorySaver
+
+    monkeypatch.setattr(g, "validate_plan", lambda s, p, r: [])
+    graph = g.build_graph(checkpointer=MemorySaver())
+
+    graph.invoke({"request": {"pantry": ["pasta"]}, "repair_count": 0, "violations": [], "trace": []},
+                 {"configurable": {"thread_id": "a"}})
+    # Thread b, refinement with no pantry -> no prior pantry to preserve.
+    final_b = graph.invoke(
+        {"request": {"pantry": [], "question": "x"}, "repair_count": 0, "violations": [], "trace": []},
+        {"configurable": {"thread_id": "b"}},
+    )
+    assert final_b["pantry"] == []  # independent thread

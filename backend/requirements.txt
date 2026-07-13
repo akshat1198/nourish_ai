@@ -37,3 +37,8 @@ mcp==1.13.0
 # Multi-agent orchestration (Stage 4.2)
 langgraph==1.2.9
 langchain-anthropic==1.4.8
+
+# Orchestrator checkpointing (Stage 4.3) — Postgres saver uses psycopg(3)
+langgraph-checkpoint-postgres==3.1.0
+psycopg[binary]==3.3.4
+psycopg-pool==3.3.1

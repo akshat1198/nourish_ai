@@ -32,5 +32,8 @@ class Settings(BaseSettings):
     # this fraction of its essential ingredients, switch to a fallback mode.
     FALLBACK_COVERAGE_THRESHOLD: float = 0.34
 
+    # Orchestrator checkpointing (AGENT-04): memory | postgres
+    CHECKPOINT_BACKEND: str = "memory"
+
 
 settings = Settings()

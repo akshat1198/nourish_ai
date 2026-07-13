@@ -9,6 +9,9 @@ from pydantic import BaseModel, Field
 class AgentRequest(BaseModel):
     pantry: list[str] = Field(default_factory=list)
     pantry_text: Optional[str] = None
+    session_id: Optional[str] = Field(
+        None, description="Continues a checkpointed orchestrator session (multi-turn refinement)"
+    )
     user_key: Optional[str] = Field(None, description="Opaque client key (used by memory in 3.4)")
     question: Optional[str] = Field(None, description="e.g. 'something high-protein tonight, no dairy'")
     diet: Optional[str] = None

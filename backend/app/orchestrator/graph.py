@@ -20,6 +20,8 @@ them and exercise the compiled graph with no API or DB.
 """
 from __future__ import annotations
 
+import logging
+
 from langchain_anthropic import ChatAnthropic
 from langgraph.graph import END, START, StateGraph
 
@@ -30,6 +32,8 @@ from app.db import SessionLocal
 from app.orchestrator.state import PlanState
 from app.schemas.agent import AgentRequest, DraftPlan, MealPlanItem, MealPlanResponse
 from app.services.pantry_text import parse_pantry_text
+
+logger = logging.getLogger(__name__)
 
 MAX_REPAIRS = 2
 CANDIDATE_LIMIT = 8
@@ -42,23 +46,36 @@ def _trace(state: PlanState, event: dict) -> list:
 # --------------------------------------------------------------------------- #
 # LLM helpers (monkeypatched in tests)
 # --------------------------------------------------------------------------- #
-def _plan_llm(req: AgentRequest, candidates: list[dict], violations: list | None) -> DraftPlan:
+def _plan_llm(
+    req: AgentRequest,
+    candidates: list[dict],
+    violations: list | None,
+    prior_recipes: list | None = None,
+) -> DraftPlan:
+    # json_schema (native structured output) is more reliable than tool-calling
+    # for nested-list schemas, which occasionally get stringified.
     llm = ChatAnthropic(
         model=settings.LLM_MODEL_MAIN, max_tokens=1024
-    ).with_structured_output(DraftPlan)
+    ).with_structured_output(DraftPlan, method="json_schema")
     cand_lines = "\n".join(
         f"{c['id']}: {c['title']} — diet={c['diet_labels']}, allergens={c['allergens']}, "
         f"{c['time_minutes']}min, missing {len(c['missing_ingredients'])}"
         for c in candidates
     )
-    avoid = ""
+    context = ""
     if violations:
         bad = ", ".join(str(v.get("recipe_id")) for v in violations if v.get("recipe_id"))
-        avoid = f"\nA previous pick violated constraints — do NOT choose recipe_ids: {bad}."
+        context = f"\nA previous pick violated constraints — do NOT choose recipe_ids: {bad}."
+    elif prior_recipes:  # a refinement on a continued session (Stage 4.3)
+        titles = ", ".join(r["title"] for r in prior_recipes)
+        context = (
+            f"\nThe user was previously recommended: {titles}. They now say: "
+            f"'{req.question}'. Adjust your picks to honor this refinement."
+        )
     prompt = (
         f"Pick up to {req.limit} recipes for this request, using ONLY these candidates.\n"
         f"Constraints: diet={req.diet}, avoid_allergens={req.exclude_allergens}, "
-        f"disliked={req.disliked_ingredients}, max_time={req.max_time_minutes}.{avoid}\n"
+        f"disliked={req.disliked_ingredients}, max_time={req.max_time_minutes}.{context}\n"
         f"Candidates:\n{cand_lines}\n"
         "Return recipe_id, title, and a one-line 'why' for each pick."
     )
@@ -81,8 +98,12 @@ def _summary_llm(req: AgentRequest, draft: dict, nutrition: list[dict]) -> str:
 # --------------------------------------------------------------------------- #
 def node_pantry_analyst(state: PlanState) -> dict:
     req = AgentRequest(**state["request"])
-    parsed = parse_pantry_text(req.pantry_text) if req.pantry_text else []
-    pantry = req.pantry + parsed
+    if req.pantry or req.pantry_text:
+        parsed = parse_pantry_text(req.pantry_text) if req.pantry_text else []
+        pantry = req.pantry + parsed
+    else:
+        # Refinement turn: no pantry resent — keep the checkpointed one (AGENT-04).
+        pantry = state.get("pantry", [])
     return {"pantry": pantry, "trace": _trace(state, {"node": "pantry_analyst", "pantry": pantry})}
 
 
@@ -90,6 +111,8 @@ def node_recipe_planner(state: PlanState) -> dict:
     req = AgentRequest(**state["request"])
     is_repair = bool(state.get("violations"))
     repair_count = state.get("repair_count", 0) + (1 if is_repair else 0)
+    # A prior draft with no active violations => this is a refinement turn.
+    prior = state.get("draft", {}).get("recipes", []) if not is_repair else None
     with SessionLocal() as session:
         search = call_tool(
             session,
@@ -103,7 +126,20 @@ def node_recipe_planner(state: PlanState) -> dict:
             },
         )
     candidates = search["results"]
-    draft = _plan_llm(req, candidates, state.get("violations") if is_repair else None)
+    try:
+        draft = _plan_llm(
+            req, candidates, state.get("violations") if is_repair else None, prior_recipes=prior
+        )
+    except Exception as e:  # never let an LLM formatting glitch crash the graph
+        logger.warning("recipe_planner LLM failed, using top candidates: %s", e)
+        bad = {v.get("recipe_id") for v in (state.get("violations") or [])}
+        clean = [c for c in candidates if c["id"] not in bad]
+        draft = DraftPlan(
+            recipes=[
+                MealPlanItem(recipe_id=c["id"], title=c["title"], why="top match for your pantry")
+                for c in clean[: req.limit]
+            ]
+        )
     return {
         "candidates": candidates,
         "draft": draft.model_dump(),
