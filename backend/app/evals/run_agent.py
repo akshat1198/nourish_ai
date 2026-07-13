@@ -44,7 +44,7 @@ from dataclasses import dataclass
 from app.agent.loop import run_agent
 from app.core.config import settings
 from app.db import SessionLocal
-from app.evals.common import load_cases
+from app.evals.common import SUITES, load_cases
 from app.llm.client import get_llm, is_enabled
 from app.orchestrator.graph import build_graph, invoke_graph
 from app.schemas.agent import AgentRequest
@@ -79,6 +79,8 @@ def _req(case) -> AgentRequest:
         diet=case.diet,
         exclude_allergens=case.exclude_allergens,
         max_time_minutes=case.max_time_minutes,
+        disliked_ingredients=case.disliked_ingredients,
+        question=case.question,
         limit=2,
     )
 
@@ -189,8 +191,8 @@ def _safe(fn, case) -> Row:
                    tool_calls=-1, wall=0.0, tin=0, tout=0, top="(error)")
 
 
-def run(engine: str, limit: int, verbose: bool) -> None:
-    cases = load_cases()[:limit]
+def run(engine: str, suite: str, limit: int, verbose: bool) -> None:
+    cases = load_cases(SUITES[suite])[:limit]
     with SessionLocal() as session:
         if engine in ("single", "both"):
             client = get_llm().raw()
@@ -219,6 +221,11 @@ def run(engine: str, limit: int, verbose: bool) -> None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--engine", choices=["single", "graph", "both"], default="single")
+    ap.add_argument(
+        "--suite", choices=list(SUITES), default="gold",
+        help="gold = 30 constraint-satisfiable cases; adversarial = disliked-ingredient "
+             "cases that force the repair/degraded path",
+    )
     ap.add_argument("--limit", type=int, default=2)
     ap.add_argument("--yes", action="store_true", help="required for more than 3 cases")
     ap.add_argument("-v", "--verbose", action="store_true")
@@ -231,11 +238,11 @@ def main():
     if limit > 3 and not args.yes:
         mult = "2x (both engines)" if args.engine == "both" else ""
         raise SystemExit(
-            f"About to run {limit} agent cases (engine={args.engine}) against the REAL "
-            f"API (spends tokens{', ' + mult if mult else ''}).\n"
+            f"About to run {limit} {args.suite} agent cases (engine={args.engine}) against "
+            f"the REAL API (spends tokens{', ' + mult if mult else ''}).\n"
             f"Re-run with --yes to confirm, or use a smaller --limit for a dry run."
         )
-    run(args.engine, limit, args.verbose)
+    run(args.engine, args.suite, limit, args.verbose)
 
 
 if __name__ == "__main__":

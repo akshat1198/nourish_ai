@@ -12,6 +12,10 @@ from app.models import Recipe
 
 EVAL_DIR = Path(__file__).resolve().parent.parent.parent / "seed_data" / "eval"
 QUERIES_PATH = EVAL_DIR / "queries.jsonl"
+QUERIES_ADVERSARIAL_PATH = EVAL_DIR / "queries_adversarial.jsonl"
+
+# Named suites the agent eval can run (--suite).
+SUITES = {"gold": QUERIES_PATH, "adversarial": QUERIES_ADVERSARIAL_PATH}
 
 
 @dataclass
@@ -22,6 +26,10 @@ class EvalCase:
     exclude_allergens: list[str]
     max_time_minutes: int | None
     relevant_titles: list[str]
+    # Adversarial fields (Stage 4.4): retrieval can't hard-filter a disliked
+    # ingredient, but the validator flags it — so these drive the repair loop.
+    disliked_ingredients: list[str] = field(default_factory=list)
+    question: str | None = None
 
 
 def load_cases(path: Path = QUERIES_PATH) -> list[EvalCase]:
@@ -38,7 +46,9 @@ def load_cases(path: Path = QUERIES_PATH) -> list[EvalCase]:
                 diet=d.get("diet"),
                 exclude_allergens=d.get("exclude_allergens", []),
                 max_time_minutes=d.get("max_time_minutes"),
-                relevant_titles=d["relevant_titles"],
+                relevant_titles=d.get("relevant_titles", []),
+                disliked_ingredients=d.get("disliked_ingredients", []),
+                question=d.get("question"),
             )
         )
     return cases
