@@ -11,6 +11,7 @@ class PantryItemIn(BaseModel):
 
 class PantryItemOut(BaseModel):
     ingredient: str  # canonical name
+    category: str | None = None  # drives the token dot
     is_staple: bool
 
 

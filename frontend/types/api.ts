@@ -53,11 +53,13 @@ export interface RecommendResponse {
 
 export interface IngredientSuggestion {
   name: string;
+  category?: string | null;
   matched_alias?: string | null;
 }
 
 export interface PantryItem {
   ingredient: string;
+  category?: string | null;
   is_staple: boolean;
 }
 

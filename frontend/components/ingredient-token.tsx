@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Pin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // The signature element: a tactile ingredient pill with a masala-dabba category
@@ -14,7 +14,7 @@ export type IngredientCategory =
   | "fruit"
   | "other";
 
-const DOT_COLOR: Record<IngredientCategory, string> = {
+export const DOT_COLOR: Record<IngredientCategory, string> = {
   protein: "bg-cat-protein",
   veg: "bg-cat-veg",
   grain: "bg-cat-grain",
@@ -31,6 +31,8 @@ interface IngredientTokenProps {
   staple?: boolean;
   /** Missing ingredients (on a recipe) read as an outline you don't have yet. */
   muted?: boolean;
+  /** When provided, shows a pin toggle that flips staple state. */
+  onToggleStaple?: () => void;
   onRemove?: () => void;
 }
 
@@ -39,6 +41,7 @@ export function IngredientToken({
   category = "other",
   staple = false,
   muted = false,
+  onToggleStaple,
   onRemove,
 }: IngredientTokenProps) {
   return (
@@ -53,12 +56,28 @@ export function IngredientToken({
     >
       <span className={cn("size-2 shrink-0 rounded-full", DOT_COLOR[category])} aria-hidden />
       <span className="leading-none">{name}</span>
+      {onToggleStaple && (
+        <button
+          type="button"
+          onClick={onToggleStaple}
+          aria-label={staple ? `Unpin ${name} from staples` : `Pin ${name} as a staple`}
+          aria-pressed={staple}
+          className={cn(
+            "-mr-0.5 ml-0.5 grid size-5 place-items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            staple
+              ? "text-primary hover:bg-primary/10"
+              : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+          )}
+        >
+          <Pin className={cn("size-3", staple && "fill-current")} />
+        </button>
+      )}
       {onRemove && (
         <button
           type="button"
           onClick={onRemove}
           aria-label={`Remove ${name}`}
-          className="-mr-1 ml-0.5 grid size-5 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="-mr-1 grid size-5 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <X className="size-3" />
         </button>

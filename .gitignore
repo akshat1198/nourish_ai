@@ -79,3 +79,4 @@ db/init/
 # Local session-recovery artifacts (never committed)
 PLAN.md
 tasks/
+.DS_Store

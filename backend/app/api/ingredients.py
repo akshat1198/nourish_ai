@@ -27,12 +27,16 @@ def list_ingredients(
     for ing in session.execute(select(Ingredient)).scalars():
         name_n = normalize(ing.name)
         if not qn or qn in name_n:
-            out.append((name_n.startswith(qn), IngredientSuggestion(name=ing.name)))
+            out.append(
+                (name_n.startswith(qn),
+                 IngredientSuggestion(name=ing.name, category=ing.category))
+            )
             continue
         for alias in ing.aliases or []:
             if qn in normalize(alias):
                 out.append(
-                    (False, IngredientSuggestion(name=ing.name, matched_alias=alias))
+                    (False, IngredientSuggestion(
+                        name=ing.name, category=ing.category, matched_alias=alias))
                 )
                 break
     # prefix matches first, then alphabetical

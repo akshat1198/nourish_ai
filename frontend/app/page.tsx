@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   ChefHat,
@@ -8,36 +9,10 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { HeroShowcase } from "@/components/landing/hero-showcase";
+import { KitchenStatus } from "@/components/kitchen-status";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useHealth } from "@/lib/hooks/use-health";
 import { cn } from "@/lib/utils";
-
-function KitchenStatus() {
-  const { data, isLoading, isError } = useHealth();
-  const online = data?.status === "ok" && data.db && data.redis;
-  const label = isLoading
-    ? "Waking the kitchen…"
-    : isError
-      ? "Kitchen offline"
-      : online
-        ? "Kitchen online"
-        : "Kitchen degraded";
-  return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-sm text-muted-foreground backdrop-blur">
-      <span
-        className={cn(
-          "size-2 rounded-full",
-          isLoading && "animate-pulse bg-turmeric",
-          isError && "bg-chili",
-          online && "bg-primary",
-        )}
-        aria-hidden
-      />
-      {label}
-    </span>
-  );
-}
 
 const STEPS = [
   {
@@ -58,6 +33,7 @@ const STEPS = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   return (
     <div className="flex min-h-dvh flex-col">
       {/* Header */}
@@ -100,11 +76,7 @@ export default function Home() {
               <Button
                 size="lg"
                 className="group glow-primary"
-                onClick={() =>
-                  document
-                    .getElementById("how")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
+                onClick={() => router.push("/app")}
               >
                 Set up my pantry
                 <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
