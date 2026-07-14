@@ -1,8 +1,13 @@
 "use client";
 
-import { ArrowRight, Clock3, Leaf } from "lucide-react";
-import { IngredientToken } from "@/components/ingredient-token";
-import { Badge } from "@/components/ui/badge";
+import {
+  ArrowRight,
+  ChefHat,
+  Refrigerator,
+  Sparkles,
+  SlidersHorizontal,
+} from "lucide-react";
+import { HeroShowcase } from "@/components/landing/hero-showcase";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useHealth } from "@/lib/hooks/use-health";
@@ -19,7 +24,7 @@ function KitchenStatus() {
         ? "Kitchen online"
         : "Kitchen degraded";
   return (
-    <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-sm text-muted-foreground backdrop-blur">
       <span
         className={cn(
           "size-2 rounded-full",
@@ -34,101 +39,124 @@ function KitchenStatus() {
   );
 }
 
-function MatchMeter({ have, total }: { have: number; total: number }) {
-  return (
-    <span className="inline-flex items-center gap-1" aria-label={`${have} of ${total} key ingredients on hand`}>
-      {Array.from({ length: total }).map((_, i) => (
-        <span
-          key={i}
-          className={cn(
-            "size-1.5 rounded-full",
-            i < have ? "bg-primary" : "border border-cardamom",
-          )}
-        />
-      ))}
-    </span>
-  );
-}
+const STEPS = [
+  {
+    icon: Refrigerator,
+    title: "Stock your pantry",
+    body: "Add what's on hand plus your everyday staples. It stays saved and you edit it whenever.",
+  },
+  {
+    icon: SlidersHorizontal,
+    title: "Set tonight's mood",
+    body: "Cuisine, meal, how you want to eat, and anything to skip — a few quick taps.",
+  },
+  {
+    icon: ChefHat,
+    title: "Cook something great",
+    body: "Ranked recipes you can actually make right now, with smart swaps when you're short.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-2xl flex-col px-5">
+    <div className="flex min-h-dvh flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between py-5">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
         <span className="font-display text-2xl font-semibold tracking-tight">
           Nourish<span className="text-primary">AI</span>
         </span>
         <KitchenStatus />
       </header>
 
-      {/* Hero — the thesis: what you have becomes what you cook */}
-      <main className="flex flex-1 flex-col justify-center py-10">
-        <p className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-          <Leaf className="size-3.5" />
-          Pantry-first cooking
-        </p>
+      {/* Hero */}
+      <section className="relative flex-1 overflow-hidden">
+        {/* animated aurora */}
+        <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+          <div className="absolute -left-40 -top-32 size-[42rem] rounded-full bg-primary/25 blur-3xl animate-aurora" />
+          <div className="absolute -right-48 top-1/4 size-[38rem] rounded-full bg-turmeric/25 blur-3xl animate-aurora [animation-delay:-6s]" />
+          <div className="absolute -bottom-40 left-1/3 size-[34rem] rounded-full bg-chili/15 blur-3xl animate-aurora [animation-delay:-11s]" />
+        </div>
 
-        <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
-          Cook what you
-          <br />
-          <span className="text-primary">already have.</span>
-        </h1>
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
+          {/* Left — the pitch */}
+          <div className={cn("animate-fade-up")}>
+            <p className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              <Sparkles className="size-3.5" />
+              AI recipes from what’s already in your kitchen
+            </p>
 
-        <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-          Keep your pantry current, tell us the mood — cuisine, meal, how you want
-          to eat — and get recipes you can actually make tonight.
-        </p>
+            <h1 className="font-display text-6xl font-semibold leading-[0.98] tracking-tight text-balance sm:text-7xl">
+              Cook what you{" "}
+              <span className="text-primary">already have.</span>
+            </h1>
 
-        {/* Signature: ingredient tokens transforming into a recipe */}
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="flex flex-wrap gap-2">
-            <IngredientToken name="paneer" category="dairy" staple />
-            <IngredientToken name="tomato" category="veg" />
-            <IngredientToken name="cumin" category="spice" />
-            <IngredientToken name="basmati rice" category="grain" staple />
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
+              Keep your pantry current, tell us the mood, and get recipes across
+              every cuisine that you can actually make tonight — no last-minute
+              grocery run.
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <Button
+                size="lg"
+                className="group glow-primary"
+                onClick={() =>
+                  document
+                    .getElementById("how")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                Set up my pantry
+                <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Free · your pantry, your recipes
+              </span>
+            </div>
           </div>
 
-          <ArrowRight className="hidden size-5 shrink-0 text-muted-foreground sm:block" aria-hidden />
-
-          <Card className="w-full max-w-xs shrink-0 p-4 sm:w-auto">
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="font-display text-lg font-medium leading-snug">
-                Paneer Jeera Rice
-              </h3>
-              <Badge variant="primary">Gujarati</Badge>
-            </div>
-            <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1 tabular">
-                <Clock3 className="size-3.5" /> 25 min
-              </span>
-              <span className="tabular">18g protein</span>
-            </div>
-            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-              <MatchMeter have={3} total={4} />
-              <span>3 of 4 on hand</span>
-            </div>
-          </Card>
+          {/* Right — the living demo */}
+          <div className="flex justify-center lg:justify-end">
+            <HeroShowcase />
+          </div>
         </div>
+      </section>
 
-        <div className="mt-10">
-          <Button size="lg" disabled className="cursor-not-allowed opacity-60">
-            Set up my pantry
-            <ArrowRight />
-          </Button>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Pantry, preferences, and recipes arrive next.
+      {/* How it works */}
+      <section id="how" className="border-t border-border bg-card/40">
+        <div className="mx-auto w-full max-w-6xl px-6 py-16">
+          <h2 className="font-display text-3xl font-semibold tracking-tight">
+            Dinner, sorted in three steps
+          </h2>
+          <p className="mt-2 max-w-lg text-muted-foreground">
+            From a full pantry to a plan you’ll actually cook.
           </p>
-        </div>
-      </main>
 
-      {/* The flow — the real three steps, not decoration */}
-      <footer className="border-t border-border py-5">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Pantry</span>
-          <ArrowRight className="size-3.5" aria-hidden />
-          <span className="font-medium text-foreground">Preferences</span>
-          <ArrowRight className="size-3.5" aria-hidden />
-          <span className="font-medium text-foreground">Recipes</span>
+          <div className="mt-10 grid gap-5 sm:grid-cols-3">
+            {STEPS.map(({ icon: Icon, title, body }) => (
+              <Card
+                key={title}
+                className="p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+              >
+                <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <Icon className="size-5" />
+                </div>
+                <h3 className="mt-4 font-display text-xl font-medium">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {body}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-2 gap-y-1 px-6 py-6 text-sm text-muted-foreground">
+          <span className="font-display text-base font-semibold text-foreground">
+            Nourish<span className="text-primary">AI</span>
+          </span>
           <span className="ml-auto text-xs">Foundation · Stage 5.2</span>
         </div>
       </footer>

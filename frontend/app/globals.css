@@ -128,3 +128,95 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* --- Motion + depth (Stage 5.2 redesign) --------------------------------- */
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, -6%, 0) scale(1.14);
+  }
+  100% {
+    transform: translate3d(-4%, 4%, 0) scale(1.05);
+  }
+}
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@layer utilities {
+  .animate-aurora {
+    animation: aurora-drift 16s ease-in-out infinite alternate;
+  }
+  .animate-float {
+    animation: float-slow 7s ease-in-out infinite;
+  }
+  .animate-fade-up {
+    animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-pop-in {
+    animation: pop-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* Warm "simmer" accent gradient — the one energetic flourish */
+  .bg-simmer {
+    background-image: linear-gradient(120deg, var(--turmeric), #e0614a);
+  }
+  .text-simmer {
+    background-image: linear-gradient(120deg, var(--turmeric), #d8492f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glow-primary {
+    box-shadow: 0 24px 70px -28px color-mix(in oklab, var(--primary) 60%, transparent);
+  }
+  .glow-warm {
+    box-shadow: 0 26px 80px -30px color-mix(in oklab, var(--turmeric) 65%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-aurora,
+  .animate-float,
+  .animate-fade-up,
+  .animate-pop-in {
+    animation: none !important;
+  }
+}

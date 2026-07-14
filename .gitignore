@@ -31,6 +31,9 @@ var/
 venv/
 ENV/
 
+# Local reference screenshots / scratch images
+pictures/
+
 # IDE
 .idea/
 .vscode/
