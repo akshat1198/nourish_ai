@@ -1,0 +1,130 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.75rem;
+
+  /* Brand — "spice tin": warm paper, herb ink, curry-leaf green, turmeric, chili */
+  --paper: #fbf8f2;
+  --ink: #20271f;
+  --curry-leaf: #2e6a4f;
+  --turmeric: #e5a036;
+  --chili: #bf4128;
+  --cardamom: #c9d3c3;
+
+  /* shadcn semantic tokens — light */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--curry-leaf);
+  --primary-foreground: #fbf8f2;
+  --secondary: #efeae0;
+  --secondary-foreground: var(--ink);
+  --muted: #efeae0;
+  --muted-foreground: #6b7268;
+  --accent: #f3e6cf;
+  --accent-foreground: #5a4420;
+  --destructive: var(--chili);
+  --destructive-foreground: #fbf8f2;
+  --border: var(--cardamom);
+  --input: var(--cardamom);
+  --ring: var(--curry-leaf);
+
+  /* Signature: ingredient-category dots (masala-dabba color coding) */
+  --cat-protein: #bf4128;
+  --cat-veg: #4e8a5a;
+  --cat-grain: #c98a3c;
+  --cat-spice: #c6602a;
+  --cat-dairy: #b9a97f;
+  --cat-fruit: #b4506b;
+  --cat-other: #8a9384;
+}
+
+.dark {
+  --paper: #171b16;
+  --ink: #ece7da;
+  --background: #12150f;
+  --foreground: #ece7da;
+  --card: #1c211a;
+  --card-foreground: #ece7da;
+  --popover: #1c211a;
+  --popover-foreground: #ece7da;
+  --primary: #6fb891;
+  --primary-foreground: #10130e;
+  --secondary: #262c23;
+  --secondary-foreground: #ece7da;
+  --muted: #262c23;
+  --muted-foreground: #a6ac9e;
+  --accent: #322a1a;
+  --accent-foreground: #ead4a6;
+  --destructive: #e06a52;
+  --destructive-foreground: #10130e;
+  --border: #333a30;
+  --input: #333a30;
+  --ring: #6fb891;
+  --cardamom: #333a30;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Brand extras usable as bg-turmeric / text-curry-leaf / bg-cat-protein */
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-curry-leaf: var(--curry-leaf);
+  --color-turmeric: var(--turmeric);
+  --color-chili: var(--chili);
+  --color-cardamom: var(--cardamom);
+  --color-cat-protein: var(--cat-protein);
+  --color-cat-veg: var(--cat-veg);
+  --color-cat-grain: var(--cat-grain);
+  --color-cat-spice: var(--cat-spice);
+  --color-cat-dairy: var(--cat-dairy);
+  --color-cat-fruit: var(--cat-fruit);
+  --color-cat-other: var(--cat-other);
+
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Tabular figures for data (times, grams, calories) — no layout shift */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}

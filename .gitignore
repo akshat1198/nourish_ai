@@ -20,6 +20,11 @@ var/
 .installed.cfg
 *.egg
 
+# The Python `lib/` (etc.) rules above are unanchored — don't let them swallow
+# the Next.js frontend source directory.
+!frontend/lib/
+!frontend/lib/**
+
 # Virtual Environment
 .env
 .venv
