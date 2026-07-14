@@ -40,6 +40,19 @@ class Recipe(Base):
     embedding: Mapped[Optional[list[float]]] = mapped_column(
         Vector(EMBED_DIM), nullable=True
     )
+    # Provenance (Stage 6): where the recipe came from + how it may be used.
+    # source ∈ {seed, themealdb, archanas, edamam}; the 144 curated rows are
+    # "seed". source_url/attribution/image_url/license_note come from ingestion.
+    source: Mapped[str] = mapped_column(Text, default="seed", server_default="seed")
+    source_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    attribution: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    image_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    license_note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # True when nutrition was estimated from ingredients (Archana's has none),
+    # so the UI can show it honestly or hide it.
+    nutrition_estimated: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=func.false()
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
