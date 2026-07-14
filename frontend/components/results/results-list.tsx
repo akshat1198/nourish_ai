@@ -51,7 +51,11 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
             </p>
           )}
         </div>
-        <span className="tabular text-sm text-muted-foreground">
+        <span
+          className="tabular text-sm text-muted-foreground"
+          role="status"
+          aria-live="polite"
+        >
           {data.results.length} found
         </span>
       </div>

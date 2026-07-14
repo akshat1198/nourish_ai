@@ -48,6 +48,7 @@ export default function Home() {
         </div>
       </header>
 
+      <main className="flex flex-1 flex-col">
       {/* Hero */}
       <section className="relative flex-1 overflow-hidden">
         {/* animated aurora */}
@@ -112,7 +113,7 @@ export default function Home() {
             {STEPS.map(({ icon: Icon, title, body }) => (
               <Card
                 key={title}
-                className="p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+                className="p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md"
               >
                 <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
                   <Icon className="size-5" />
@@ -126,6 +127,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
       <footer className="border-t border-border">

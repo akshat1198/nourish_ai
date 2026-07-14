@@ -93,7 +93,7 @@ export function FilterWizard({
           </div>
           <div className="h-1 overflow-hidden rounded-full bg-secondary">
             <div
-              className="h-full rounded-full bg-primary transition-all"
+              className="h-full rounded-full bg-primary transition-[width] duration-300"
               style={{ width: `${((idx + 1) / STEPS.length) * 100}%` }}
             />
           </div>
@@ -356,7 +356,7 @@ function CuisineCard({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        "flex flex-col items-start gap-0.5 rounded-xl border px-4 py-3 text-left transition-all cursor-pointer hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "flex flex-col items-start gap-0.5 rounded-xl border px-4 py-3 text-left transition-[transform,background-color,border-color,color] cursor-pointer hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected
           ? "border-primary bg-primary/10"
           : "border-border bg-card hover:bg-secondary/40",

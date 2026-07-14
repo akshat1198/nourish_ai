@@ -28,6 +28,9 @@ const CommandInput = React.forwardRef<
     <Search className="size-4 shrink-0 text-muted-foreground" />
     <CommandPrimitive.Input
       ref={ref}
+      autoComplete="off"
+      autoCorrect="off"
+      spellCheck={false}
       className={cn(
         "flex h-11 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
         className,
@@ -44,7 +47,10 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-64 overflow-y-auto overflow-x-hidden p-1", className)}
+    className={cn(
+      "max-h-64 overflow-y-auto overflow-x-hidden overscroll-contain p-1",
+      className,
+    )}
     {...props}
   />
 ));

@@ -176,7 +176,7 @@ export function HeroShowcase() {
             onClick={() => setActive(idx)}
             aria-label={`Show ${demo.cuisine} example`}
             className={cn(
-              "h-1.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "h-1.5 rounded-full transition-[width,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               idx === active
                 ? "w-6 bg-primary"
                 : "w-1.5 bg-cardamom hover:bg-muted-foreground",

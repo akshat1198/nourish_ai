@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Newer push to the same branch/PR cancels the older run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: backend (pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    # Real Postgres+pgvector and Redis so the DB-backed suite actually runs
+    # (conftest skips those tests when the DB is unreachable — CI must not).
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: pantry
+          POSTGRES_PASSWORD: pantrypw
+          POSTGRES_DB: pantrydb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pantry -d pantrydb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg2://pantry:pantrypw@localhost:5432/pantrydb
+      REDIS_URL: redis://localhost:6379/0
+      # AUTH_MODE=disabled is the code default and keeps the suite green
+      # without minting tokens; the jwt path has its own mocked tests.
+      AUTH_MODE: disabled
+      # ANTHROPIC_API_KEY intentionally unset: the LLM adapter fail-opens and
+      # all LLM tests use a mocked SDK, so no key (and no cost) in CI.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run migrations
+        run: alembic upgrade head
+      - name: Seed corpus
+        run: python scripts/seed.py
+      - name: Run tests
+        # RUN_EMBEDDER_TESTS stays unset: the two embedder tests download the
+        # sentence-transformers model and are gated off to keep CI fast. The
+        # vector arm guards on `embedding IS NOT NULL`, so the DB suite is green
+        # without the embedding backfill.
+        run: pytest -q
+
+  frontend:
+    name: frontend (lint + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        # Dummy public/auth env so `next build` never needs real secrets;
+        # AUTH_MODE stays effectively disabled (AUTH_GOOGLE_ID unset).
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+          NEXT_PUBLIC_AUTH_ENABLED: "false"
+          AUTH_URL: http://localhost:3000
+          AUTH_SECRET: ci-build-only-not-used-at-runtime
+        run: npm run build

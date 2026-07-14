@@ -34,6 +34,8 @@ export function UserMenu() {
         <img
           src={data.user.image}
           alt=""
+          width={28}
+          height={28}
           className="size-7 rounded-full"
           referrerPolicy="no-referrer"
         />
