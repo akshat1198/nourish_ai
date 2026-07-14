@@ -47,7 +47,7 @@ export function FilterFlow() {
       nutrition_goals: answers.nutrition_goals,
       diet: answers.diet,
       max_time_minutes: answers.max_time_minutes,
-      limit: 12,
+      limit: 15, // surface a comfortable set (≥10 when the corpus allows)
     });
     setTimeout(
       () => resultsRef.current?.scrollIntoView({ behavior: "smooth" }),

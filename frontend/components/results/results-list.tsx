@@ -41,9 +41,16 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
   return (
     <div className="space-y-4">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">
-          Recipes for you
-        </h2>
+        <div>
+          <h2 className="font-display text-2xl font-semibold tracking-tight">
+            Recipes for you
+          </h2>
+          {data.results.length > 0 && (
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Ranked by best match — start from the top.
+            </p>
+          )}
+        </div>
         <span className="tabular text-sm text-muted-foreground">
           {data.results.length} found
         </span>
@@ -66,9 +73,15 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
         </Card>
       ) : (
         <div className="space-y-4">
-          {data.results.map((r) => (
-            <RecipeCard key={r.id} recipe={r} />
+          {data.results.map((r, i) => (
+            <RecipeCard key={r.id} recipe={r} top={i === 0} />
           ))}
+          {data.results.length < 10 && (
+            <p className="pt-1 text-center text-sm text-muted-foreground">
+              That&apos;s every match for these filters. For more to choose from,
+              pick a broader cuisine or add a few more pantry ingredients.
+            </p>
+          )}
         </div>
       )}
     </div>

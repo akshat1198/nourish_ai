@@ -1,6 +1,6 @@
 "use client";
 
-import { Pin } from "lucide-react";
+import { Lightbulb, Pin, Plus } from "lucide-react";
 import { IngredientCombobox } from "@/components/pantry/ingredient-combobox";
 import { IngredientLegend } from "@/components/ingredient-legend";
 import { IngredientToken } from "@/components/ingredient-token";
@@ -14,8 +14,25 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePantry, useUpdatePantry } from "@/lib/hooks/use-pantry";
-import { toDotCategory } from "@/lib/ingredient-category";
+import { dotClass, toDotCategory } from "@/lib/ingredient-category";
+import { cn } from "@/lib/utils";
 import type { IngredientSuggestion, PantryItem } from "@/types/api";
+
+// Aim for a handful of ingredients so retrieval has something to match.
+const MIN_INGREDIENTS = 6;
+
+// Everyday staples that broaden matches across cuisines (all verified in the
+// canonical vocabulary). Offered as one-tap adds when the pantry is sparse.
+const STAPLE_SUGGESTIONS: { name: string; category: string }[] = [
+  { name: "salt", category: "pantry" },
+  { name: "black pepper", category: "spice" },
+  { name: "olive oil", category: "pantry" },
+  { name: "onion", category: "vegetable" },
+  { name: "garlic", category: "vegetable" },
+  { name: "eggs", category: "protein" },
+  { name: "rice", category: "grain" },
+  { name: "butter", category: "dairy" },
+];
 
 export function PantryManager() {
   const { data, isLoading, isError, refetch } = usePantry();
@@ -28,6 +45,10 @@ export function PantryManager() {
   const add = (s: IngredientSuggestion) => {
     if (existing.has(s.name)) return;
     commit([...items, { ingredient: s.name, category: s.category, is_staple: false }]);
+  };
+  const quickAddStaple = (name: string, category: string) => {
+    if (existing.has(name)) return;
+    commit([...items, { ingredient: name, category, is_staple: true }]);
   };
   const remove = (name: string) =>
     commit(items.filter((i) => i.ingredient !== name));
@@ -54,6 +75,45 @@ export function PantryManager() {
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {!isLoading && !isError && items.length < MIN_INGREDIENTS && (
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+            <div className="flex items-start gap-2.5">
+              <Lightbulb className="mt-0.5 size-4 shrink-0 text-primary" />
+              <div className="space-y-2.5">
+                <p className="text-sm text-foreground">
+                  For the best matches, aim for{" "}
+                  <span className="font-medium">6+ ingredients</span> — a couple of
+                  proteins, some veg, and the everyday staples you always keep.
+                </p>
+                {STAPLE_SUGGESTIONS.some((s) => !existing.has(s.name)) && (
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="self-center text-xs text-muted-foreground">
+                      Quick add:
+                    </span>
+                    {STAPLE_SUGGESTIONS.filter((s) => !existing.has(s.name)).map(
+                      (s) => (
+                        <button
+                          key={s.name}
+                          type="button"
+                          onClick={() => quickAddStaple(s.name, s.category)}
+                          className="inline-flex h-7 items-center gap-1.5 rounded-full border border-border bg-card px-2.5 text-xs transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <span
+                            className={cn("size-1.5 rounded-full", dotClass(s.category))}
+                            aria-hidden
+                          />
+                          <Plus className="size-3" />
+                          {s.name}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {isLoading && (
           <div className="flex flex-wrap gap-2">
             {Array.from({ length: 6 }).map((_, i) => (

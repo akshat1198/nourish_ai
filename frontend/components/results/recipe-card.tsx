@@ -1,17 +1,24 @@
 import Link from "next/link";
-import { Clock3 } from "lucide-react";
+import { Clock3, Trophy } from "lucide-react";
 import { IngredientToken } from "@/components/ingredient-token";
 import { MatchMeter } from "@/components/match-meter";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cuisineLabel, titleCase } from "@/lib/filter-options";
+import { cn } from "@/lib/utils";
 import type { RankedRecipe } from "@/types/api";
 
 function num(n: number | undefined) {
   return n == null ? null : Math.round(n);
 }
 
-export function RecipeCard({ recipe }: { recipe: RankedRecipe }) {
+export function RecipeCard({
+  recipe,
+  top = false,
+}: {
+  recipe: RankedRecipe;
+  top?: boolean;
+}) {
   const have = recipe.matched_ingredients.length;
   const total = have + recipe.missing_ingredients.length;
   const cuisine = recipe.region
@@ -23,7 +30,18 @@ export function RecipeCard({ recipe }: { recipe: RankedRecipe }) {
   const calories = num(recipe.nutrition?.calories);
 
   return (
-    <Card className="p-5 transition-shadow hover:shadow-md">
+    <Card
+      className={cn(
+        "p-5 transition-shadow hover:shadow-md",
+        top && "border-primary/40 ring-1 ring-primary/20",
+      )}
+    >
+      {top && (
+        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+          <Trophy className="size-3.5" />
+          Top match
+        </div>
+      )}
       <div className="flex items-start justify-between gap-3">
         <Link
           href={`/recipes/${recipe.id}`}
