@@ -80,3 +80,7 @@ db/init/
 PLAN.md
 tasks/
 .DS_Store
+
+# Raw ingestion source data (Stage 6) — large, licensed, never committed.
+# Archana's Kitchen is scraped: personal/family use only, keep attribution.
+archana_*.csv
