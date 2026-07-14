@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { SlidersHorizontal } from "lucide-react";
+import { FilterFlow } from "@/components/filters/filter-flow";
 import { KitchenStatus } from "@/components/kitchen-status";
 import { PantryManager } from "@/components/pantry/pantry-manager";
-import { Card } from "@/components/ui/card";
 
 export default function AppPage() {
   return (
@@ -26,15 +25,7 @@ export default function AppPage() {
         </div>
 
         <PantryManager />
-
-        {/* Seam for Stage 5.4 — the filters questionnaire + results */}
-        <Card className="flex items-center gap-3 border-dashed bg-transparent p-5 text-sm text-muted-foreground">
-          <SlidersHorizontal className="size-5 shrink-0 text-primary" />
-          <span>
-            Next: set tonight&apos;s cuisine, meal, and how you want to eat — then
-            get recipes. Coming in the next step.
-          </span>
-        </Card>
+        <FilterFlow />
       </main>
     </div>
   );
