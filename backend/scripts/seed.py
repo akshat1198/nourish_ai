@@ -20,6 +20,14 @@ from app.models import (  # noqa: E402
     Substitution,
 )
 
+# Cuisine/region/meal_types are derived deterministically from tags+title so the
+# seed is self-contained — a fresh DB (CI, new clone) gets a complete corpus from
+# one `seed.py` call. The standalone backfill script re-derives on an existing DB.
+from scripts.backfill_cuisine_mealtype import (  # noqa: E402
+    _cuisine_for,
+    _meal_types_for,
+)
+
 SEED_DIR = Path(__file__).resolve().parent.parent / "seed_data"
 
 
@@ -50,6 +58,7 @@ def main():
             ing_ids[ing["name"]] = row.id
 
         for r in recipes:
+            cuisine, region = _cuisine_for(r["tags"])
             recipe = Recipe(
                 title=r["title"],
                 description=r["description"],
@@ -62,6 +71,9 @@ def main():
                 servings=r["servings"],
                 nutrition=r["nutrition"],
                 search_text=r["search_text"],
+                cuisine=cuisine,
+                region=region,
+                meal_types=_meal_types_for(r["title"], r["tags"]),
             )
             session.add(recipe)
             session.flush()
