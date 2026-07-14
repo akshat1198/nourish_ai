@@ -1,9 +1,10 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SessionProvider } from "next-auth/react";
 import { useState } from "react";
+import { AuthTokenSync } from "@/components/auth-token-sync";
 
-// SessionProvider (next-auth) is added here in Stage 5.5 once Google auth is wired.
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
     () =>
@@ -17,5 +18,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       }),
   );
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  return (
+    <SessionProvider>
+      <QueryClientProvider client={client}>
+        <AuthTokenSync />
+        {children}
+      </QueryClientProvider>
+    </SessionProvider>
+  );
 }

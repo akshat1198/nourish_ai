@@ -10,6 +10,10 @@ services:
       REDIS_URL: redis://redis:6379/0
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       CHECKPOINT_BACKEND: postgres  # 4.3: orchestrator sessions survive restarts
+      # Auth (5.5): defaults keep the API open (X-User-Key). Flip AUTH_MODE=jwt
+      # + set AUTH_SHARED_SECRET (matching the frontend) once Google is wired.
+      AUTH_MODE: ${AUTH_MODE:-disabled}
+      AUTH_SHARED_SECRET: ${AUTH_SHARED_SECRET:-}
     depends_on:
       db:
         condition: service_healthy

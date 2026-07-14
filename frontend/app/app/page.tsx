@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FilterFlow } from "@/components/filters/filter-flow";
 import { KitchenStatus } from "@/components/kitchen-status";
 import { PantryManager } from "@/components/pantry/pantry-manager";
+import { UserMenu } from "@/components/user-menu";
 
 export default function AppPage() {
   return (
@@ -10,7 +11,10 @@ export default function AppPage() {
         <Link href="/" className="font-display text-2xl font-semibold tracking-tight">
           Nourish<span className="text-primary">AI</span>
         </Link>
-        <KitchenStatus />
+        <div className="flex items-center gap-4">
+          <KitchenStatus />
+          <UserMenu />
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-3xl flex-1 space-y-8 px-6 py-8">

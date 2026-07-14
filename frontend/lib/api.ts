@@ -3,8 +3,9 @@
 // Stage 5.2-5.4: dev identity via the X-User-Key header (backend AUTH_MODE=disabled).
 // Stage 5.5 swaps in an Authorization: Bearer token from the Auth.js session.
 
+import { getAuthToken, getUserKey } from "@/lib/auth-token";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-const DEV_USER_KEY = process.env.NEXT_PUBLIC_DEV_USER_KEY;
 
 export class ApiError extends Error {
   status: number;
@@ -22,8 +23,12 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  if (DEV_USER_KEY && !headers.has("Authorization")) {
-    headers.set("X-User-Key", DEV_USER_KEY);
+  // Signed in -> verified bearer; otherwise the dev X-User-Key identity.
+  const token = getAuthToken();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  } else if (!headers.has("Authorization")) {
+    headers.set("X-User-Key", getUserKey());
   }
 
   const res = await fetch(`${BASE_URL}${path}`, { ...init, headers });

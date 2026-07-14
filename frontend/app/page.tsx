@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { HeroShowcase } from "@/components/landing/hero-showcase";
 import { KitchenStatus } from "@/components/kitchen-status";
+import { UserMenu } from "@/components/user-menu";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,10 @@ export default function Home() {
         <span className="font-display text-2xl font-semibold tracking-tight">
           Nourish<span className="text-primary">AI</span>
         </span>
-        <KitchenStatus />
+        <div className="flex items-center gap-4">
+          <KitchenStatus />
+          <UserMenu />
+        </div>
       </header>
 
       {/* Hero */}

@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api";
+import { getUserKey } from "@/lib/auth-token";
 import type {
   HealthResponse,
   IngredientSuggestion,
@@ -9,10 +10,6 @@ import type {
   RecommendRequest,
   RecommendResponse,
 } from "@/types/api";
-
-// Dev identity for path-keyed endpoints (profile). Matches the X-User-Key the
-// fetch wrapper sends; Stage 5.5 replaces this with the authed identity.
-const USER_KEY = process.env.NEXT_PUBLIC_DEV_USER_KEY ?? "dev-user";
 
 // One typed function per endpoint the UI uses.
 export const api = {
@@ -30,10 +27,10 @@ export const api = {
     }),
 
   getProfile: () =>
-    apiFetch<Profile>(`/v1/profile/${encodeURIComponent(USER_KEY)}`),
+    apiFetch<Profile>(`/v1/profile/${encodeURIComponent(getUserKey())}`),
 
   putProfile: (body: ProfileUpdate) =>
-    apiFetch<Profile>(`/v1/profile/${encodeURIComponent(USER_KEY)}`, {
+    apiFetch<Profile>(`/v1/profile/${encodeURIComponent(getUserKey())}`, {
       method: "PUT",
       body: JSON.stringify(body),
     }),

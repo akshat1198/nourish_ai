@@ -2,7 +2,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.auth import get_current_user_key
 from app.api.deps import get_session
+from app.core.config import settings
 from app.models import Recipe
 from app.schemas.profile import FeedbackIn, ProfileIn, ProfileOut
 from app.services.profile import load_profile, record_interaction, upsert_profile
@@ -10,8 +12,19 @@ from app.services.profile import load_profile, record_interaction, upsert_profil
 router = APIRouter(prefix="/v1", tags=["profile"])
 
 
+def _enforce_owner(path_key: str, token_key: str) -> None:
+    """In jwt mode, a user may only touch their own profile (path == token)."""
+    if settings.AUTH_MODE == "jwt" and path_key != token_key:
+        raise HTTPException(403, "cannot access another user's profile")
+
+
 @router.get("/profile/{user_key}", response_model=ProfileOut)
-def get_profile(user_key: str, session: Session = Depends(get_session)):
+def get_profile(
+    user_key: str,
+    session: Session = Depends(get_session),
+    token_key: str = Depends(get_current_user_key),
+):
+    _enforce_owner(user_key, token_key)
     profile = load_profile(session, user_key)
     if profile is None:
         return ProfileOut(user_key=user_key)  # empty default
@@ -25,7 +38,13 @@ def get_profile(user_key: str, session: Session = Depends(get_session)):
 
 
 @router.put("/profile/{user_key}", response_model=ProfileOut)
-def put_profile(user_key: str, body: ProfileIn, session: Session = Depends(get_session)):
+def put_profile(
+    user_key: str,
+    body: ProfileIn,
+    session: Session = Depends(get_session),
+    token_key: str = Depends(get_current_user_key),
+):
+    _enforce_owner(user_key, token_key)
     profile = upsert_profile(session, user_key, body)
     return ProfileOut(
         user_key=profile.user_key,
@@ -37,7 +56,12 @@ def put_profile(user_key: str, body: ProfileIn, session: Session = Depends(get_s
 
 
 @router.post("/feedback")
-def feedback(body: FeedbackIn, session: Session = Depends(get_session)):
+def feedback(
+    body: FeedbackIn,
+    session: Session = Depends(get_session),
+    token_key: str = Depends(get_current_user_key),
+):
+    _enforce_owner(body.user_key, token_key)
     if session.get(Recipe, body.recipe_id) is None:
         raise HTTPException(404, "recipe not found")
     record_interaction(session, body.user_key, body.recipe_id, body.action)
