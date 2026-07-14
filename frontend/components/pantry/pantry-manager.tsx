@@ -2,6 +2,7 @@
 
 import { Pin } from "lucide-react";
 import { IngredientCombobox } from "@/components/pantry/ingredient-combobox";
+import { IngredientLegend } from "@/components/ingredient-legend";
 import { IngredientToken } from "@/components/ingredient-token";
 import { Button } from "@/components/ui/button";
 import {
@@ -116,6 +117,10 @@ export function PantryManager() {
               ))}
             </div>
           </section>
+        )}
+
+        {items.length > 0 && (
+          <IngredientLegend className="border-t border-border pt-4" />
         )}
       </CardContent>
     </Card>
