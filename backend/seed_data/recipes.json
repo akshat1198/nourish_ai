@@ -78,7 +78,7 @@
  },
  {
   "title": "Shakshuka",
-  "description": "Eggs poached in a spiced pepper-tomato sauce \u2014 brunch in a skillet.",
+  "description": "Eggs poached in a spiced pepper-tomato sauce — brunch in a skillet.",
   "cuisine": "middle-eastern",
   "time_minutes": 30,
   "servings": 2,
@@ -155,7 +155,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg"
+   "eggs"
   ],
   "nutrition": {
    "calories": 382.9,
@@ -462,7 +462,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 mushrooms and onion until golden; wilt in the spinach.",
+   "Sauté mushrooms and onion until golden; wilt in the spinach.",
    "Pour over beaten eggs; scatter with cheddar.",
    "Cook gently, then finish under the broiler until puffed."
   ],
@@ -477,7 +477,7 @@
   ],
   "allergens": [
    "dairy",
-   "egg"
+   "eggs"
   ],
   "nutrition": {
    "calories": 314.8,
@@ -489,7 +489,7 @@
  },
  {
   "title": "French Cheese Omelette",
-  "description": "Three eggs, butter, cheese \u2014 rolled soft and served immediately.",
+  "description": "Three eggs, butter, cheese — rolled soft and served immediately.",
   "cuisine": "french",
   "time_minutes": 10,
   "servings": 1,
@@ -543,7 +543,7 @@
   ],
   "allergens": [
    "dairy",
-   "egg"
+   "eggs"
   ],
   "nutrition": {
    "calories": 545.7,
@@ -613,7 +613,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten"
   ],
   "nutrition": {
@@ -685,7 +685,7 @@
   ],
   "allergens": [
    "dairy",
-   "egg"
+   "eggs"
   ],
   "nutrition": {
    "calories": 554.0,
@@ -2678,7 +2678,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the chicken thigh and spinach and green beans; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -2777,7 +2777,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the chicken thigh and sweet potato and cauliflower; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -2876,7 +2876,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the chicken thigh and bell pepper and eggplant; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -2975,7 +2975,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the shrimp and green beans and sweet potato; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3076,7 +3076,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the shrimp and cauliflower and bell pepper; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3177,7 +3177,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the shrimp and eggplant and spinach; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3278,7 +3278,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the chickpeas and sweet potato and cauliflower; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3378,7 +3378,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the chickpeas and bell pepper and eggplant; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3478,7 +3478,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the chickpeas and spinach and green beans; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3578,7 +3578,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the tofu and cauliflower and bell pepper; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3680,7 +3680,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the tofu and eggplant and spinach; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3782,7 +3782,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the tofu and green beans and sweet potato; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3884,7 +3884,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the cod and bell pepper and eggplant; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -3985,7 +3985,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the cod and spinach and green beans; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -4086,7 +4086,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the cod and sweet potato and cauliflower; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -4187,7 +4187,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the lentils and eggplant and spinach; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -4287,7 +4287,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the lentils and green beans and sweet potato; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -4387,7 +4387,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the lentils and cauliflower and bell pepper; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -4487,7 +4487,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the paneer and spinach and green beans; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -4587,7 +4587,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the paneer and sweet potato and cauliflower; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -4687,7 +4687,7 @@
    }
   ],
   "steps": [
-   "Saut\u00e9 onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
+   "Sauté onion and garlic in oil until soft, then bloom the curry paste for 1 minute.",
    "Add coconut milk and bring to a gentle simmer.",
    "Add the paneer and bell pepper and eggplant; simmer until cooked through and tender.",
    "Serve over rice with lime wedges and cilantro."
@@ -5888,7 +5888,7 @@
   ],
   "steps": [
    "Cook the quinoa and let it steam dry.",
-   "Prepare the chickpeas \u2014 roast or pan-sear until golden.",
+   "Prepare the chickpeas — roast or pan-sear until golden.",
    "Whisk lemon juice with olive oil for the dressing.",
    "Assemble bowls with quinoa, greens, chickpeas, avocado and cucumber; dress generously."
   ],
@@ -5964,7 +5964,7 @@
   ],
   "steps": [
    "Cook the quinoa and let it steam dry.",
-   "Prepare the salmon \u2014 roast or pan-sear until golden.",
+   "Prepare the salmon — roast or pan-sear until golden.",
    "Whisk lemon juice with olive oil for the dressing.",
    "Assemble bowls with quinoa, greens, salmon, avocado and cucumber; dress generously."
   ],
@@ -6042,7 +6042,7 @@
   ],
   "steps": [
    "Cook the quinoa and let it steam dry.",
-   "Prepare the chicken breast \u2014 roast or pan-sear until golden.",
+   "Prepare the chicken breast — roast or pan-sear until golden.",
    "Whisk lemon juice with olive oil for the dressing.",
    "Assemble bowls with quinoa, greens, chicken breast, avocado and cucumber; dress generously."
   ],
@@ -6117,7 +6117,7 @@
   ],
   "steps": [
    "Cook the quinoa and let it steam dry.",
-   "Prepare the tofu \u2014 roast or pan-sear until golden.",
+   "Prepare the tofu — roast or pan-sear until golden.",
    "Whisk lemon juice with olive oil for the dressing.",
    "Assemble bowls with quinoa, greens, tofu, avocado and cucumber; dress generously."
   ],
@@ -6195,7 +6195,7 @@
   ],
   "steps": [
    "Cook the quinoa and let it steam dry.",
-   "Prepare the black beans \u2014 roast or pan-sear until golden.",
+   "Prepare the black beans — roast or pan-sear until golden.",
    "Whisk lemon juice with olive oil for the dressing.",
    "Assemble bowls with quinoa, greens, black beans, avocado and cucumber; dress generously."
   ],
@@ -6271,7 +6271,7 @@
   ],
   "steps": [
    "Cook the quinoa and let it steam dry.",
-   "Prepare the tempeh \u2014 roast or pan-sear until golden.",
+   "Prepare the tempeh — roast or pan-sear until golden.",
    "Whisk lemon juice with olive oil for the dressing.",
    "Assemble bowls with quinoa, greens, tempeh, avocado and cucumber; dress generously."
   ],
@@ -7250,7 +7250,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten",
    "sesame",
    "soy"
@@ -7343,7 +7343,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten",
    "sesame",
    "shellfish",
@@ -7435,7 +7435,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten",
    "sesame",
    "soy"
@@ -7528,7 +7528,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten",
    "sesame",
    "soy"
@@ -7620,7 +7620,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten",
    "sesame",
    "soy"
@@ -7696,7 +7696,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and broccoli and carrot with oil, paprika and thyme on a sheet pan.",
    "Nestle in the chicken thigh; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -7783,7 +7783,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and zucchini and cauliflower with oil, paprika and thyme on a sheet pan.",
    "Nestle in the chicken thigh; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -7870,7 +7870,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and carrot and zucchini with oil, paprika and thyme on a sheet pan.",
    "Nestle in the salmon; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -7959,7 +7959,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and cauliflower and green beans with oil, paprika and thyme on a sheet pan.",
    "Nestle in the salmon; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -8049,7 +8049,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and zucchini and cauliflower with oil, paprika and thyme on a sheet pan.",
    "Nestle in the cod; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -8138,7 +8138,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and green beans and broccoli with oil, paprika and thyme on a sheet pan.",
    "Nestle in the cod; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -8227,7 +8227,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and cauliflower and green beans with oil, paprika and thyme on a sheet pan.",
    "Nestle in the pork loin; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -8314,7 +8314,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and broccoli and carrot with oil, paprika and thyme on a sheet pan.",
    "Nestle in the pork loin; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -8401,7 +8401,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and green beans and broccoli with oil, paprika and thyme on a sheet pan.",
    "Nestle in the tofu; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -8491,7 +8491,7 @@
    }
   ],
   "steps": [
-   "Heat the oven to 220\u00b0C / 425\u00b0F.",
+   "Heat the oven to 220°C / 425°F.",
    "Toss potatoes and carrot and zucchini with oil, paprika and thyme on a sheet pan.",
    "Nestle in the tofu; roast until cooked through and the potatoes are crisp.",
    "Finish with lemon and a scatter of garlic in the last 10 minutes."
@@ -9700,7 +9700,7 @@
    "dairy_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten",
    "nuts",
    "shellfish",
@@ -9797,7 +9797,7 @@
    "dairy_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten",
    "nuts",
    "soy"
@@ -9893,7 +9893,7 @@
    "dairy_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten",
    "nuts",
    "soy"
@@ -9978,7 +9978,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten"
   ],
   "nutrition": {
@@ -10061,7 +10061,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten"
   ],
   "nutrition": {
@@ -10144,7 +10144,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten"
   ],
   "nutrition": {
@@ -10227,7 +10227,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "gluten"
   ],
   "nutrition": {
@@ -10311,7 +10311,7 @@
    "nut_free"
   ],
   "allergens": [
-   "egg",
+   "eggs",
    "fish",
    "gluten"
   ],
@@ -11462,7 +11462,7 @@
    }
   ],
   "steps": [
-   "Mix the yogurt with lemon juice and season \u2014 this is the spread.",
+   "Mix the yogurt with lemon juice and season — this is the spread.",
    "Prepare the chicken breast (grill, drain or mash lightly).",
    "Layer the spread, lettuce, cucumber, tomato and chicken breast on the tortillas.",
    "Roll tightly, halve, and serve."
@@ -11539,7 +11539,7 @@
    }
   ],
   "steps": [
-   "Mix the yogurt with lemon juice and season \u2014 this is the spread.",
+   "Mix the yogurt with lemon juice and season — this is the spread.",
    "Prepare the tuna (grill, drain or mash lightly).",
    "Layer the spread, lettuce, cucumber, tomato and tuna on the tortillas.",
    "Roll tightly, halve, and serve."
@@ -11618,7 +11618,7 @@
    }
   ],
   "steps": [
-   "Mix the yogurt with lemon juice and season \u2014 this is the spread.",
+   "Mix the yogurt with lemon juice and season — this is the spread.",
    "Prepare the chickpeas (grill, drain or mash lightly).",
    "Layer the spread, lettuce, cucumber, tomato and chickpeas on the tortillas.",
    "Roll tightly, halve, and serve."
@@ -11695,7 +11695,7 @@
    }
   ],
   "steps": [
-   "Mix the yogurt with lemon juice and season \u2014 this is the spread.",
+   "Mix the yogurt with lemon juice and season — this is the spread.",
    "Prepare the turkey (grill, drain or mash lightly).",
    "Layer the spread, lettuce, cucumber, tomato and turkey on the tortillas.",
    "Roll tightly, halve, and serve."
@@ -11772,7 +11772,7 @@
    }
   ],
   "steps": [
-   "Mix the yogurt with lemon juice and season \u2014 this is the spread.",
+   "Mix the yogurt with lemon juice and season — this is the spread.",
    "Prepare the shrimp (grill, drain or mash lightly).",
    "Layer the spread, lettuce, cucumber, tomato and shrimp on the tortillas.",
    "Roll tightly, halve, and serve."
@@ -11866,7 +11866,7 @@
    "Parboil the pasta two minutes shy of al dente.",
    "Make the sauce: cook the ground beef with onion, garlic, oregano and tomatoes.",
    "Combine pasta and sauce; top with mozzarella and parmesan.",
-   "Bake at 200\u00b0C / 400\u00b0F until golden and bubbling."
+   "Bake at 200°C / 400°F until golden and bubbling."
   ],
   "tags": [
    "italian",
@@ -11954,7 +11954,7 @@
    "Parboil the pasta two minutes shy of al dente.",
    "Make the sauce: cook the chicken breast with onion, garlic, oregano and tomatoes.",
    "Combine pasta and sauce; top with mozzarella and parmesan.",
-   "Bake at 200\u00b0C / 400\u00b0F until golden and bubbling."
+   "Bake at 200°C / 400°F until golden and bubbling."
   ],
   "tags": [
    "italian",
@@ -12042,7 +12042,7 @@
    "Parboil the pasta two minutes shy of al dente.",
    "Make the sauce: cook the mushroom with onion, garlic, oregano and tomatoes.",
    "Combine pasta and sauce; top with mozzarella and parmesan.",
-   "Bake at 200\u00b0C / 400\u00b0F until golden and bubbling."
+   "Bake at 200°C / 400°F until golden and bubbling."
   ],
   "tags": [
    "italian",
@@ -12130,7 +12130,7 @@
    "Parboil the pasta two minutes shy of al dente.",
    "Make the sauce: cook the turkey with onion, garlic, oregano and tomatoes.",
    "Combine pasta and sauce; top with mozzarella and parmesan.",
-   "Bake at 200\u00b0C / 400\u00b0F until golden and bubbling."
+   "Bake at 200°C / 400°F until golden and bubbling."
   ],
   "tags": [
    "italian",

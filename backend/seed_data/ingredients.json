@@ -3,7 +3,8 @@
   "name": "chicken breast",
   "category": "protein",
   "aliases": [
-   "chicken"
+   "chicken",
+   "boneless chicken"
   ],
   "allergens": [],
   "vegan": false,
@@ -247,10 +248,12 @@
   "name": "eggs",
   "category": "protein",
   "aliases": [
-   "egg"
+   "egg",
+   "अंडे",
+   "egg whites"
   ],
   "allergens": [
-   "egg"
+   "eggs"
   ],
   "vegan": false,
   "vegetarian": true,
@@ -266,7 +269,9 @@
  {
   "name": "paneer",
   "category": "protein",
-  "aliases": [],
+  "aliases": [
+   "ग्राम पनीर"
+  ],
   "allergens": [
    "dairy"
   ],
@@ -285,7 +290,8 @@
   "name": "chickpeas",
   "category": "protein",
   "aliases": [
-   "garbanzo beans"
+   "garbanzo beans",
+   "kabuli chana"
   ],
   "allergens": [],
   "vegan": true,
@@ -335,7 +341,8 @@
   "name": "lentils",
   "category": "protein",
   "aliases": [
-   "red lentils"
+   "red lentils",
+   "कप पिली मूंग दाल"
   ],
   "allergens": [],
   "vegan": true,
@@ -354,7 +361,9 @@
   "category": "grain",
   "aliases": [
    "spaghetti",
-   "penne"
+   "penne",
+   "spaghetti pasta",
+   "penne pasta"
   ],
   "allergens": [
    "gluten"
@@ -374,7 +383,9 @@
   "name": "rice",
   "category": "grain",
   "aliases": [
-   "white rice"
+   "white rice",
+   "cooked rice",
+   "कप चावल"
   ],
   "allergens": [],
   "vegan": true,
@@ -460,7 +471,7 @@
   "aliases": [],
   "allergens": [
    "gluten",
-   "egg"
+   "eggs"
   ],
   "vegan": false,
   "vegetarian": true,
@@ -496,7 +507,9 @@
   "category": "grain",
   "aliases": [
    "sourdough",
-   "buns"
+   "buns",
+   "wheat brown bread",
+   "wheat bread crumbs"
   ],
   "allergens": [
    "gluten"
@@ -536,7 +549,9 @@
   "name": "oats",
   "category": "grain",
   "aliases": [
-   "rolled oats"
+   "rolled oats",
+   "instant oats",
+   "rolled oats or instant oats"
   ],
   "allergens": [],
   "vegan": true,
@@ -554,7 +569,13 @@
   "name": "flour",
   "category": "grain",
   "aliases": [
-   "all-purpose flour"
+   "all-purpose flour",
+   "all purpose flour",
+   "wheat flour",
+   "1-1/2 all purpose flour",
+   "1-1/2 wheat flour",
+   "1-1/2 flour",
+   "oats flour"
   ],
   "allergens": [
    "gluten"
@@ -574,7 +595,9 @@
   "name": "potatoes",
   "category": "starch",
   "aliases": [
-   "potato"
+   "potato",
+   "आलू",
+   "baby potatoes"
   ],
   "allergens": [],
   "vegan": true,
@@ -611,7 +634,8 @@
   "category": "vegetable",
   "aliases": [
    "tomatoes",
-   "cherry tomatoes"
+   "cherry tomatoes",
+   "टमाटर"
   ],
   "allergens": [],
   "vegan": true,
@@ -629,7 +653,10 @@
   "name": "garlic",
   "category": "vegetable",
   "aliases": [
-   "garlic cloves"
+   "garlic cloves",
+   "कली लहसुन",
+   "लहसुन",
+   "bud garlic"
   ],
   "allergens": [],
   "vegan": true,
@@ -648,7 +675,8 @@
   "category": "vegetable",
   "aliases": [
    "yellow onion",
-   "onions"
+   "onions",
+   "प्याज"
   ],
   "allergens": [],
   "vegan": true,
@@ -683,7 +711,13 @@
   "category": "vegetable",
   "aliases": [
    "capsicum",
-   "red pepper"
+   "red pepper",
+   "green bell pepper",
+   "red bell pepper",
+   "yellow bell pepper",
+   "शिमला मिर्च",
+   "red yellow and green bell peppers",
+   "red yellow or green bell pepper"
   ],
   "allergens": [],
   "vegan": true,
@@ -701,7 +735,8 @@
   "name": "zucchini",
   "category": "vegetable",
   "aliases": [
-   "courgette"
+   "courgette",
+   "green zucchini"
   ],
   "allergens": [],
   "vegan": true,
@@ -719,7 +754,8 @@
   "name": "spinach",
   "category": "vegetable",
   "aliases": [
-   "baby spinach"
+   "baby spinach",
+   "spinach leaves"
   ],
   "allergens": [],
   "vegan": true,
@@ -769,7 +805,9 @@
   "name": "carrot",
   "category": "vegetable",
   "aliases": [
-   "carrots"
+   "carrots",
+   "गाजर",
+   "कप गाजर"
   ],
   "allergens": [],
   "vegan": true,
@@ -804,7 +842,8 @@
   "category": "vegetable",
   "aliases": [
    "mushrooms",
-   "cremini"
+   "cremini",
+   "button mushrooms"
   ],
   "allergens": [],
   "vegan": true,
@@ -838,7 +877,9 @@
   "name": "peas",
   "category": "vegetable",
   "aliases": [
-   "frozen peas"
+   "frozen peas",
+   "green peas",
+   "कप हरे मटर"
   ],
   "allergens": [],
   "vegan": true,
@@ -873,7 +914,9 @@
  {
   "name": "cucumber",
   "category": "vegetable",
-  "aliases": [],
+  "aliases": [
+   "english cucumber"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -890,7 +933,8 @@
   "name": "lettuce",
   "category": "vegetable",
   "aliases": [
-   "romaine"
+   "romaine",
+   "iceberg lettuce"
   ],
   "allergens": [],
   "vegan": true,
@@ -940,7 +984,8 @@
   "name": "eggplant",
   "category": "vegetable",
   "aliases": [
-   "aubergine"
+   "aubergine",
+   "brinjal"
   ],
   "allergens": [],
   "vegan": true,
@@ -977,7 +1022,10 @@
   "name": "ginger",
   "category": "vegetable",
   "aliases": [
-   "fresh ginger"
+   "fresh ginger",
+   "इंच अदरक",
+   "छोटा चमच्च अदरक",
+   "1-1/2 ginger"
   ],
   "allergens": [],
   "vegan": true,
@@ -1011,7 +1059,8 @@
   "name": "basil",
   "category": "herb",
   "aliases": [
-   "fresh basil"
+   "fresh basil",
+   "basil leaves"
   ],
   "allergens": [],
   "vegan": true,
@@ -1030,7 +1079,13 @@
   "category": "herb",
   "aliases": [
    "coriander",
-   "fresh coriander"
+   "fresh coriander",
+   "coriander leaves",
+   "green coriander",
+   "हरा धनिया",
+   "छोटा चमच्च धनिया पाउडर",
+   "टहनी हरा धनिया",
+   "कप हरा धनिया"
   ],
   "allergens": [],
   "vegan": true,
@@ -1047,7 +1102,9 @@
  {
   "name": "parsley",
   "category": "herb",
-  "aliases": [],
+  "aliases": [
+   "parsley leaves"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1063,7 +1120,11 @@
  {
   "name": "lemon",
   "category": "fruit",
-  "aliases": [],
+  "aliases": [
+   "lemon juice",
+   "lemon zest",
+   "lemon wedges"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1096,7 +1157,8 @@
   "name": "banana",
   "category": "fruit",
   "aliases": [
-   "bananas"
+   "bananas",
+   "ripe bananas"
   ],
   "allergens": [],
   "vegan": true,
@@ -1113,7 +1175,10 @@
  {
   "name": "butter",
   "category": "dairy",
-  "aliases": [],
+  "aliases": [
+   "salted butter",
+   "छोटा चमच्च घी"
+  ],
   "allergens": [
    "dairy"
   ],
@@ -1132,7 +1197,8 @@
   "name": "milk",
   "category": "dairy",
   "aliases": [
-   "whole milk"
+   "whole milk",
+   "1-1/2 milk"
   ],
   "allergens": [
    "dairy"
@@ -1152,7 +1218,10 @@
   "name": "heavy cream",
   "category": "dairy",
   "aliases": [
-   "double cream"
+   "double cream",
+   "fresh cream",
+   "heavy whipping cream",
+   "cream"
   ],
   "allergens": [
    "dairy"
@@ -1211,7 +1280,9 @@
  {
   "name": "mozzarella",
   "category": "dairy",
-  "aliases": [],
+  "aliases": [
+   "mozzarella cheese"
+  ],
   "allergens": [
    "dairy"
   ],
@@ -1250,7 +1321,11 @@
   "name": "greek yogurt",
   "category": "dairy",
   "aliases": [
-   "yogurt"
+   "yogurt",
+   "curd",
+   "hung curd",
+   "कप दही",
+   "1-1/2 curd"
   ],
   "allergens": [
    "dairy"
@@ -1269,7 +1344,9 @@
  {
   "name": "cream cheese",
   "category": "dairy",
-  "aliases": [],
+  "aliases": [
+   "britannia cream cheese"
+  ],
   "allergens": [
    "dairy"
   ],
@@ -1287,7 +1364,9 @@
  {
   "name": "olive oil",
   "category": "pantry",
-  "aliases": [],
+  "aliases": [
+   "figaro pure olive oil"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1321,7 +1400,10 @@
  {
   "name": "sesame oil",
   "category": "pantry",
-  "aliases": [],
+  "aliases": [
+   "gingelly oil",
+   "black sesame seeds"
+  ],
   "allergens": [
    "sesame"
   ],
@@ -1339,7 +1421,9 @@
  {
   "name": "soy sauce",
   "category": "sauce",
-  "aliases": [],
+  "aliases": [
+   "dark soy sauce"
+  ],
   "allergens": [
    "soy",
    "gluten"
@@ -1358,7 +1442,10 @@
  {
   "name": "coconut milk",
   "category": "pantry",
-  "aliases": [],
+  "aliases": [
+   "dry coconut",
+   "कप नारियल का दूध"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1408,7 +1495,13 @@
  {
   "name": "cumin",
   "category": "spice",
-  "aliases": [],
+  "aliases": [
+   "छोटा चमच्च जीरा",
+   "छोटा चम्मच जीरा",
+   "छोटा चमच्च जीरा पाउडर",
+   "छोटा चम्मच जीरा पाउडर",
+   "1-1/2 cumin seeds"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1425,7 +1518,8 @@
   "name": "paprika",
   "category": "spice",
   "aliases": [
-   "smoked paprika"
+   "smoked paprika",
+   "छोटा चमच्च लाल मिर्च पाउडर"
   ],
   "allergens": [],
   "vegan": true,
@@ -1443,7 +1537,10 @@
   "name": "chili flakes",
   "category": "spice",
   "aliases": [
-   "red pepper flakes"
+   "red pepper flakes",
+   "red chilli flakes",
+   "सुखी लाल मिर्च",
+   "छोटा चम्मच लाल मिर्च पाउडर"
   ],
   "allergens": [],
   "vegan": true,
@@ -1478,7 +1575,10 @@
  {
   "name": "thyme",
   "category": "spice",
-  "aliases": [],
+  "aliases": [
+   "dried thyme leaves",
+   "fresh thyme leaves"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1494,7 +1594,16 @@
  {
   "name": "black pepper",
   "category": "spice",
-  "aliases": [],
+  "aliases": [
+   "black peppercorns",
+   "black pepper corns",
+   "pepper",
+   "पूरी काली मिर्च",
+   "छोटा चमच्च पूरी काली मिर्च",
+   "छोटा चम्मच काली मिर्च पाउडर",
+   "छोटा चमच्च काली मिर्च पाउडर",
+   "pepper powder"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1510,7 +1619,11 @@
  {
   "name": "salt",
   "category": "spice",
-  "aliases": [],
+  "aliases": [
+   "cooking soda",
+   "sea salt",
+   "rock salt"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1527,7 +1640,9 @@
   "name": "vinegar",
   "category": "pantry",
   "aliases": [
-   "rice vinegar"
+   "rice vinegar",
+   "white vinegar",
+   "balsamic vinegar"
   ],
   "allergens": [],
   "vegan": true,
@@ -1576,7 +1691,12 @@
  {
   "name": "sugar",
   "category": "pantry",
-  "aliases": [],
+  "aliases": [
+   "caster sugar",
+   "brown sugar",
+   "छोटा चमच्च शक्कर",
+   "1-1/2 sugar"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1592,7 +1712,10 @@
  {
   "name": "tomato paste",
   "category": "pantry",
-  "aliases": [],
+  "aliases": [
+   "homemade tomato puree",
+   "कप टमाटर प्यूरी"
+  ],
   "allergens": [],
   "vegan": true,
   "vegetarian": true,
@@ -1681,7 +1804,10 @@
  {
   "name": "peanuts",
   "category": "pantry",
-  "aliases": [],
+  "aliases": [
+   "roasted peanuts",
+   "raw peanuts"
+  ],
   "allergens": [
    "nuts"
   ],
@@ -1699,7 +1825,10 @@
  {
   "name": "cashews",
   "category": "pantry",
-  "aliases": [],
+  "aliases": [
+   "cashew nuts",
+   "काजू"
+  ],
   "allergens": [
    "nuts"
   ],
@@ -1717,7 +1846,11 @@
  {
   "name": "almonds",
   "category": "pantry",
-  "aliases": [],
+  "aliases": [
+   "badam",
+   "almond meal",
+   "slivered almonds"
+  ],
   "allergens": [
    "nuts"
   ],
@@ -1766,6 +1899,3467 @@
    "protein_g": 17,
    "carbs_g": 21,
    "fat_g": 54
+  }
+ },
+ {
+  "name": "turmeric",
+  "category": "spice",
+  "aliases": [
+   "haldi",
+   "turmeric powder",
+   "छोटा चमच्च हल्दी पाउडर"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 354.0,
+   "protein_g": 9.7,
+   "carbs_g": 65.0,
+   "fat_g": 9.9
+  }
+ },
+ {
+  "name": "red chilli powder",
+  "category": "spice",
+  "aliases": [
+   "chilli powder",
+   "laal mirch powder",
+   "red pepper powder",
+   "dry red chillies"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 318.0,
+   "protein_g": 14.3,
+   "carbs_g": 56.8,
+   "fat_g": 12.9
+  }
+ },
+ {
+  "name": "green chili",
+  "category": "vegetable",
+  "aliases": [
+   "green chillies",
+   "green pepper",
+   "hari mirch",
+   "हरी मिर्च",
+   "green chilli",
+   "fresh red chillies",
+   "green chilies"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 40.0,
+   "protein_g": 2.0,
+   "carbs_g": 9.0,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "curry leaves",
+  "category": "herb",
+  "aliases": [
+   "curry leaf",
+   "kari patta",
+   "murraya leaves",
+   "टहनी कढ़ी पत्ता"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 108.0,
+   "protein_g": 2.7,
+   "carbs_g": 18.5,
+   "fat_g": 1.0
+  }
+ },
+ {
+  "name": "mustard seeds",
+  "category": "spice",
+  "aliases": [
+   "rai"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 508.0,
+   "protein_g": 26.1,
+   "carbs_g": 28.3,
+   "fat_g": 36.2
+  }
+ },
+ {
+  "name": "ghee",
+  "category": "dairy",
+  "aliases": [
+   "clarified butter",
+   "desi ghee",
+   "बड़े चमच्च घी",
+   "बड़ा चमच्च घी",
+   "घी"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 900.0,
+   "protein_g": 0.2,
+   "carbs_g": 0.0,
+   "fat_g": 99.5
+  }
+ },
+ {
+  "name": "asafoetida",
+  "category": "spice",
+  "aliases": [
+   "asafetida",
+   "hing",
+   "छोटा चमच्च हींग",
+   "हींग"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 296.0,
+   "protein_g": 4.0,
+   "carbs_g": 64.0,
+   "fat_g": 1.1
+  }
+ },
+ {
+  "name": "garam masala",
+  "category": "spice",
+  "aliases": [
+   "garam masala powder",
+   "छोटा चमच्च गरम मसाला पाउडर",
+   "छोटा चम्मच गरम मसाला पाउडर"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 334.0,
+   "protein_g": 12.7,
+   "carbs_g": 53.0,
+   "fat_g": 6.2
+  }
+ },
+ {
+  "name": "coconut",
+  "category": "fruit",
+  "aliases": [
+   "coconut meat",
+   "fresh coconut"
+  ],
+  "allergens": [
+   "nuts"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 354.0,
+   "protein_g": 3.3,
+   "carbs_g": 15.2,
+   "fat_g": 33.5
+  }
+ },
+ {
+  "name": "cinnamon",
+  "category": "spice",
+  "aliases": [
+   "cinnamon powder",
+   "dalchini"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 247.0,
+   "protein_g": 3.99,
+   "carbs_g": 80.6,
+   "fat_g": 1.2
+  }
+ },
+ {
+  "name": "urad dal",
+  "category": "protein",
+  "aliases": [
+   "black gram",
+   "urad",
+   "white urad",
+   "white urad dal",
+   "white urid dal"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 341.0,
+   "protein_g": 25.2,
+   "carbs_g": 56.7,
+   "fat_g": 0.6
+  }
+ },
+ {
+  "name": "cardamom",
+  "category": "spice",
+  "aliases": [
+   "cardamom pods",
+   "cardamom pods/seeds",
+   "cardamom seeds",
+   "elaichi",
+   "cardamom powder",
+   "इलाइची"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 311.0,
+   "protein_g": 10.8,
+   "carbs_g": 68.5,
+   "fat_g": 6.7
+  }
+ },
+ {
+  "name": "jaggery",
+  "category": "pantry",
+  "aliases": [
+   "gur",
+   "jggery"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 383.0,
+   "protein_g": 0.3,
+   "carbs_g": 95.0,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "mint",
+  "category": "herb",
+  "aliases": [
+   "mint leaves",
+   "pudina"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 44.0,
+   "protein_g": 3.7,
+   "carbs_g": 6.3,
+   "fat_g": 0.7
+  }
+ },
+ {
+  "name": "bay leaf",
+  "category": "herb",
+  "aliases": [
+   "bay leaves",
+   "tej patra",
+   "तेज पत्ता"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 313.0,
+   "protein_g": 7.6,
+   "carbs_g": 49.7,
+   "fat_g": 8.4
+  }
+ },
+ {
+  "name": "fennel seeds",
+  "category": "spice",
+  "aliases": [
+   "saunf"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 345.0,
+   "protein_g": 15.8,
+   "carbs_g": 52.3,
+   "fat_g": 14.9
+  }
+ },
+ {
+  "name": "chana dal",
+  "category": "grain",
+  "aliases": [
+   "chhana dal",
+   "split chickpeas",
+   "कप चना दाल"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 374.0,
+   "protein_g": 20.0,
+   "carbs_g": 60.0,
+   "fat_g": 1.5
+  }
+ },
+ {
+  "name": "ginger garlic paste",
+  "category": "pantry",
+  "aliases": [
+   "ginger-garlic paste"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 28.0,
+   "protein_g": 1.2,
+   "carbs_g": 5.8,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "vanilla extract",
+  "category": "pantry",
+  "aliases": [
+   "vanilla essence"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 288.0,
+   "protein_g": 0.0,
+   "carbs_g": 12.7,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "dry red chilli",
+  "category": "spice",
+  "aliases": [
+   "lal mirch",
+   "red chilli"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 299.0,
+   "protein_g": 13.9,
+   "carbs_g": 49.3,
+   "fat_g": 8.8
+  }
+ },
+ {
+  "name": "fenugreek seeds",
+  "category": "spice",
+  "aliases": [
+   "methi",
+   "methi seeds",
+   "छोटा चमच्च मेथी के दाने"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 323.0,
+   "protein_g": 26.2,
+   "carbs_g": 58.4,
+   "fat_g": 6.4
+  }
+ },
+ {
+  "name": "mustard oil",
+  "category": "pantry",
+  "aliases": [
+   "sarson ka tel"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 884.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 100.0
+  }
+ },
+ {
+  "name": "ajwain",
+  "category": "spice",
+  "aliases": [
+   "ajowan",
+   "bishop's weed",
+   "thymol seeds"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 305.0,
+   "protein_g": 15.3,
+   "carbs_g": 35.2,
+   "fat_g": 22.0
+  }
+ },
+ {
+  "name": "sesame seeds",
+  "category": "spice",
+  "aliases": [
+   "til",
+   "til seeds"
+  ],
+  "allergens": [
+   "sesame"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 563.0,
+   "protein_g": 17.7,
+   "carbs_g": 23.5,
+   "fat_g": 48.8
+  }
+ },
+ {
+  "name": "baking powder",
+  "category": "pantry",
+  "aliases": [
+   "1-1/2 baking powder"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 156.0,
+   "protein_g": 0.0,
+   "carbs_g": 37.0,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "chaat masala",
+  "category": "spice",
+  "aliases": [
+   "chaat masala powder",
+   "chat masala"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 270.0,
+   "protein_g": 8.0,
+   "carbs_g": 65.0,
+   "fat_g": 2.0
+  }
+ },
+ {
+  "name": "amchur",
+  "category": "spice",
+  "aliases": [
+   "amchoor",
+   "dried mango powder",
+   "mango powder"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 310.0,
+   "protein_g": 1.4,
+   "carbs_g": 72.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "tamarind",
+  "category": "pantry",
+  "aliases": [
+   "imli",
+   "tamarind paste",
+   "tamarind pulp"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 239.0,
+   "protein_g": 2.8,
+   "carbs_g": 62.5,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "rice flour",
+  "category": "grain",
+  "aliases": [
+   "ground rice",
+   "rice powder"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 360.0,
+   "protein_g": 6.0,
+   "carbs_g": 79.5,
+   "fat_g": 1.4
+  }
+ },
+ {
+  "name": "arhar dal",
+  "category": "protein",
+  "aliases": [
+   "pigeon pea",
+   "toor dal",
+   "toovar dal",
+   "अरहर दाल",
+   "कप अरहर दाल"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 343.0,
+   "protein_g": 22.0,
+   "carbs_g": 60.0,
+   "fat_g": 1.5
+  }
+ },
+ {
+  "name": "coconut oil",
+  "category": "pantry",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "ml",
+  "grams_per_unit": 0.92,
+  "per_100g": {
+   "calories": 892.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 99.0
+  }
+ },
+ {
+  "name": "raisins",
+  "category": "fruit",
+  "aliases": [
+   "dried grapes",
+   "kishmish"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 299.0,
+   "protein_g": 3.39,
+   "carbs_g": 79.78,
+   "fat_g": 0.46
+  }
+ },
+ {
+  "name": "kashmiri red chilli powder",
+  "category": "spice",
+  "aliases": [
+   "kashmiri chilli powder"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 322.0,
+   "protein_g": 14.3,
+   "carbs_g": 64.0,
+   "fat_g": 3.3
+  }
+ },
+ {
+  "name": "baking soda",
+  "category": "pantry",
+  "aliases": [
+   "sodium bicarbonate",
+   "खाने का सोडा"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 0.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "mango",
+  "category": "fruit",
+  "aliases": [
+   "आम"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 60.0,
+   "protein_g": 0.82,
+   "carbs_g": 15.0,
+   "fat_g": 0.38
+  }
+ },
+ {
+  "name": "pistachios",
+  "category": "protein",
+  "aliases": [
+   "pista"
+  ],
+  "allergens": [
+   "nuts"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 562.0,
+   "protein_g": 20.27,
+   "carbs_g": 27.17,
+   "fat_g": 45.32
+  }
+ },
+ {
+  "name": "kasuri methi",
+  "category": "herb",
+  "aliases": [
+   "dried fenugreek leaves",
+   "मेथी"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 323.0,
+   "protein_g": 26.2,
+   "carbs_g": 58.4,
+   "fat_g": 6.4
+  }
+ },
+ {
+  "name": "semolina",
+  "category": "grain",
+  "aliases": [
+   "sooji",
+   "suji",
+   "मैदा"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 360.0,
+   "protein_g": 12.0,
+   "carbs_g": 72.0,
+   "fat_g": 1.1
+  }
+ },
+ {
+  "name": "moong dal",
+  "category": "protein",
+  "aliases": [
+   "mung dal",
+   "yellow lentil",
+   "yellow moong dal",
+   "मूंग दाल"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 347.0,
+   "protein_g": 24.0,
+   "carbs_g": 62.6,
+   "fat_g": 1.15
+  }
+ },
+ {
+  "name": "poppy seeds",
+  "category": "spice",
+  "aliases": [
+   "khus-khus",
+   "पोपी सीड्स"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 486.0,
+   "protein_g": 17.99,
+   "carbs_g": 28.13,
+   "fat_g": 41.56
+  }
+ },
+ {
+  "name": "red chilli sauce",
+  "category": "sauce",
+  "aliases": [
+   "red chili sauce",
+   "लाल मिर्च सॉस"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 15.0,
+  "per_100g": {
+   "calories": 100.0,
+   "protein_g": 1.5,
+   "carbs_g": 18.0,
+   "fat_g": 3.0
+  }
+ },
+ {
+  "name": "methi leaves",
+  "category": "herb",
+  "aliases": [
+   "fenugreek leaves"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 49.0,
+   "protein_g": 4.4,
+   "carbs_g": 6.4,
+   "fat_g": 0.9
+  }
+ },
+ {
+  "name": "black cardamom",
+  "category": "spice",
+  "aliases": [
+   "badi elaichi",
+   "kali elaichi",
+   "बड़ी इलाइची"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 311.0,
+   "protein_g": 10.8,
+   "carbs_g": 68.5,
+   "fat_g": 6.7
+  }
+ },
+ {
+  "name": "cocoa powder",
+  "category": "pantry",
+  "aliases": [
+   "cacao powder"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 230.0,
+   "protein_g": 12.3,
+   "carbs_g": 30.3,
+   "fat_g": 12.0
+  }
+ },
+ {
+  "name": "sambar powder",
+  "category": "spice",
+  "aliases": [
+   "sambar masala"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 294.0,
+   "protein_g": 12.8,
+   "carbs_g": 48.2,
+   "fat_g": 7.5
+  }
+ },
+ {
+  "name": "star anise",
+  "category": "spice",
+  "aliases": [
+   "anise star",
+   "aniseed star"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 337.0,
+   "protein_g": 17.6,
+   "carbs_g": 50.0,
+   "fat_g": 15.9
+  }
+ },
+ {
+  "name": "pearl onion",
+  "category": "vegetable",
+  "aliases": [
+   "baby onion",
+   "mini onion"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 40.0,
+   "protein_g": 1.2,
+   "carbs_g": 9.2,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "red chili powder",
+  "category": "spice",
+  "aliases": [
+   "chili powder",
+   "1-1/2 red chilli powder",
+   "लाल मिर्च पाउडर"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 318.0,
+   "protein_g": 14.3,
+   "carbs_g": 56.8,
+   "fat_g": 17.3
+  }
+ },
+ {
+  "name": "nutmeg powder",
+  "category": "spice",
+  "aliases": [
+   "jaiphal",
+   "nutmeg"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 525.0,
+   "protein_g": 5.8,
+   "carbs_g": 49.0,
+   "fat_g": 36.3
+  }
+ },
+ {
+  "name": "date",
+  "category": "fruit",
+  "aliases": [
+   "khajoor"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 282.0,
+   "protein_g": 2.7,
+   "carbs_g": 75.0,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "pumpkin",
+  "category": "vegetable",
+  "aliases": [
+   "kaddu",
+   "कद्दू"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 26.0,
+   "protein_g": 1.0,
+   "carbs_g": 6.5,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "dry ginger powder",
+  "category": "spice",
+  "aliases": [
+   "dried ginger powder",
+   "sonth"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 335.0,
+   "protein_g": 8.6,
+   "carbs_g": 71.6,
+   "fat_g": 4.3
+  }
+ },
+ {
+  "name": "desiccated coconut",
+  "category": "pantry",
+  "aliases": [
+   "dessicated coconut",
+   "dried coconut",
+   "dried shredded coconut"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 660.0,
+   "protein_g": 6.0,
+   "carbs_g": 24.0,
+   "fat_g": 64.0
+  }
+ },
+ {
+  "name": "mutton",
+  "category": "protein",
+  "aliases": [
+   "goat meat",
+   "lamb"
+  ],
+  "allergens": [],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 215.0,
+   "protein_g": 23.5,
+   "carbs_g": 0.0,
+   "fat_g": 12.7
+  }
+ },
+ {
+  "name": "beetroot",
+  "category": "vegetable",
+  "aliases": [
+   "beet",
+   "chukandar"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 43.0,
+   "protein_g": 1.6,
+   "carbs_g": 9.6,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "active dry yeast",
+  "category": "pantry",
+  "aliases": [
+   "baker's yeast",
+   "yeast"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 323.0,
+   "protein_g": 38.7,
+   "carbs_g": 41.2,
+   "fat_g": 7.6
+  }
+ },
+ {
+  "name": "green moong dal",
+  "category": "grain",
+  "aliases": [
+   "mung bean",
+   "हरी मूंग दाल"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 347.0,
+   "protein_g": 24.2,
+   "carbs_g": 62.6,
+   "fat_g": 1.2
+  }
+ },
+ {
+  "name": "tomato ketchup",
+  "category": "sauce",
+  "aliases": [
+   "catsup",
+   "ketchup"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 101.0,
+   "protein_g": 0.5,
+   "carbs_g": 25.5,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "kalonji",
+  "category": "spice",
+  "aliases": [
+   "black cumin seeds",
+   "kalajira",
+   "nigella seeds",
+   "onion seeds"
+  ],
+  "allergens": [
+   "sesame"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 375.0,
+   "protein_g": 12.7,
+   "carbs_g": 35.0,
+   "fat_g": 20.8
+  }
+ },
+ {
+  "name": "black salt",
+  "category": "pantry",
+  "aliases": [
+   "himalayan black salt",
+   "kala namak"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 0.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "rye",
+  "category": "grain",
+  "aliases": [
+   "rye flour",
+   "rye grain"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 338.0,
+   "protein_g": 10.0,
+   "carbs_g": 71.2,
+   "fat_g": 1.6
+  }
+ },
+ {
+  "name": "mixed herbs",
+  "category": "herb",
+  "aliases": [
+   "herb mix",
+   "italian seasoning"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 270.0,
+   "protein_g": 10.0,
+   "carbs_g": 48.0,
+   "fat_g": 4.0
+  }
+ },
+ {
+  "name": "strawberry",
+  "category": "fruit",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 32.0,
+   "protein_g": 0.8,
+   "carbs_g": 7.7,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "condensed milk",
+  "category": "dairy",
+  "aliases": [
+   "sweetened condensed milk"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 321.0,
+   "protein_g": 8.0,
+   "carbs_g": 54.0,
+   "fat_g": 8.5
+  }
+ },
+ {
+  "name": "rosemary",
+  "category": "herb",
+  "aliases": [
+   "rosemary leaves"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 131.0,
+   "protein_g": 3.3,
+   "carbs_g": 20.7,
+   "fat_g": 5.2
+  }
+ },
+ {
+  "name": "dark chocolate",
+  "category": "pantry",
+  "aliases": [
+   "dark cocoa chocolate"
+  ],
+  "allergens": [
+   "soy"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 598.0,
+   "protein_g": 12.0,
+   "carbs_g": 46.0,
+   "fat_g": 43.0
+  }
+ },
+ {
+  "name": "shallot",
+  "category": "vegetable",
+  "aliases": [
+   "echalion"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 72.0,
+   "protein_g": 2.5,
+   "carbs_g": 16.8,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "green chutney",
+  "category": "sauce",
+  "aliases": [
+   "cilantro chutney",
+   "coriander chutney",
+   "hari chutney"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 45.0,
+   "protein_g": 1.2,
+   "carbs_g": 6.0,
+   "fat_g": 2.0
+  }
+ },
+ {
+  "name": "bottle gourd",
+  "category": "vegetable",
+  "aliases": [
+   "calabash",
+   "dudhi",
+   "ghiya",
+   "lauki"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 12.0,
+   "protein_g": 0.6,
+   "carbs_g": 2.5,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "pineapple",
+  "category": "fruit",
+  "aliases": [
+   "ananas"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 50.0,
+   "protein_g": 0.5,
+   "carbs_g": 13.0,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "okra",
+  "category": "vegetable",
+  "aliases": [
+   "bhindi",
+   "lady's finger",
+   "ladyfinger"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 33.0,
+   "protein_g": 1.9,
+   "carbs_g": 7.5,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "poha",
+  "category": "grain",
+  "aliases": [
+   "atukulu",
+   "beaten rice",
+   "flattened rice"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 350.0,
+   "protein_g": 8.0,
+   "carbs_g": 76.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "apple",
+  "category": "fruit",
+  "aliases": [
+   "seb"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 52.0,
+   "protein_g": 0.3,
+   "carbs_g": 13.8,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "black chickpeas",
+  "category": "protein",
+  "aliases": [
+   "kala chana",
+   "whole black gram"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 364.0,
+   "protein_g": 24.0,
+   "carbs_g": 54.0,
+   "fat_g": 3.5
+  }
+ },
+ {
+  "name": "clove",
+  "category": "spice",
+  "aliases": [
+   "laung",
+   "long",
+   "लॉन्ग"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 274.0,
+   "protein_g": 3.3,
+   "carbs_g": 65.0,
+   "fat_g": 13.0
+  }
+ },
+ {
+  "name": "radish",
+  "category": "vegetable",
+  "aliases": [
+   "daikon",
+   "mooli",
+   "mooli/ mullangi",
+   "mullangi",
+   "white radish"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 16.0,
+   "protein_g": 0.7,
+   "carbs_g": 3.4,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "icing sugar",
+  "category": "pantry",
+  "aliases": [
+   "confectioners sugar",
+   "icing powder",
+   "powdered sugar"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 387.0,
+   "protein_g": 0.0,
+   "carbs_g": 100.0,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "black olives",
+  "category": "pantry",
+  "aliases": [
+   "kalamata olives",
+   "olives"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 135.0,
+   "protein_g": 1.3,
+   "carbs_g": 3.8,
+   "fat_g": 13.5
+  }
+ },
+ {
+  "name": "raw banana",
+  "category": "fruit",
+  "aliases": [
+   "green banana",
+   "unripe banana"
+  ],
+  "allergens": [
+   "nuts"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 89.0,
+   "protein_g": 1.1,
+   "carbs_g": 20.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "pickled jalapeños",
+  "category": "vegetable",
+  "aliases": [
+   "jalapeno peppers",
+   "pickled jalapenos",
+   "pickled peppers"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 29.0,
+   "protein_g": 0.9,
+   "carbs_g": 5.3,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "mung sprouts",
+  "category": "vegetable",
+  "aliases": [
+   "green gram sprouts",
+   "green moong sprouts",
+   "mung bean sprouts"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 30.0,
+   "protein_g": 3.0,
+   "carbs_g": 5.2,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "ragi flour",
+  "category": "grain",
+  "aliases": [
+   "eleusine coracana",
+   "finger millet flour",
+   "raggi flour"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 330.0,
+   "protein_g": 6.3,
+   "carbs_g": 72.0,
+   "fat_g": 1.3
+  }
+ },
+ {
+  "name": "mace",
+  "category": "spice",
+  "aliases": [
+   "javitri",
+   "mace powder"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 475.0,
+   "protein_g": 14.0,
+   "carbs_g": 50.0,
+   "fat_g": 32.0
+  }
+ },
+ {
+  "name": "dill",
+  "category": "herb",
+  "aliases": [
+   "dill fronds",
+   "dill leaves",
+   "dill weed",
+   "sowa"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 43.0,
+   "protein_g": 3.5,
+   "carbs_g": 7.0,
+   "fat_g": 1.1
+  }
+ },
+ {
+  "name": "baby corn",
+  "category": "vegetable",
+  "aliases": [
+   "mini corn",
+   "young corn",
+   "young maize"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 30.0,
+   "protein_g": 2.1,
+   "carbs_g": 5.2,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "rose water",
+  "category": "pantry",
+  "aliases": [
+   "gulab jal",
+   "rose essence"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "ml",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 0.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "orange juice",
+  "category": "fruit",
+  "aliases": [
+   "fresh orange juice",
+   "fresh squeezed orange juice"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "ml",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 47.0,
+   "protein_g": 0.7,
+   "carbs_g": 11.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "chocolate chips",
+  "category": "pantry",
+  "aliases": [
+   "chocolate morsels",
+   "chocolate pieces"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 535.0,
+   "protein_g": 7.6,
+   "carbs_g": 57.0,
+   "fat_g": 32.0
+  }
+ },
+ {
+  "name": "panch phoran",
+  "category": "spice",
+  "aliases": [
+   "bengali five spice",
+   "five spice blend",
+   "panch phoran masala",
+   "panch phoron"
+  ],
+  "allergens": [
+   "sesame"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 375.0,
+   "protein_g": 12.0,
+   "carbs_g": 35.0,
+   "fat_g": 17.0
+  }
+ },
+ {
+  "name": "vivatta maida",
+  "category": "grain",
+  "aliases": [
+   "beaten rice flour",
+   "vivata maida"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 350.0,
+   "protein_g": 6.0,
+   "carbs_g": 77.0,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "buttermilk",
+  "category": "dairy",
+  "aliases": [
+   "chaach",
+   "ghol",
+   "sour buttermilk"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "ml",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 40.0,
+   "protein_g": 3.3,
+   "carbs_g": 4.8,
+   "fat_g": 0.9
+  }
+ },
+ {
+  "name": "drumstick",
+  "category": "vegetable",
+  "aliases": [
+   "horseradish tree",
+   "moringa",
+   "munga",
+   "saragva"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 64.0,
+   "protein_g": 2.1,
+   "carbs_g": 8.3,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "sweet chutney",
+  "category": "sauce",
+  "aliases": [
+   "mithi chutney"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 150.0,
+   "protein_g": 0.5,
+   "carbs_g": 38.0,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "anardana powder",
+  "category": "spice",
+  "aliases": [
+   "anaar dana powder",
+   "pomegranate seed powder",
+   "pomegranate seed spice"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 320.0,
+   "protein_g": 3.0,
+   "carbs_g": 75.0,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "fennel powder",
+  "category": "spice",
+  "aliases": [
+   "fennel seed powder",
+   "sauf powder"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 3.0,
+  "per_100g": {
+   "calories": 345.0,
+   "protein_g": 15.8,
+   "carbs_g": 52.3,
+   "fat_g": 14.9
+  }
+ },
+ {
+  "name": "kokum",
+  "category": "fruit",
+  "aliases": [
+   "garcinia indica",
+   "kokam",
+   "punipind"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 35.0,
+   "protein_g": 0.0,
+   "carbs_g": 8.5,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "bitter melon",
+  "category": "vegetable",
+  "aliases": [
+   "karela",
+   "karli",
+   "karva"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 19.0,
+   "protein_g": 0.93,
+   "carbs_g": 3.7,
+   "fat_g": 0.19
+  }
+ },
+ {
+  "name": "tabasco sauce",
+  "category": "sauce",
+  "aliases": [
+   "tabasco",
+   "tabasco original"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 5.0,
+  "per_100g": {
+   "calories": 42.0,
+   "protein_g": 1.0,
+   "carbs_g": 8.0,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "pomegranate arils",
+  "category": "fruit",
+  "aliases": [
+   "anar dane",
+   "fresh pomegranate fruit kernels",
+   "pomegranate fruit kernels",
+   "pomegranate kernels",
+   "pomegranate seeds"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 64.0,
+   "protein_g": 1.17,
+   "carbs_g": 14.37,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "elephant yam",
+  "category": "starch",
+  "aliases": [
+   "jimikand",
+   "senai kizhangu",
+   "suran"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 64.0,
+   "protein_g": 1.5,
+   "carbs_g": 13.5,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "orange zest",
+  "category": "fruit",
+  "aliases": [
+   "orange rind"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 2.0,
+  "per_100g": {
+   "calories": 47.0,
+   "protein_g": 0.7,
+   "carbs_g": 12.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "sev",
+  "category": "pantry",
+  "aliases": [
+   "besan sev",
+   "chickpea noodles"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 410.0,
+   "protein_g": 12.0,
+   "carbs_g": 60.0,
+   "fat_g": 14.0
+  }
+ },
+ {
+  "name": "khoya",
+  "category": "dairy",
+  "aliases": [
+   "desiccated milk",
+   "khash",
+   "mawa"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 429.0,
+   "protein_g": 25.0,
+   "carbs_g": 22.0,
+   "fat_g": 28.0
+  }
+ },
+ {
+  "name": "chia seeds",
+  "category": "pantry",
+  "aliases": [
+   "salba seeds"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 486.0,
+   "protein_g": 16.54,
+   "carbs_g": 42.12,
+   "fat_g": 30.74
+  }
+ },
+ {
+  "name": "roasted lentils",
+  "category": "protein",
+  "aliases": [
+   "bhuna dal",
+   "roasted dal"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 370.0,
+   "protein_g": 26.0,
+   "carbs_g": 60.0,
+   "fat_g": 1.5
+  }
+ },
+ {
+  "name": "cranberries",
+  "category": "fruit",
+  "aliases": [
+   "dried cranberries"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 46.0,
+   "protein_g": 0.39,
+   "carbs_g": 12.2,
+   "fat_g": 0.13
+  }
+ },
+ {
+  "name": "idli rice",
+  "category": "grain",
+  "aliases": [
+   "idli chawal",
+   "idli par",
+   "इडली चावल"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 130.0,
+   "protein_g": 2.7,
+   "carbs_g": 28.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "bajra flour",
+  "category": "grain",
+  "aliases": [
+   "millet flour",
+   "pearl millet flour",
+   "बाजरा आटा"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 364.0,
+   "protein_g": 11.6,
+   "carbs_g": 67.0,
+   "fat_g": 4.9
+  }
+ },
+ {
+  "name": "black eyed peas",
+  "category": "protein",
+  "aliases": [
+   "black eyed beans",
+   "लोबिया"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 99.0,
+   "protein_g": 8.7,
+   "carbs_g": 17.9,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "sriracha",
+  "category": "sauce",
+  "aliases": [
+   "chili sriracha",
+   "sriracha sauce"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 106.0,
+   "protein_g": 2.2,
+   "carbs_g": 17.0,
+   "fat_g": 3.4
+  }
+ },
+ {
+  "name": "soy chunks",
+  "category": "protein",
+  "aliases": [
+   "soya chunks",
+   "textured vegetable protein",
+   "tvp",
+   "सोया चंक्स"
+  ],
+  "allergens": [
+   "soy"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 345.0,
+   "protein_g": 54.0,
+   "carbs_g": 30.0,
+   "fat_g": 5.0
+  }
+ },
+ {
+  "name": "orange",
+  "category": "fruit",
+  "aliases": [
+   "संतरा"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 47.0,
+   "protein_g": 0.9,
+   "carbs_g": 11.8,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "tomato puree",
+  "category": "sauce",
+  "aliases": [
+   "tomato concentrate"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 35.0,
+   "protein_g": 1.6,
+   "carbs_g": 7.7,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "coriander powder",
+  "category": "spice",
+  "aliases": [
+   "1-1/2 coriander powder",
+   "धनिया पाउडर",
+   "छोटा चम्मच धनिया पाउडर",
+   "बड़ा चमच्च धनिया पाउडर"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 298.0,
+   "protein_g": 12.0,
+   "carbs_g": 54.9,
+   "fat_g": 17.8
+  }
+ },
+ {
+  "name": "flax seed powder",
+  "category": "pantry",
+  "aliases": [
+   "flaxseed powder",
+   "linseed powder",
+   "अलसी पाउडर"
+  ],
+  "allergens": [
+   "sesame"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 534.0,
+   "protein_g": 18.3,
+   "carbs_g": 28.9,
+   "fat_g": 42.2
+  }
+ },
+ {
+  "name": "instant coffee powder",
+  "category": "pantry",
+  "aliases": [
+   "coffee powder",
+   "instant coffee"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 2.5,
+  "per_100g": {
+   "calories": 0.0,
+   "protein_g": 0.2,
+   "carbs_g": 0.0,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "foxtail millet",
+  "category": "grain",
+  "aliases": [
+   "kang",
+   "kangni",
+   "navane"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "cup",
+  "grams_per_unit": 180.0,
+  "per_100g": {
+   "calories": 331.0,
+   "protein_g": 12.3,
+   "carbs_g": 65.0,
+   "fat_g": 4.2
+  }
+ },
+ {
+  "name": "sour cream",
+  "category": "dairy",
+  "aliases": [
+   "soured cream"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 15.0,
+  "per_100g": {
+   "calories": 201.0,
+   "protein_g": 3.7,
+   "carbs_g": 4.0,
+   "fat_g": 20.1
+  }
+ },
+ {
+  "name": "jowar flour",
+  "category": "grain",
+  "aliases": [
+   "jwar atta",
+   "sorghum flour"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "cup",
+  "grams_per_unit": 140.0,
+  "per_100g": {
+   "calories": 356.0,
+   "protein_g": 11.0,
+   "carbs_g": 73.0,
+   "fat_g": 3.3
+  }
+ },
+ {
+  "name": "byadagi chili",
+  "category": "spice",
+  "aliases": [
+   "byadagi dried chilli",
+   "byadagi dried chillies",
+   "byadagi red chili"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 1.5,
+  "per_100g": {
+   "calories": 40.0,
+   "protein_g": 2.0,
+   "carbs_g": 9.0,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "broken wheat",
+  "category": "grain",
+  "aliases": [
+   "bulgur wheat",
+   "cracked wheat",
+   "daliya"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "cup",
+  "grams_per_unit": 150.0,
+  "per_100g": {
+   "calories": 346.0,
+   "protein_g": 12.3,
+   "carbs_g": 75.0,
+   "fat_g": 1.5
+  }
+ },
+ {
+  "name": "mayonnaise",
+  "category": "sauce",
+  "aliases": [
+   "classic mayonnaise",
+   "mayo"
+  ],
+  "allergens": [
+   "eggs"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "tbsp",
+  "grams_per_unit": 15.0,
+  "per_100g": {
+   "calories": 680.0,
+   "protein_g": 0.2,
+   "carbs_g": 0.6,
+   "fat_g": 75.0
+  }
+ },
+ {
+  "name": "chilli vinegar",
+  "category": "sauce",
+  "aliases": [
+   "chili vinegar",
+   "hot vinegar"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "tsp",
+  "grams_per_unit": 5.0,
+  "per_100g": {
+   "calories": 18.0,
+   "protein_g": 0.04,
+   "carbs_g": 0.4,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "lemongrass",
+  "category": "herb",
+  "aliases": [
+   "lemon grass",
+   "serai"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "stalk",
+  "grams_per_unit": 30.0,
+  "per_100g": {
+   "calories": 99.0,
+   "protein_g": 1.5,
+   "carbs_g": 26.0,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "colocasia root",
+  "category": "vegetable",
+  "aliases": [
+   "arbi",
+   "arvi",
+   "taro root"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "cup",
+  "grams_per_unit": 150.0,
+  "per_100g": {
+   "calories": 112.0,
+   "protein_g": 1.5,
+   "carbs_g": 26.4,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "ridge gourd",
+  "category": "vegetable",
+  "aliases": [
+   "peerkangai",
+   "ridge gourd vegetable",
+   "turai"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "cup",
+  "grams_per_unit": 150.0,
+  "per_100g": {
+   "calories": 21.0,
+   "protein_g": 0.5,
+   "carbs_g": 4.8,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "roasted tomato pasta sauce",
+  "category": "sauce",
+  "aliases": [
+   "tomato pasta sauce"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 45.0,
+   "protein_g": 1.2,
+   "carbs_g": 8.5,
+   "fat_g": 1.5
+  }
+ },
+ {
+  "name": "green chilli sauce",
+  "category": "sauce",
+  "aliases": [
+   "green chili sauce",
+   "hari mirch ki chutney"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 28.0,
+   "protein_g": 0.8,
+   "carbs_g": 5.2,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "tindora",
+  "category": "vegetable",
+  "aliases": [
+   "ivy gourd",
+   "kundru",
+   "tendli"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 20.0,
+   "protein_g": 1.2,
+   "carbs_g": 3.5,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "cornmeal flour",
+  "category": "grain",
+  "aliases": [
+   "corn flour",
+   "maize flour",
+   "makki ka atta"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 362.0,
+   "protein_g": 8.6,
+   "carbs_g": 74.3,
+   "fat_g": 3.9
+  }
+ },
+ {
+  "name": "white pepper",
+  "category": "spice",
+  "aliases": [
+   "safed mirch",
+   "white pepper powder"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 296.0,
+   "protein_g": 10.4,
+   "carbs_g": 64.8,
+   "fat_g": 3.3
+  }
+ },
+ {
+  "name": "idli dosa batter",
+  "category": "grain",
+  "aliases": [
+   "dosa batter",
+   "idli batter",
+   "rice lentil batter"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 58.0,
+   "protein_g": 2.8,
+   "carbs_g": 10.2,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "watermelon",
+  "category": "fruit",
+  "aliases": [
+   "tarbooj"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 30.0,
+   "protein_g": 0.6,
+   "carbs_g": 7.6,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "cinnamon stick",
+  "category": "spice",
+  "aliases": [
+   "daalchini",
+   "इंच दाल चीनी",
+   "इंच दालचीनी"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 247.0,
+   "protein_g": 3.9,
+   "carbs_g": 80.6,
+   "fat_g": 1.2
+  }
+ },
+ {
+  "name": "muesli",
+  "category": "grain",
+  "aliases": [
+   "granola cereal"
+  ],
+  "allergens": [
+   "nuts",
+   "gluten"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 381.0,
+   "protein_g": 10.1,
+   "carbs_g": 68.3,
+   "fat_g": 6.2
+  }
+ },
+ {
+  "name": "kiwi",
+  "category": "fruit",
+  "aliases": [
+   "chinese gooseberry",
+   "kiwifruit"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 61.0,
+   "protein_g": 1.1,
+   "carbs_g": 14.7,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "pav bhaji masala",
+  "category": "spice",
+  "aliases": [
+   "bhaji masala"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 310.0,
+   "protein_g": 10.2,
+   "carbs_g": 54.8,
+   "fat_g": 9.3
+  }
+ },
+ {
+  "name": "dijon mustard",
+  "category": "sauce",
+  "aliases": [
+   "mustard sauce"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 66.0,
+   "protein_g": 3.6,
+   "carbs_g": 3.2,
+   "fat_g": 3.8
+  }
+ },
+ {
+  "name": "processed cheese spread",
+  "category": "dairy",
+  "aliases": [
+   "britannia cheese spread",
+   "cheese spread"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 289.0,
+   "protein_g": 9.5,
+   "carbs_g": 7.2,
+   "fat_g": 25.4
+  }
+ },
+ {
+  "name": "papaya",
+  "category": "fruit",
+  "aliases": [
+   "green papaya",
+   "raw papaya"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 43.0,
+   "protein_g": 0.5,
+   "carbs_g": 11.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "rasam powder",
+  "category": "spice",
+  "aliases": [
+   "rasam masala"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 324.0,
+   "protein_g": 12.0,
+   "carbs_g": 60.0,
+   "fat_g": 5.0
+  }
+ },
+ {
+  "name": "green chilli paste",
+  "category": "pantry",
+  "aliases": [
+   "green chile paste",
+   "hara mirch paste"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 40.0,
+   "protein_g": 2.0,
+   "carbs_g": 8.0,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "sabudana",
+  "category": "starch",
+  "aliases": [
+   "saboodana",
+   "sago",
+   "tapioca pearls"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 332.0,
+   "protein_g": 0.1,
+   "carbs_g": 82.0,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "boondi",
+  "category": "pantry",
+  "aliases": [
+   "bundi"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 382.0,
+   "protein_g": 10.0,
+   "carbs_g": 68.0,
+   "fat_g": 6.0
+  }
+ },
+ {
+  "name": "goda masala",
+  "category": "spice",
+  "aliases": [
+   "maharashtrian goda masala"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 312.0,
+   "protein_g": 10.0,
+   "carbs_g": 58.0,
+   "fat_g": 5.5
+  }
+ },
+ {
+  "name": "palm sugar",
+  "category": "pantry",
+  "aliases": [
+   "coconut sugar",
+   "jaggery palm"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 368.0,
+   "protein_g": 0.0,
+   "carbs_g": 92.0,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "egg yolk",
+  "category": "protein",
+  "aliases": [
+   "yolk"
+  ],
+  "allergens": [
+   "eggs"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 322.0,
+   "protein_g": 16.0,
+   "carbs_g": 3.3,
+   "fat_g": 26.5
+  }
+ },
+ {
+  "name": "drumstick leaves",
+  "category": "vegetable",
+  "aliases": [
+   "moringa leaves",
+   "sahjan patta"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 64.0,
+   "protein_g": 2.1,
+   "carbs_g": 12.5,
+   "fat_g": 1.7
+  }
+ },
+ {
+  "name": "apple cider vinegar",
+  "category": "pantry",
+  "aliases": [
+   "acv"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 18.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.9,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "amla",
+  "category": "fruit",
+  "aliases": [
+   "amlaki",
+   "aonla",
+   "indian gooseberry"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 44.0,
+   "protein_g": 0.9,
+   "carbs_g": 10.2,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "mango pulp",
+  "category": "fruit",
+  "aliases": [
+   "mango puree",
+   "mangoes puree"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 60.0,
+   "protein_g": 0.7,
+   "carbs_g": 15.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "hakka noodles",
+  "category": "grain",
+  "aliases": [
+   "chow mein noodles",
+   "egg hakka noodles"
+  ],
+  "allergens": [
+   "eggs",
+   "gluten"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 150.0,
+   "protein_g": 4.5,
+   "carbs_g": 28.0,
+   "fat_g": 2.0
+  }
+ },
+ {
+  "name": "fox nuts",
+  "category": "pantry",
+  "aliases": [
+   "euryale seeds",
+   "makhana",
+   "phool makhana"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 106.0,
+   "protein_g": 4.7,
+   "carbs_g": 20.8,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "chickpea flour",
+  "category": "grain",
+  "aliases": [
+   "besan",
+   "gram flour",
+   "कप बेसन",
+   "चने का आटा"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 387.0,
+   "protein_g": 22.0,
+   "carbs_g": 27.4,
+   "fat_g": 6.5
+  }
+ },
+ {
+  "name": "puffed rice",
+  "category": "grain",
+  "aliases": [
+   "murmura"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 160.0,
+   "protein_g": 2.5,
+   "carbs_g": 36.0,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "sunflower seeds",
+  "category": "pantry",
+  "aliases": [
+   "sunflower kernels",
+   "surajmukhi ke beej"
+  ],
+  "allergens": [
+   "sesame"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 585.0,
+   "protein_g": 20.0,
+   "carbs_g": 20.0,
+   "fat_g": 51.5
+  }
+ },
+ {
+  "name": "vermicelli",
+  "category": "grain",
+  "aliases": [
+   "semiya",
+   "sevian",
+   "vermicelli noodles"
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 346.0,
+   "protein_g": 10.0,
+   "carbs_g": 76.0,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "blueberries",
+  "category": "fruit",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 57.0,
+   "protein_g": 0.7,
+   "carbs_g": 14.5,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "dried figs",
+  "category": "fruit",
+  "aliases": [
+   "fig",
+   "सूखे अंजीर"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 249.0,
+   "protein_g": 3.3,
+   "carbs_g": 63.9,
+   "fat_g": 0.9
+  }
+ },
+ {
+  "name": "melon seeds",
+  "category": "pantry",
+  "aliases": [
+   "kharbuje ke beej",
+   "खरबूजे के बीज"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 447.0,
+   "protein_g": 15.2,
+   "carbs_g": 20.0,
+   "fat_g": 38.0
+  }
+ },
+ {
+  "name": "custard powder",
+  "category": "pantry",
+  "aliases": [
+   "custard mix"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 350.0,
+   "protein_g": 0.5,
+   "carbs_g": 87.0,
+   "fat_g": 0.2
+  }
+ },
+ {
+  "name": "barnyard millet",
+  "category": "grain",
+  "aliases": [
+   "jhangora",
+   "sanwa millet",
+   "झँगोरा"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 346.0,
+   "protein_g": 6.2,
+   "carbs_g": 76.0,
+   "fat_g": 2.5
+  }
+ },
+ {
+  "name": "ricotta",
+  "category": "dairy",
+  "aliases": [
+   "ricotta cheese",
+   "मसीना पनीर"
+  ],
+  "allergens": [
+   "dairy"
+  ],
+  "vegan": false,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 171.0,
+   "protein_g": 11.0,
+   "carbs_g": 3.0,
+   "fat_g": 13.0
+  }
+ },
+ {
+  "name": "fenugreek",
+  "category": "spice",
+  "aliases": [],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 323.0,
+   "protein_g": 23.2,
+   "carbs_g": 58.4,
+   "fat_g": 6.4
+  }
+ },
+ {
+  "name": "flax seeds",
+  "category": "pantry",
+  "aliases": [
+   "flaxseeds",
+   "अलसी"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 534.0,
+   "protein_g": 18.3,
+   "carbs_g": 28.9,
+   "fat_g": 42.2
+  }
+ },
+ {
+  "name": "amaranth leaves",
+  "category": "vegetable",
+  "aliases": [
+   "green amaranth",
+   "green amaranth leaves",
+   "चौलाई के पत्ते",
+   "लाल साग"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 23.0,
+   "protein_g": 2.1,
+   "carbs_g": 4.3,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "stone flower",
+  "category": "spice",
+  "aliases": [
+   "dagad phool",
+   "काबुली पत्थर",
+   "भजन पत्थर"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 0.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 0.0
+  }
+ },
+ {
+  "name": "sun dried tomatoes",
+  "category": "vegetable",
+  "aliases": [
+   "dried tomatoes",
+   "सूखे टमाटर"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 258.0,
+   "protein_g": 14.0,
+   "carbs_g": 56.0,
+   "fat_g": 2.9
+  }
+ },
+ {
+  "name": "fish sauce",
+  "category": "sauce",
+  "aliases": [
+   "nam pla",
+   "नाम प्ला"
+  ],
+  "allergens": [
+   "fish"
+  ],
+  "vegan": false,
+  "vegetarian": false,
+  "default_unit": "ml",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 117.0,
+   "protein_g": 10.0,
+   "carbs_g": 14.0,
+   "fat_g": 0.1
+  }
+ },
+ {
+  "name": "basmati rice",
+  "category": "grain",
+  "aliases": [
+   "1-1/2 basmati rice",
+   "basmatic rice",
+   "बासमती चावल"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 130.0,
+   "protein_g": 2.7,
+   "carbs_g": 28.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "cluster beans",
+  "category": "vegetable",
+  "aliases": [
+   "gawar phali",
+   "guar pods",
+   "guvar",
+   "गवार फली"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 26.0,
+   "protein_g": 3.0,
+   "carbs_g": 5.5,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "dried rose petals",
+  "category": "herb",
+  "aliases": [
+   "rose petals",
+   "गुलाब की पंखुड़ियाँ"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 320.0,
+   "protein_g": 1.5,
+   "carbs_g": 69.0,
+   "fat_g": 0.5
+  }
+ },
+ {
+  "name": "jackfruit",
+  "category": "fruit",
+  "aliases": [
+   "jackfruit raw",
+   "kathal",
+   "raw jackfruit",
+   "कटहल"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 95.0,
+   "protein_g": 1.9,
+   "carbs_g": 23.0,
+   "fat_g": 0.3
+  }
+ },
+ {
+  "name": "apricots",
+  "category": "fruit",
+  "aliases": [
+   "खुबानी"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 48.0,
+   "protein_g": 1.4,
+   "carbs_g": 11.0,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "matta rice",
+  "category": "grain",
+  "aliases": [
+   "red matta",
+   "red matta rice",
+   "red rice",
+   "गेहूं चावल"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 133.0,
+   "protein_g": 3.0,
+   "carbs_g": 29.0,
+   "fat_g": 0.4
+  }
+ },
+ {
+  "name": "leek",
+  "category": "vegetable",
+  "aliases": [
+   "लीक",
+   "सीरे"
+  ],
+  "allergens": [],
+  "vegan": true,
+  "vegetarian": true,
+  "default_unit": "g",
+  "grams_per_unit": 1.0,
+  "per_100g": {
+   "calories": 61.0,
+   "protein_g": 1.5,
+   "carbs_g": 14.0,
+   "fat_g": 0.3
   }
  }
 ]

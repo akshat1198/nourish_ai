@@ -1,4 +1,7 @@
 """Unit tests for the Stage 6 ingestion foundation (no DB, no LLM, no network)."""
+import json
+from pathlib import Path
+
 from scripts.ingest.normalize import CanonicalMatcher, parse_ingredient_line
 from scripts.ingest.taxonomy_maps import (
     map_course,
@@ -81,3 +84,19 @@ def test_mealdb_area():
     assert map_mealdb_area("Indian") == ("indian", None)
     assert map_mealdb_area("Chinese") == ("asian", "chinese")
     assert map_mealdb_area("British") == (None, None)  # unmapped
+
+
+# Frontend allergen filter vocab (frontend/lib/filter-options.ts). Seed data
+# must use exactly these tokens or the exact-overlap filter silently misses
+# (the pre-Stage-6 "egg" vs "eggs" bug).
+_ALLERGEN_VOCAB = {"dairy", "gluten", "nuts", "peanuts", "eggs", "soy",
+                   "shellfish", "fish", "sesame"}
+_SEED = Path(__file__).resolve().parents[2] / "seed_data"
+
+
+def test_seed_allergen_tokens_match_filter_vocab():
+    for fname in ("ingredients.json", "recipes.json"):
+        rows = json.loads((_SEED / fname).read_text())
+        tokens = {a for r in rows for a in r.get("allergens", [])}
+        off = tokens - _ALLERGEN_VOCAB
+        assert not off, f"{fname} has off-vocab allergen tokens: {off}"

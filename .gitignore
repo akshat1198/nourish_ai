@@ -87,3 +87,4 @@ archana_*.csv
 
 # Stage 6 derived analysis output (regenerable from the CSV)
 backend/seed_data/unmatched_cores.json
+backend/seed_data/ingredients_enriched.json
