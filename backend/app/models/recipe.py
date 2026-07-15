@@ -41,7 +41,7 @@ class Recipe(Base):
         Vector(EMBED_DIM), nullable=True
     )
     # Provenance (Stage 6): where the recipe came from + how it may be used.
-    # source ∈ {seed, themealdb, archanas, edamam}; the 144 curated rows are
+    # source ∈ {seed, themealdb, archanas}; the 144 curated rows are
     # "seed". source_url/attribution/image_url/license_note come from ingestion.
     source: Mapped[str] = mapped_column(Text, default="seed", server_default="seed")
     source_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

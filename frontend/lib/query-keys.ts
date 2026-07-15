@@ -20,7 +20,6 @@ export const queryKeys = {
   profile: ["profile"] as const,
   ingredients: (q: string) => ["ingredients", q] as const,
   cuisines: ["cuisines"] as const,
-  webSearch: (q: string) => ["web-search", q] as const,
   recommendations: (req: RecommendRequest) =>
     ["recommendations", canonicalizeRequest(req)] as const,
 };

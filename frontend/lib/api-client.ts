@@ -10,7 +10,6 @@ import type {
   ProfileUpdate,
   RecommendRequest,
   RecommendResponse,
-  WebSearchResponse,
 } from "@/types/api";
 
 // One typed function per endpoint the UI uses.
@@ -21,9 +20,6 @@ export const api = {
     apiFetch<IngredientSuggestion[]>(`/v1/ingredients?q=${encodeURIComponent(q)}`),
 
   getCuisines: () => apiFetch<CuisineCount[]>("/v1/cuisines"),
-
-  searchWeb: (q: string) =>
-    apiFetch<WebSearchResponse>(`/v1/search/web?q=${encodeURIComponent(q)}`),
 
   getPantry: () => apiFetch<PantryResponse>("/v1/pantry"),
 
