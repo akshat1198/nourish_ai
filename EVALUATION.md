@@ -187,6 +187,34 @@ observations worth their own line:
 - The **timeout fix showed up live**: one case's structuring call stalled, failed
   fast at 20 s, and *degraded safely* instead of hanging the run.
 
+## 6c. Retrieval re-baseline at corpus scale (Stage 6.3)
+
+The corpus grew **52×**: 144 seed → **7,580 recipes** (+708 TheMealDB, +6,728
+Archana's Kitchen with regional Indian cuisine). All 7,580 embedded (MiniLM-L6,
+HNSW). Re-ran `run_retrieval --mode both` on three gold sets:
+
+| Gold set | SQL hit@5 | Hybrid hit@5 | violations |
+|---|---|---|---|
+| structured (`queries.jsonl`, 30) | 1.00 | 1.00 | 0 |
+| **regional-Indian** (`queries_regional.jsonl`, 8, NEW) | 0.875 | **1.00** | 0 |
+| fuzzy (`fuzzy_queries.jsonl`, 8) | 0.125 | 0.75 | 0 |
+
+- **Structured holds at 52× scale** — the original gold recipes still rank top-5
+  against 7,436 new competitors. hit@5 stays 1.0 (SQL MRR softens 1.0→0.84 as
+  near-duplicates crowd in, but the target never leaves top-5).
+- **Regional set is where hybrid earns its keep**: SQL drops Kerala avial (returns
+  a different vegetable poriyal); hybrid's vector arm surfaces the actual avial at
+  #1. New cases are built from a real regional dish's own ingredients + its
+  `cuisines`/`meal_type` filter (the eval harness gained those fields in 6.3).
+- **Fuzzy hybrid fell 1.0 → 0.75 at scale** — the plan's "vector noise at scale"
+  tripwire. Investigated per the plan: sweeping `RRF_POOL` 30→200 left it
+  **unchanged at 0.75**, so it is *not* a candidate-pool artifact — it's genuine
+  competition (those cases were authored to hit specific *seed* recipes that now
+  compete with 7,400 others; some misses are plausibly better matches to new
+  recipes). Hybrid still beats SQL **6×**. Not "fixed" by tuning; recorded honestly.
+- **violations = 0 on every set** — cuisine/region/meal/diet/allergen filters all
+  hold post-fusion; the bigger corpus introduced no constraint leakage.
+
 ## 7. Interpretation
 
 - **Correctness parity was expected** — both engines are bounded by the same

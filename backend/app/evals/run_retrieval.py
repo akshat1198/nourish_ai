@@ -7,12 +7,21 @@ MRR and hard-constraint violations. Supports the SQL path, the hybrid
 The SQL and hybrid paths both enforce diet/allergen/time, so
 constraint_violations MUST be 0 — a nonzero value is a retrieval bug.
 
-Baselines (144-recipe corpus, RANKING_VERSION=v1):
-    structured set (queries.jsonl):  sql & hybrid  hit@5=1.0  violations=0
-    fuzzy set (fuzzy_queries.jsonl): hybrid >> sql (SQL can't match paraphrases)
+Baselines — 144-recipe seed corpus (Stage 1-5, RANKING_VERSION=v1):
+    structured (queries.jsonl):       sql & hybrid  hit@5=1.0   violations=0
+    fuzzy (fuzzy_queries.jsonl):      sql 0.25  ->  hybrid 1.0  violations=0
+
+Re-baseline — 7,580-recipe corpus (Stage 6.3: +708 themealdb +6,728 archanas):
+    structured (queries.jsonl):       sql 1.0    hybrid 1.0   (holds at 52x scale)
+    regional (queries_regional.jsonl):sql 0.875  hybrid 1.0   (hybrid finds the
+                                      regional dish SQL drops, e.g. Kerala avial)
+    fuzzy (fuzzy_queries.jsonl):      sql 0.125  hybrid 0.75   (hybrid still 6x
+                                      SQL; drop from 1.0 is corpus competition,
+                                      NOT pool size — RRF_POOL 30->200 unchanged)
+    violations=0 on every set (cuisine/region/meal/diet/allergen filters hold).
 
 Run:  python -m app.evals.run_retrieval --mode both
-      python -m app.evals.run_retrieval --mode both --cases fuzzy_queries.jsonl -v
+      python -m app.evals.run_retrieval --mode both --cases queries_regional.jsonl -v
 """
 from __future__ import annotations
 
@@ -63,6 +72,8 @@ def run(mode: str, cases_path: Path, verbose: bool = False) -> Metrics:
                     diet=case.diet,
                     exclude_allergens=case.exclude_allergens,
                     max_time=case.max_time_minutes,
+                    cuisines=case.cuisines,
+                    meal_type=case.meal_type,
                     limit=CANDIDATE_POOL,
                 )
                 ranked = annotate(candidates, limit=TOP_K)
@@ -73,6 +84,8 @@ def run(mode: str, cases_path: Path, verbose: bool = False) -> Metrics:
                     diet=case.diet,
                     exclude_allergens=case.exclude_allergens,
                     max_time=case.max_time_minutes,
+                    cuisines=case.cuisines,
+                    meal_type=case.meal_type,
                     limit=CANDIDATE_POOL,
                 )
                 ranked = rank(candidates, limit=TOP_K)
