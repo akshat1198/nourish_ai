@@ -107,6 +107,17 @@ def test_derive_keyword_backstop_flags_meat_and_shellfish():
     assert "vegetarian" in d2["diet_labels"] and "vegan" in d2["diet_labels"]
 
 
+def test_derive_title_scan_catches_meat_when_ingredient_unmatched():
+    from scripts.ingest.pipeline import classify_and_derive
+    props = {"rice": {"vegetarian": True, "vegan": True, "allergens": [],
+                      "per_100g": {"calories": 130, "protein_g": 2.7, "carbs_g": 28, "fat_g": 0.3}}}
+    matched = [("rice", 200.0, True)]
+    # Meat only in the TITLE (Hindi 'murgh' = chicken), not in matched ingredients.
+    d = classify_and_derive(props, matched, ["Rice", "Onion"], servings=2, title="Murgh Biryani")
+    assert "vegetarian" not in d["diet_labels"]
+    assert "vegan" not in d["diet_labels"]
+
+
 def test_seed_allergen_tokens_match_filter_vocab():
     for fname in ("ingredients.json", "recipes.json"):
         rows = json.loads((_SEED / fname).read_text())

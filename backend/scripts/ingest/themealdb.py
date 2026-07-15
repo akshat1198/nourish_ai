@@ -87,7 +87,7 @@ def normalize_meal(meal: dict, props, matcher) -> dict | None:
     area = meal.get("strArea")
     cuisine, region = map_mealdb_area(area)
     derived = classify_and_derive(props, gram_items, raw_names, DEFAULT_SERVINGS,
-                                  category=meal.get("strCategory"))
+                                  category=meal.get("strCategory"), title=meal["strMeal"])
     instr = (meal.get("strInstructions") or "").replace("\r\n", "\n")
     steps = [s.strip() for s in instr.split("\n") if s.strip()] or [instr.strip()]
     tags = [t.strip().lower() for t in (meal.get("strTags") or "").split(",") if t.strip()]

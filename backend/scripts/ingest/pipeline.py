@@ -33,9 +33,14 @@ _NON_VEG_KW = {
     "gelatine", "prawn", "shrimp", "crab", "lobster", "fish", "salmon", "tuna",
     "cod", "anchovy", "anchovies", "oyster", "mussel", "clam", "squid",
     "octopus", "duck", "turkey", "goat", "keema", "kheema",
+    # Indian-language food words that survive into the (English) titles.
+    "murgh", "murg", "gosht", "ghosht", "macchi", "machli", "machhi", "meen",
+    "jhinga", "chingri", "mutton",
 }
-_FISH_KW = {"fish", "salmon", "tuna", "cod", "anchovy", "anchovies", "sardine"}
-_SHELLFISH_KW = {"prawn", "shrimp", "crab", "lobster", "oyster", "mussel", "clam", "squid"}
+_FISH_KW = {"fish", "salmon", "tuna", "cod", "anchovy", "anchovies", "sardine",
+            "macchi", "machli", "machhi", "meen"}
+_SHELLFISH_KW = {"prawn", "shrimp", "crab", "lobster", "oyster", "mussel", "clam",
+                 "squid", "jhinga", "chingri"}
 _NON_VEGAN_KW = {"egg", "eggs", "milk", "cheese", "butter", "cream", "ghee",
                  "paneer", "yogurt", "yoghurt", "curd", "khoya", "honey", "mayonnaise"}
 _ALLERGEN_KW = {
@@ -107,8 +112,10 @@ def classify_and_derive(
     raw_names: list[str],
     servings: int,
     category: Optional[str] = None,
+    force_non_veg: bool = False,   # source Diet column says non-veg (e.g. Hindi meat word)
+    title: str = "",               # scanned too: catches "Chicken …" when the ingredient is unmatched
 ) -> dict:
-    raw_text = " ".join(raw_names)
+    raw_text = " ".join(raw_names) + " " + title
     # --- allergens: matched props ∪ keyword backstop ---
     allergens: set[str] = set()
     for name, _g, _e in matched_items:
@@ -127,7 +134,8 @@ def classify_and_derive(
         if matched_items else False
     vegan = all(props[n].get("vegan", False) for n, _g, _e in matched_items) \
         if matched_items else False
-    if _kw_hit(raw_text, _NON_VEG_KW) or (category or "").lower() in _MEAT_CATEGORIES:
+    if force_non_veg or _kw_hit(raw_text, _NON_VEG_KW) \
+            or (category or "").lower() in _MEAT_CATEGORIES:
         vegetarian = vegan = False
     if _kw_hit(raw_text, _NON_VEGAN_KW):
         vegan = False
@@ -184,16 +192,45 @@ def title_exists(session, title: str) -> bool:
     return any(normalize(t) == norm for t in rows)
 
 
-def upsert_recipe(session, name_to_id: dict, fields: dict, matched_items: list[tuple]) -> str:
-    """matched_items: (canonical_name, qty, unit, essential). Returns status."""
-    exists = session.execute(
-        select(Recipe.id).where(Recipe.source == fields["source"],
-                                Recipe.source_url == fields.get("source_url"))
-    ).first()
-    if exists and fields.get("source_url"):
-        return "dup_source"
-    if title_exists(session, fields["title"]):
-        return "dup_title"
+class Deduper:
+    """In-memory title+source_url dedup, pre-loaded once. O(1) per recipe —
+    essential for the 6,871-row Archana's import (per-recipe DB title scans would
+    be O(n²))."""
+
+    def __init__(self, session) -> None:
+        self.titles = {normalize(t) for t in session.execute(select(Recipe.title)).scalars()}
+        self.urls = {u for u in session.execute(select(Recipe.source_url)).scalars() if u}
+
+    def is_dup(self, title: str, url: Optional[str]) -> bool:
+        return normalize(title) in self.titles or bool(url and url in self.urls)
+
+    def add(self, title: str, url: Optional[str]) -> None:
+        self.titles.add(normalize(title))
+        if url:
+            self.urls.add(url)
+
+
+def upsert_recipe(session, name_to_id: dict, fields: dict, matched_items: list[tuple],
+                  deduper: Optional[Deduper] = None) -> str:
+    """matched_items: (canonical_name, qty, unit, essential). Returns status.
+
+    Pass a Deduper for O(1) dedup (bulk imports); without it, falls back to
+    per-call DB scans (fine for the small TheMealDB set).
+    """
+    url = fields.get("source_url")
+    if deduper is not None:
+        if deduper.is_dup(fields["title"], url):
+            return "dup_source" if url and url in deduper.urls else "dup_title"
+        deduper.add(fields["title"], url)
+    else:
+        exists = session.execute(
+            select(Recipe.id).where(Recipe.source == fields["source"],
+                                    Recipe.source_url == url)
+        ).first()
+        if exists and url:
+            return "dup_source"
+        if title_exists(session, fields["title"]):
+            return "dup_title"
     recipe = Recipe(**{k: v for k, v in fields.items() if k != "_ingredient_lines"})
     session.add(recipe)
     session.flush()
