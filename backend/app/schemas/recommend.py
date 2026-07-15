@@ -3,7 +3,9 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.core.allergens import normalize_request_allergens
 
 
 class RecommendRequest(BaseModel):
@@ -34,6 +36,13 @@ class RecommendRequest(BaseModel):
     )
     max_time_minutes: Optional[int] = Field(None, ge=0)
     limit: int = Field(10, ge=1, le=50)
+
+    @field_validator("exclude_allergens")
+    @classmethod
+    def _canonicalize_allergens(cls, v: list[str]) -> list[str]:
+        # Remap token variants (egg->eggs) so the exact-overlap filter can't miss;
+        # unknown tokens pass through (a filter no-op, never a silent safety drop).
+        return normalize_request_allergens(v)
 
 
 class IngredientMatch(BaseModel):

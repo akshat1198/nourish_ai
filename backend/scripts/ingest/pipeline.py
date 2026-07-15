@@ -19,6 +19,7 @@ from typing import Optional
 
 from sqlalchemy import select
 
+from app.core.allergens import ALLERGEN_SET, clean_allergens
 from app.models import Ingredient, Recipe, RecipeIngredient
 from app.services.ingredients import normalize
 from scripts.ingest.normalize import CanonicalMatcher
@@ -44,6 +45,8 @@ _ALLERGEN_KW = {
     "eggs": {"egg", "eggs"},
     "dairy": {"milk", "cheese", "butter", "cream", "ghee", "paneer", "yogurt", "yoghurt", "curd"},
 }
+# The keyword map's target tokens must be real allergen labels (single source of truth).
+assert set(_ALLERGEN_KW) <= ALLERGEN_SET, f"off-vocab allergen keys: {set(_ALLERGEN_KW) - ALLERGEN_SET}"
 _MEAT_CATEGORIES = {"beef", "chicken", "pork", "lamb", "goat", "seafood"}
 
 
@@ -117,6 +120,7 @@ def classify_and_derive(
         allergens.add("fish")
     if _kw_hit(raw_text, _SHELLFISH_KW):
         allergens.add("shellfish")
+    allergens = set(clean_allergens(allergens))   # canonicalize to the shared vocab
 
     # --- veg / vegan: matched AND, then keyword + category backstop ---
     vegetarian = all(props[n].get("vegetarian", False) for n, _g, _e in matched_items) \

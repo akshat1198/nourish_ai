@@ -18,26 +18,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from app.core.allergens import clean_allergens as _clean_allergens  # noqa: E402
 from app.services.ingredients import normalize  # noqa: E402
 
 SEED = Path(__file__).resolve().parents[2] / "seed_data"
 VALID_CATEGORIES = {"protein", "grain", "starch", "vegetable", "herb", "fruit",
                     "dairy", "pantry", "sauce", "spice"}
-# Allergen tokens must match the retrieval filter vocab exactly, so normalize
-# the LLM's near-variants ("tree nuts"->nuts, "egg"->eggs) and drop anything off-vocab.
-ALLOWED_ALLERGENS = {"gluten", "dairy", "nuts", "peanuts", "eggs", "soy",
-                     "shellfish", "fish", "sesame"}
-_ALLERGEN_REMAP = {"tree nuts": "nuts", "tree nut": "nuts", "treenuts": "nuts",
-                   "egg": "eggs", "milk": "dairy", "wheat": "gluten", "peanut": "peanuts"}
-
-
-def _clean_allergens(raw: list) -> list:
-    out: list[str] = []
-    for a in raw or []:
-        t = _ALLERGEN_REMAP.get(str(a).strip().lower(), str(a).strip().lower())
-        if t in ALLOWED_ALLERGENS and t not in out:
-            out.append(t)
-    return out
 
 
 def main() -> None:

@@ -21,13 +21,13 @@ from pydantic import BaseModel
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from app.core.config import settings  # noqa: E402
+from app.core.allergens import ALLERGEN_VOCAB  # noqa: E402
 from app.llm.client import get_llm  # noqa: E402
 
 SEED = Path(__file__).resolve().parents[2] / "seed_data"
 CATEGORIES = ["protein", "grain", "starch", "vegetable", "herb", "fruit",
               "dairy", "pantry", "sauce", "spice"]
-ALLERGENS = ["gluten", "dairy", "nuts", "peanuts", "eggs", "soy", "shellfish",
-             "fish", "sesame"]
+ALLERGENS = list(ALLERGEN_VOCAB)
 # Rough Haiku 4.5 pricing (USD per token) for the cost projection only.
 PRICE_IN, PRICE_OUT = 1.0 / 1_000_000, 5.0 / 1_000_000
 

@@ -86,12 +86,10 @@ def test_mealdb_area():
     assert map_mealdb_area("British") == (None, None)  # unmapped
 
 
-# Frontend allergen filter vocab (frontend/lib/filter-options.ts). Seed data
-# must use exactly these tokens or the exact-overlap filter silently misses
-# (the pre-Stage-6 "egg" vs "eggs" bug).
-_ALLERGEN_VOCAB = {"dairy", "gluten", "nuts", "peanuts", "eggs", "soy",
-                   "shellfish", "fish", "sesame"}
+from app.core.allergens import ALLERGEN_SET, ALLERGEN_VOCAB
+
 _SEED = Path(__file__).resolve().parents[2] / "seed_data"
+_FRONTEND = Path(__file__).resolve().parents[3] / "frontend" / "lib" / "filter-options.ts"
 
 
 def test_derive_keyword_backstop_flags_meat_and_shellfish():
@@ -113,5 +111,23 @@ def test_seed_allergen_tokens_match_filter_vocab():
     for fname in ("ingredients.json", "recipes.json"):
         rows = json.loads((_SEED / fname).read_text())
         tokens = {a for r in rows for a in r.get("allergens", [])}
-        off = tokens - _ALLERGEN_VOCAB
+        off = tokens - ALLERGEN_SET
         assert not off, f"{fname} has off-vocab allergen tokens: {off}"
+
+
+def test_frontend_allergen_vocab_matches_backend():
+    """The frontend ALLERGENS list (TS) must equal backend ALLERGEN_VOCAB.
+
+    They can't share a module across the Python/TS split, so this guards drift:
+    add an allergen to one side and this test fails until both agree.
+    """
+    import re
+
+    text = _FRONTEND.read_text()
+    block = re.search(r"ALLERGENS[^=]*=\s*\[(.*?)\]", text, re.S)
+    assert block, "could not find ALLERGENS array in filter-options.ts"
+    tokens = re.findall(r'"([^"]+)"', block.group(1))
+    assert set(tokens) == ALLERGEN_SET, (
+        f"frontend/backend allergen vocab drift: "
+        f"frontend-only={set(tokens) - ALLERGEN_SET}, backend-only={ALLERGEN_SET - set(tokens)}"
+    )
