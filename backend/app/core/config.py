@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     PROMPT_VERSION: str = "v1"  # logged per run; real versioning in 3.4
     REPAIR_MAX_ATTEMPTS: int = 2  # LLM-05: repair turns before deterministic fallback
 
+    # Edamam live web search (Stage 6.5). Supplemental discovery/link-out only —
+    # results are NEVER stored or fed into pantry-matching/ranking (TOS). Feature
+    # is off (fail-open) unless BOTH id and key are set.
+    EDAMAM_APP_ID: str = ""
+    EDAMAM_APP_KEY: str = ""
+
     # Ranking weights (RETR-03). Bump RANKING_VERSION on any change so the
     # recommendation cache (RETR-04) invalidates.
     RANKING_VERSION: str = "v2"  # v2: soft dislike penalty

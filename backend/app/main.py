@@ -12,6 +12,7 @@ from app.api.recommendations import router as recommendations_router
 from app.api.shopping_list import router as shopping_router
 from app.api.substitutions import router as substitutions_router
 from app.api.traces import router as traces_router
+from app.api.websearch import router as websearch_router
 from app.core.config import settings
 
 # Create FastAPI application
@@ -41,6 +42,7 @@ app.include_router(orchestrate_router)
 app.include_router(traces_router)
 app.include_router(ingredients_router)
 app.include_router(cuisines_router)
+app.include_router(websearch_router)
 app.include_router(pantry_router)
 
 

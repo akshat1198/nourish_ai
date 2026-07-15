@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FilterFlow } from "@/components/filters/filter-flow";
 import { KitchenStatus } from "@/components/kitchen-status";
 import { PantryManager } from "@/components/pantry/pantry-manager";
+import { WebSearchPanel } from "@/components/results/web-search-panel";
 import { UserMenu } from "@/components/user-menu";
 
 export default function AppPage() {
@@ -30,6 +31,9 @@ export default function AppPage() {
 
         <PantryManager />
         <FilterFlow />
+        <div className="border-t border-border pt-8">
+          <WebSearchPanel />
+        </div>
       </main>
     </div>
   );

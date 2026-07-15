@@ -89,6 +89,20 @@ export interface CuisineCount {
   children?: CuisineCount[];
 }
 
+export interface WebSearchResult {
+  title: string;
+  url: string;
+  source: string | null;
+  image_url: string | null;
+}
+
+export interface WebSearchResponse {
+  enabled: boolean;
+  query: string;
+  attribution: string;
+  results: WebSearchResult[];
+}
+
 export interface HealthResponse {
   status: string;
   db: boolean;
