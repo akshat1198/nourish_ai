@@ -94,6 +94,21 @@ _ALLERGEN_VOCAB = {"dairy", "gluten", "nuts", "peanuts", "eggs", "soy",
 _SEED = Path(__file__).resolve().parents[2] / "seed_data"
 
 
+def test_derive_keyword_backstop_flags_meat_and_shellfish():
+    from scripts.ingest.pipeline import classify_and_derive
+    props = {"rice": {"vegetarian": True, "vegan": True, "allergens": [],
+                      "per_100g": {"calories": 130, "protein_g": 2.7, "carbs_g": 28, "fat_g": 0.3}}}
+    matched = [("rice", 200.0, True)]
+    # Plural "Prawns" (unmatched) must still defeat the veg/vegan claim + flag shellfish.
+    d = classify_and_derive(props, matched, ["Rice", "Prawns"], servings=2)
+    assert "vegetarian" not in d["diet_labels"]
+    assert "vegan" not in d["diet_labels"]
+    assert "shellfish" in d["allergens"]
+    # A genuinely veg dish keeps the labels.
+    d2 = classify_and_derive(props, matched, ["Rice", "Tomatoes"], servings=2)
+    assert "vegetarian" in d2["diet_labels"] and "vegan" in d2["diet_labels"]
+
+
 def test_seed_allergen_tokens_match_filter_vocab():
     for fname in ("ingredients.json", "recipes.json"):
         rows = json.loads((_SEED / fname).read_text())
