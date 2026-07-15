@@ -14,6 +14,9 @@ services:
       # + set AUTH_SHARED_SECRET (matching the frontend) once Google is wired.
       AUTH_MODE: ${AUTH_MODE:-disabled}
       AUTH_SHARED_SECRET: ${AUTH_SHARED_SECRET:-}
+      # Edamam "search the wider web" (6.5) — optional; feature stays off unless both set.
+      EDAMAM_APP_ID: ${EDAMAM_APP_ID:-}
+      EDAMAM_APP_KEY: ${EDAMAM_APP_KEY:-}
     depends_on:
       db:
         condition: service_healthy
