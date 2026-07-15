@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.agent import router as agent_router
+from app.api.cuisines import router as cuisines_router
 from app.api.health import router as health_router
 from app.api.ingredients import router as ingredients_router
 from app.api.orchestrate import router as orchestrate_router
@@ -39,6 +40,7 @@ app.include_router(profile_router)
 app.include_router(orchestrate_router)
 app.include_router(traces_router)
 app.include_router(ingredients_router)
+app.include_router(cuisines_router)
 app.include_router(pantry_router)
 
 

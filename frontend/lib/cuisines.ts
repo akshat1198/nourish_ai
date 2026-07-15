@@ -6,6 +6,7 @@
 export interface CuisineNode {
   id: string;
   label: string;
+  count?: number;          // live recipe count (from GET /v1/cuisines); absent in the fallback
   children?: CuisineNode[];
 }
 
@@ -28,10 +29,16 @@ export const CUISINES: CuisineNode[] = [
     children: [
       { id: "indian/north_indian", label: "North Indian" },
       { id: "indian/south_indian", label: "South Indian" },
-      { id: "indian/gujarati", label: "Gujarati" },
       { id: "indian/punjabi", label: "Punjabi" },
+      { id: "indian/gujarati", label: "Gujarati" },
       { id: "indian/marathi", label: "Marathi" },
       { id: "indian/bengali", label: "Bengali" },
+      { id: "indian/kerala", label: "Kerala" },
+      { id: "indian/tamil_nadu", label: "Tamil Nadu" },
+      { id: "indian/karnataka", label: "Karnataka" },
+      { id: "indian/rajasthani", label: "Rajasthani" },
+      { id: "indian/andhra", label: "Andhra" },
+      { id: "indian/goan", label: "Goan" },
     ],
   },
   { id: "italian", label: "Italian" },

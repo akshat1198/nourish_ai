@@ -37,3 +37,17 @@ def test_valid_ids_membership():
     assert "indian/gujarati" in VALID_CUISINE_IDS
     assert "asian/chinese" in VALID_CUISINE_IDS
     assert "indian/atlantis" not in VALID_CUISINE_IDS
+
+
+def test_frontend_cuisine_ids_match_backend():
+    """frontend/lib/cuisines.ts ids must equal backend VALID_CUISINE_IDS (they
+    can't share a module across the Python/TS split — guard the drift)."""
+    import re
+    from pathlib import Path
+
+    fe = Path(__file__).resolve().parents[3] / "frontend" / "lib" / "cuisines.ts"
+    ids = set(re.findall(r'id:\s*"([^"]+)"', fe.read_text()))
+    assert ids == VALID_CUISINE_IDS, {
+        "frontend_only": ids - VALID_CUISINE_IDS,
+        "backend_only": VALID_CUISINE_IDS - ids,
+    }

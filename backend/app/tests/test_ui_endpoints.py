@@ -122,3 +122,21 @@ def test_recommendations_rejects_unknown_cuisine():
         json={"pantry": ["tomato"], "cuisines": ["klingon"], "limit": 5},
     )
     assert r.status_code == 422
+
+
+# --------------------------------------------------------------------------- #
+# Cuisines (Stage 6.4)
+# --------------------------------------------------------------------------- #
+@requires_db
+def test_cuisines_tree_with_counts():
+    tree = client.get("/v1/cuisines").json()
+    ids = {n["id"] for n in tree}
+    assert {"indian", "asian", "italian"} <= ids
+    indian = next(n for n in tree if n["id"] == "indian")
+    child_ids = {c["id"] for c in indian["children"]}
+    # Regions promoted in 6.4 must be present…
+    assert {"indian/gujarati", "indian/kerala", "indian/karnataka"} <= child_ids
+    # …with real counts, and the parent count covers its regions.
+    guj = next(c for c in indian["children"] if c["id"] == "indian/gujarati")
+    assert guj["count"] > 0
+    assert indian["count"] >= sum(c["count"] for c in indian["children"])

@@ -82,6 +82,13 @@ export interface Profile {
 
 export type ProfileUpdate = Omit<Profile, "user_key">;
 
+export interface CuisineCount {
+  id: string;
+  label: string;
+  count: number;
+  children?: CuisineCount[];
+}
+
 export interface HealthResponse {
   status: string;
   db: boolean;

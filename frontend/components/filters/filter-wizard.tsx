@@ -7,7 +7,8 @@ import { OptionPill } from "@/components/filters/option-pill";
 import { IngredientCombobox } from "@/components/pantry/ingredient-combobox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CUISINES } from "@/lib/cuisines";
+import { CUISINES, type CuisineNode } from "@/lib/cuisines";
+import { useCuisines } from "@/lib/hooks/use-cuisines";
 import {
   ALLERGENS,
   DIETS,
@@ -50,6 +51,9 @@ export function FilterWizard({
   const [answers, setAnswers] = useState<FilterAnswers>(initial);
   const [step, setStep] = useState<Step>(startAtReview ? "review" : "cuisine");
   const [group, setGroup] = useState<string | null>(null); // cuisine drill-down
+  // Live taxonomy + counts (6.4); falls back to the static list while loading.
+  const { data: cuisineData } = useCuisines();
+  const cuisineList = cuisineData ?? CUISINES;
 
   const idx = STEPS.indexOf(step);
   const set = (patch: Partial<FilterAnswers>) =>
@@ -106,12 +110,13 @@ export function FilterWizard({
         {/* ---- CUISINE ---- */}
         {step === "cuisine" && !group && (
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-            {CUISINES.map((c) =>
-              c.children ? (
+            {cuisineList.map((c) =>
+              c.children && c.children.length ? (
                 <CuisineCard
                   key={c.id}
                   label={c.label}
                   hint="pick a region →"
+                  count={c.count}
                   selected={cuisineSelected(c.id)}
                   onClick={() => setGroup(c.id)}
                 />
@@ -119,6 +124,8 @@ export function FilterWizard({
                 <CuisineCard
                   key={c.id}
                   label={c.label}
+                  count={c.count}
+                  disabled={c.count === 0}
                   selected={answers.cuisines.length === 1 && answers.cuisines[0] === c.id}
                   onClick={() => {
                     set({ cuisines: [c.id] });
@@ -141,6 +148,7 @@ export function FilterWizard({
         {step === "cuisine" && group && (
           <CuisineSubStep
             group={group}
+            cuisineList={cuisineList}
             answers={answers}
             setAnswers={setAnswers}
             onDone={() => {
@@ -342,44 +350,56 @@ export function FilterWizard({
 function CuisineCard({
   label,
   hint,
+  count,
   selected,
+  disabled,
   onClick,
 }: {
   label: string;
   hint?: string;
+  count?: number;
   selected?: boolean;
+  disabled?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={selected}
       className={cn(
-        "flex flex-col items-start gap-0.5 rounded-xl border px-4 py-3 text-left transition-[transform,background-color,border-color,color] cursor-pointer hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "flex flex-col items-start gap-0.5 rounded-xl border px-4 py-3 text-left transition-[transform,background-color,border-color,color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        disabled
+          ? "cursor-not-allowed border-border bg-card opacity-40"
+          : "cursor-pointer hover:-translate-y-0.5",
         selected
           ? "border-primary bg-primary/10"
           : "border-border bg-card hover:bg-secondary/40",
       )}
     >
       <span className={cn("font-medium", selected && "text-primary")}>{label}</span>
-      {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+      <span className="text-xs text-muted-foreground">
+        {hint ?? (count != null ? `${count} recipes` : "")}
+      </span>
     </button>
   );
 }
 
 function CuisineSubStep({
   group,
+  cuisineList,
   answers,
   setAnswers,
   onDone,
 }: {
   group: string;
+  cuisineList: CuisineNode[];
   answers: FilterAnswers;
   setAnswers: React.Dispatch<React.SetStateAction<FilterAnswers>>;
   onDone: () => void;
 }) {
-  const node = CUISINES.find((c) => c.id === group);
+  const node = cuisineList.find((c) => c.id === group);
   const children = node?.children ?? [];
   const selectedChildren = answers.cuisines.filter((id) =>
     id.startsWith(`${group}/`),
@@ -407,9 +427,13 @@ function CuisineSubStep({
           <OptionPill
             key={c.id}
             selected={selectedChildren.includes(c.id)}
+            disabled={c.count === 0}
             onClick={() => toggleChild(c.id)}
           >
             {c.label}
+            {c.count != null && (
+              <span className="ml-1 text-xs opacity-55">{c.count}</span>
+            )}
           </OptionPill>
         ))}
         <OptionPill selected={isAny} onClick={chooseAny}>

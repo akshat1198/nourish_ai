@@ -13,13 +13,39 @@ from typing import Optional
 
 CUISINE_TAXONOMY: dict[str, list[str]] = {
     "asian": ["chinese", "thai", "japanese", "filipino", "korean", "vietnamese"],
-    "indian": ["north_indian", "south_indian", "gujarati", "punjabi", "marathi", "bengali"],
+    # Indian regions expanded in Stage 6 once the real corpus populated them
+    # (each of these has 80+ recipes). The importer already stores these slugs.
+    "indian": ["north_indian", "south_indian", "punjabi", "gujarati", "marathi",
+               "bengali", "kerala", "tamil_nadu", "karnataka", "rajasthani",
+               "andhra", "goan"],
     "italian": [],
     "mexican": [],
     "mediterranean": [],
     "middle-eastern": [],
     "american": [],
 }
+
+# Human labels for every id (top-level + "top/child"). Source of truth for the
+# GET /v1/cuisines response; the frontend renders whatever the endpoint returns.
+CUISINE_LABELS: dict[str, str] = {
+    "asian": "Asian", "asian/chinese": "Chinese", "asian/thai": "Thai",
+    "asian/japanese": "Japanese", "asian/filipino": "Filipino",
+    "asian/korean": "Korean", "asian/vietnamese": "Vietnamese",
+    "indian": "Indian", "indian/north_indian": "North Indian",
+    "indian/south_indian": "South Indian", "indian/punjabi": "Punjabi",
+    "indian/gujarati": "Gujarati", "indian/marathi": "Marathi",
+    "indian/bengali": "Bengali", "indian/kerala": "Kerala",
+    "indian/tamil_nadu": "Tamil Nadu", "indian/karnataka": "Karnataka",
+    "indian/rajasthani": "Rajasthani", "indian/andhra": "Andhra",
+    "indian/goan": "Goan", "italian": "Italian", "mexican": "Mexican",
+    "mediterranean": "Mediterranean", "middle-eastern": "Middle Eastern",
+    "american": "American",
+}
+
+
+def label_for(cid: str) -> str:
+    """Human label for a cuisine id, with a titled fallback for unknown slugs."""
+    return CUISINE_LABELS.get(cid, cid.split("/")[-1].replace("_", " ").title())
 
 # All valid ids: "asian", "asian/chinese", "indian/gujarati", ...
 VALID_CUISINE_IDS: set[str] = {

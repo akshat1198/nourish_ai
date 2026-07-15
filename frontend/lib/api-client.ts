@@ -1,6 +1,7 @@
 import { apiFetch } from "@/lib/api";
 import { getUserKey } from "@/lib/auth-token";
 import type {
+  CuisineCount,
   HealthResponse,
   IngredientSuggestion,
   PantryReplaceIn,
@@ -17,6 +18,8 @@ export const api = {
 
   searchIngredients: (q: string) =>
     apiFetch<IngredientSuggestion[]>(`/v1/ingredients?q=${encodeURIComponent(q)}`),
+
+  getCuisines: () => apiFetch<CuisineCount[]>("/v1/cuisines"),
 
   getPantry: () => apiFetch<PantryResponse>("/v1/pantry"),
 
