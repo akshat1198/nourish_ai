@@ -92,10 +92,18 @@ export function IngredientCombobox({ existing, onAdd }: Props) {
                   />
                   <span className="flex-1">
                     {s.name}
-                    {s.matched_alias && (
+                    {s.is_group ? (
                       <span className="ml-1.5 text-xs text-muted-foreground">
-                        matches “{s.matched_alias}”
+                        any {s.members && s.members.length > 0
+                          ? `· ${s.members.length} kinds`
+                          : ""}
                       </span>
+                    ) : (
+                      s.matched_alias && (
+                        <span className="ml-1.5 text-xs text-muted-foreground">
+                          matches “{s.matched_alias}”
+                        </span>
+                      )
                     )}
                   </span>
                   {already && <Check className="size-4 text-primary" />}

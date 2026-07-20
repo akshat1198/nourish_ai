@@ -141,6 +141,8 @@ export interface IngredientSuggestion {
   name: string;
   category?: string | null;
   matched_alias?: string | null;
+  is_group?: boolean; // a generic that matches any of its members
+  members?: string[] | null; // member canonical names (groups only)
 }
 
 export interface PantryItem {

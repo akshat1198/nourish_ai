@@ -5,7 +5,9 @@ disabled mode (default), so identity is the X-User-Key header.
 """
 from fastapi.testclient import TestClient
 
+from app.db import SessionLocal
 from app.main import app
+from app.services.ingredients import resolve_pantry
 from app.tests.conftest import requires_db
 
 client = TestClient(app)
@@ -113,6 +115,23 @@ def test_recommendations_high_protein_goal():
     )
     results = r.json()["results"]
     assert all(rec["nutrition"].get("protein_g", 0) >= 25 for rec in results)
+
+
+@requires_db
+def test_generic_chicken_expands_to_breast_and_thigh():
+    # Picking the generic "chicken" should match recipes using either cut.
+    with SessionLocal() as s:
+        r = resolve_pantry(s, ["chicken"])
+    names = set(r.matched_names.values())
+    assert {"chicken breast", "chicken thigh"} <= names
+    assert "chicken" not in r.unmatched
+
+
+@requires_db
+def test_autocomplete_offers_generic_group():
+    res = client.get("/v1/ingredients", params={"q": "chicken"}).json()
+    groups = [x for x in res if x.get("is_group")]
+    assert any(x["name"] == "chicken" and x.get("members") for x in groups)
 
 
 def test_config_exposes_nutrition_thresholds():

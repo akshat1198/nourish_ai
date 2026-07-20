@@ -1,0 +1,38 @@
+[
+  {
+    "generic": "chicken",
+    "category": "protein",
+    "aliases": ["any chicken"],
+    "members": ["chicken breast", "chicken thigh"]
+  },
+  {
+    "generic": "cooking oil",
+    "category": "pantry",
+    "aliases": ["oil", "any oil"],
+    "members": ["olive oil", "vegetable oil", "coconut oil", "ghee"]
+  },
+  {
+    "generic": "cheese",
+    "category": "dairy",
+    "aliases": ["any cheese"],
+    "members": ["cheddar", "mozzarella", "parmesan"]
+  },
+  {
+    "generic": "beans",
+    "category": "protein",
+    "aliases": ["any beans", "legumes"],
+    "members": ["black beans", "kidney beans", "chickpeas"]
+  },
+  {
+    "generic": "fish",
+    "category": "protein",
+    "aliases": ["any fish"],
+    "members": ["salmon", "cod"]
+  },
+  {
+    "generic": "leafy greens",
+    "category": "vegetable",
+    "aliases": ["greens", "salad greens"],
+    "members": ["spinach", "kale", "lettuce"]
+  }
+]

@@ -11,9 +11,28 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_session
 from app.models import Ingredient
 from app.schemas.ingredient import IngredientSuggestion
+from app.services.ingredient_groups import load_groups
 from app.services.ingredients import normalize
 
 router = APIRouter(prefix="/v1", tags=["ingredients"])
+
+
+def _matching_groups(qn: str) -> list[IngredientSuggestion]:
+    """Generic groups whose name or an alias matches the query, offered first so
+    a user can pick "chicken" instead of committing to one specific cut."""
+    hits: list[IngredientSuggestion] = []
+    for g in load_groups():
+        keys = [g["generic"], *g.get("aliases", [])]
+        if not qn or any(qn in normalize(k) for k in keys):
+            hits.append(
+                IngredientSuggestion(
+                    name=g["generic"],
+                    category=g.get("category"),
+                    is_group=True,
+                    members=g.get("members"),
+                )
+            )
+    return hits
 
 
 @router.get("/ingredients", response_model=list[IngredientSuggestion])
@@ -23,6 +42,7 @@ def list_ingredients(
     session: Session = Depends(get_session),
 ):
     qn = normalize(q)
+    groups = _matching_groups(qn)
     out: list[tuple[bool, IngredientSuggestion]] = []
     for ing in session.execute(select(Ingredient)).scalars():
         name_n = normalize(ing.name)
@@ -41,4 +61,5 @@ def list_ingredients(
                 break
     # prefix matches first, then alphabetical
     out.sort(key=lambda t: (not t[0], t[1].name))
-    return [s for _, s in out[:limit]]
+    # Generics lead (the broader, less-restrictive pick), then the ranked singles.
+    return (groups + [s for _, s in out])[:limit]

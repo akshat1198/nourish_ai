@@ -13,6 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import Ingredient, Recipe
+from app.services.ingredient_groups import generic_members
 
 
 def normalize(name: str) -> str:
@@ -63,16 +64,31 @@ def resolve_pantry(session: Session, raw_names: list[str]) -> ResolvedPantry:
     unmatched: list[str] = []
     seen: set[int] = set()
 
-    for raw in raw_names:
-        ing_id = index.get(normalize(raw))
-        if ing_id is None:
-            if raw.strip():
-                unmatched.append(raw.strip())
-            continue
+    def _add(ing_id: int) -> None:
         if ing_id not in seen:
             seen.add(ing_id)
             ids.append(ing_id)
             matched[ing_id] = id_to_name[ing_id]
+
+    for raw in raw_names:
+        n = normalize(raw)
+        # A generic ("chicken") expands to every canonical member the recipe
+        # corpus knows ("chicken breast", "chicken thigh"), so any member counts
+        # as a match. Takes precedence over single-ingredient aliases.
+        members = generic_members(n)
+        if members:
+            member_ids = [mid for m in members if (mid := index.get(normalize(m))) is not None]
+            if member_ids:
+                for mid in member_ids:
+                    _add(mid)
+                continue  # generic resolved — don't also treat it as a single name
+
+        ing_id = index.get(n)
+        if ing_id is None:
+            if raw.strip():
+                unmatched.append(raw.strip())
+            continue
+        _add(ing_id)
 
     return ResolvedPantry(ingredient_ids=ids, matched_names=matched, unmatched=unmatched)
 
