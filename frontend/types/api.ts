@@ -9,6 +9,16 @@ export type RecommendMode =
   | "shopping_assisted"
   | "relaxed";
 
+// GET /v1/config — the nutrition-goal cutoffs, so the UI can show what each goal
+// means without hardcoding numbers that could drift from the backend.
+export interface NutritionThreshold {
+  value: NutritionGoal;
+  hint: string;
+}
+export interface ConfigResponse {
+  nutrition_goals: NutritionThreshold[];
+}
+
 export interface RecommendRequest {
   pantry: string[];
   pantry_text?: string | null;

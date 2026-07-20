@@ -16,6 +16,7 @@ function canonicalizeRequest(req: RecommendRequest): RecommendRequest {
 
 export const queryKeys = {
   health: ["health"] as const,
+  config: ["config"] as const,
   pantry: ["pantry"] as const,
   profile: ["profile"] as const,
   ingredients: (q: string) => ["ingredients", q] as const,

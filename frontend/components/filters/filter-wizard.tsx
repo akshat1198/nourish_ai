@@ -8,6 +8,7 @@ import { IngredientCombobox } from "@/components/pantry/ingredient-combobox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CUISINES, type CuisineNode } from "@/lib/cuisines";
+import { useConfig } from "@/lib/hooks/use-config";
 import { useCuisines } from "@/lib/hooks/use-cuisines";
 import {
   ALLERGENS,
@@ -57,6 +58,11 @@ export function FilterWizard({
   // Live taxonomy + counts (6.4); falls back to the static list while loading.
   const { data: cuisineData } = useCuisines();
   const cuisineList = cuisineData ?? CUISINES;
+  // Nutrition-goal cutoffs from the backend (shown on each goal so "low-fat"
+  // isn't a mystery); undefined until loaded.
+  const { data: config } = useConfig();
+  const goalHint = (value: string) =>
+    config?.nutrition_goals.find((n) => n.value === value)?.hint;
 
   const idx = STEPS.indexOf(step);
   const set = (patch: Partial<FilterAnswers>) =>
@@ -244,15 +250,23 @@ export function FilterWizard({
                 </span>
               </p>
               <div className="flex flex-wrap gap-2">
-                {NUTRITION_GOALS.map((g) => (
-                  <OptionPill
-                    key={g.value}
-                    selected={answers.nutrition_goals.includes(g.value)}
-                    onClick={() => toggle("nutrition_goals", g.value)}
-                  >
-                    {g.label}
-                  </OptionPill>
-                ))}
+                {NUTRITION_GOALS.map((g) => {
+                  const hint = goalHint(g.value);
+                  return (
+                    <OptionPill
+                      key={g.value}
+                      selected={answers.nutrition_goals.includes(g.value)}
+                      onClick={() => toggle("nutrition_goals", g.value)}
+                    >
+                      {g.label}
+                      {hint && (
+                        <span className="font-normal text-muted-foreground">
+                          · {hint}
+                        </span>
+                      )}
+                    </OptionPill>
+                  );
+                })}
               </div>
             </div>
           </div>

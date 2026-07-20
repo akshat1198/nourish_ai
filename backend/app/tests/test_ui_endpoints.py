@@ -115,6 +115,14 @@ def test_recommendations_high_protein_goal():
     assert all(rec["nutrition"].get("protein_g", 0) >= 25 for rec in results)
 
 
+def test_config_exposes_nutrition_thresholds():
+    # No DB needed — the UI reads these to label each goal; guard against drift.
+    goals = {g["value"]: g["hint"] for g in client.get("/v1/config").json()["nutrition_goals"]}
+    assert {"high_protein", "low_calorie", "low_fat", "low_carb"} <= goals.keys()
+    assert "25" in goals["high_protein"] and "protein" in goals["high_protein"]
+    assert "10" in goals["low_fat"] and "fat" in goals["low_fat"]
+
+
 @requires_db
 def test_recommendations_relaxes_when_soft_filter_empties():
     # A savory pantry with meal_type=dessert can't match anything, so the endpoint

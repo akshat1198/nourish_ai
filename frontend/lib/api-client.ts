@@ -1,6 +1,7 @@
 import { apiFetch } from "@/lib/api";
 import { getUserKey } from "@/lib/auth-token";
 import type {
+  ConfigResponse,
   CuisineCount,
   HealthResponse,
   IngredientSuggestion,
@@ -19,6 +20,8 @@ import type {
 // One typed function per endpoint the UI uses.
 export const api = {
   health: () => apiFetch<HealthResponse>("/health"),
+
+  getConfig: () => apiFetch<ConfigResponse>("/v1/config"),
 
   searchIngredients: (q: string) =>
     apiFetch<IngredientSuggestion[]>(`/v1/ingredients?q=${encodeURIComponent(q)}`),
