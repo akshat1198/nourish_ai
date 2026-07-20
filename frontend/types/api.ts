@@ -3,7 +3,11 @@
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack" | "dessert";
 export type NutritionGoal = "high_protein" | "low_calorie" | "low_fat" | "low_carb";
-export type RecommendMode = "normal" | "substitution_first" | "shopping_assisted";
+export type RecommendMode =
+  | "normal"
+  | "substitution_first"
+  | "shopping_assisted"
+  | "relaxed";
 
 export interface RecommendRequest {
   pantry: string[];

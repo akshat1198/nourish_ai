@@ -116,6 +116,38 @@ def test_recommendations_high_protein_goal():
 
 
 @requires_db
+def test_recommendations_relaxes_when_soft_filter_empties():
+    # A savory pantry with meal_type=dessert can't match anything, so the endpoint
+    # should set the soft filter aside and return the closest matches, flagged.
+    r = client.post(
+        "/v1/recommendations",
+        json={"pantry": ["chicken breast", "onion", "garlic"],
+              "meal_type": "dessert", "limit": 10},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["mode"] == "relaxed"
+    assert body["results"], "relaxed mode must still surface the closest matches"
+    assert body["explanation"]
+
+
+@requires_db
+def test_recommendations_never_dead_ends_on_strict_nutrition():
+    # Even an near-impossible nutrition combo should never leave a matching pantry
+    # with zero suggestions — relaxation surfaces the closest recipes.
+    r = client.post(
+        "/v1/recommendations",
+        json={"pantry": ["chicken breast", "rice", "broccoli", "onion", "garlic"],
+              "nutrition_goals": ["high_protein", "low_fat", "low_carb"], "limit": 10},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["results"], "a matching pantry should never dead-end"
+    # If the strict goals matched nothing, we relaxed; otherwise a normal match.
+    assert body["mode"] in {"normal", "relaxed", "substitution_first", "shopping_assisted"}
+
+
+@requires_db
 def test_recommendations_rejects_unknown_cuisine():
     r = client.post(
         "/v1/recommendations",

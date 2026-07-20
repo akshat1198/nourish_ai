@@ -62,3 +62,14 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+# Human-readable cutoff labels for the nutrition goals (single source of truth,
+# used by the recommend explanation and the /v1/config endpoint the UI reads).
+def nutrition_goal_label(goal: str) -> str:
+    return {
+        "high_protein": f"high-protein (≥{settings.NUTRI_HIGH_PROTEIN_G:g} g)",
+        "low_calorie": f"low-calorie (≤{settings.NUTRI_LOW_CALORIE_KCAL:g} kcal)",
+        "low_fat": f"low-fat (≤{settings.NUTRI_LOW_FAT_G:g} g)",
+        "low_carb": f"low-carb (≤{settings.NUTRI_LOW_CARB_G:g} g)",
+    }.get(goal, goal)

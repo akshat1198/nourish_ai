@@ -87,7 +87,11 @@ class RecommendResponse(BaseModel):
     results: list[RankedRecipe]
     mode: str = Field(
         "normal",
-        description="normal | substitution_first | shopping_assisted (RETR-05 low-confidence fallback)",
+        description=(
+            "normal | substitution_first | shopping_assisted (RETR-05 "
+            "low-confidence fallback) | relaxed (soft filters set aside because "
+            "nothing matched them; diet/allergen still applied)"
+        ),
     )
     explanation: Optional[str] = None
     unmatched_pantry: list[str] = Field(
