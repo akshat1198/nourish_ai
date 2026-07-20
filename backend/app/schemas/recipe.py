@@ -84,3 +84,6 @@ class ModifyResponse(BaseModel):
     knock_on_flags: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     llm_used: bool = False
+    # True when the target isn't in our verified vocabulary and the swap (labels
+    # + nutrition) was estimated by the LLM — the UI flags it as approximate.
+    approximate: bool = False

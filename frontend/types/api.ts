@@ -99,8 +99,10 @@ export interface RecipeDetail {
 export interface SubstituteOption {
   use: string;
   ratio: string;
-  confidence: number;
+  confidence?: number | null;
   enables_diets: string[];
+  note?: string; // short why/how (LLM suggestions)
+  source?: "curated" | "suggested"; // curated table vs LLM-suggested
 }
 
 export interface SubstitutionsResponse {
@@ -135,6 +137,7 @@ export interface ModifyResponse {
   knock_on_flags: string[];
   warnings: string[];
   llm_used: boolean;
+  approximate: boolean; // LLM-estimated (out-of-vocabulary target)
 }
 
 export interface IngredientSuggestion {

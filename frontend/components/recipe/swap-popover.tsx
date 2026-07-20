@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, ArrowRight } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -20,8 +20,17 @@ export function SwapPopover({
   pending: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [custom, setCustom] = useState("");
   const { data, isLoading } = useSubstitutions(ingredient, open);
   const subs = data?.substitutes ?? [];
+
+  const apply = (to: string) => {
+    const name = to.trim();
+    if (!name) return;
+    onApply(name);
+    setOpen(false);
+    setCustom("");
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -34,16 +43,16 @@ export function SwapPopover({
           <ArrowLeftRight className="size-3.5" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[min(16rem,calc(100vw-2rem))] p-3">
+      <PopoverContent className="w-[min(20rem,calc(100vw-2rem))] p-3">
         <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Swap {ingredient} for
         </p>
         {isLoading && (
-          <p className="text-sm text-muted-foreground">Finding swaps…</p>
+          <p className="py-1 text-sm text-muted-foreground">Finding swaps…</p>
         )}
         {!isLoading && subs.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            No known swaps for this ingredient.
+            No suggestions — try typing one below.
           </p>
         )}
         <ul className="space-y-0.5">
@@ -52,10 +61,7 @@ export function SwapPopover({
               <button
                 type="button"
                 disabled={pending}
-                onClick={() => {
-                  onApply(s.use);
-                  setOpen(false);
-                }}
+                onClick={() => apply(s.use)}
                 className="flex w-full flex-col rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
               >
                 <span className="flex items-center justify-between gap-2 text-sm">
@@ -64,6 +70,9 @@ export function SwapPopover({
                     {s.ratio}
                   </span>
                 </span>
+                {s.note && (
+                  <span className="text-xs text-muted-foreground">{s.note}</span>
+                )}
                 {s.enables_diets.length > 0 && (
                   <span className="text-xs text-primary">
                     enables {s.enables_diets.map((d) => titleCase(d.replace(/_/g, " "))).join(", ")}
@@ -73,6 +82,31 @@ export function SwapPopover({
             </li>
           ))}
         </ul>
+
+        {/* Free-text: swap in anything, even outside our vocabulary. */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            apply(custom);
+          }}
+          className="mt-2 flex items-center gap-1.5 border-t border-border pt-2"
+        >
+          <input
+            value={custom}
+            onChange={(e) => setCustom(e.target.value)}
+            placeholder="type another…"
+            aria-label={`Swap ${ingredient} for something else`}
+            className="min-w-0 flex-1 rounded-md border border-border bg-transparent px-2 py-1 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          <button
+            type="submit"
+            disabled={pending || !custom.trim()}
+            aria-label="Apply this swap"
+            className="grid size-7 shrink-0 touch-manipulation place-items-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
+          >
+            <ArrowRight className="size-4" />
+          </button>
+        </form>
       </PopoverContent>
     </Popover>
   );

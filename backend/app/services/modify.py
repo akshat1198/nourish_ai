@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.config import settings
 from app.llm.client import LLMError, get_llm, is_enabled
 from app.models import Ingredient, Recipe, Substitution
-from app.schemas.llm import ModifiedSteps
+from app.schemas.llm import FreeSwapAdaptation, ModifiedSteps
 from app.schemas.recipe import ModifyRequest, ModifyResponse, RecipeIngredientLine, SwapInfo
 from app.services.derivation import classify_and_derive, load_props, measure_to_grams
 from app.services.ingredients import normalize
@@ -139,6 +139,140 @@ def _parse_ratio(ratio: str) -> tuple[float, bool]:
     return 1.0, False
 
 
+_FREESWAP_SYSTEM = (
+    "You adapt a recipe to substitute ONE ingredient with another that is NOT in "
+    "our database, so estimate carefully and conservatively. Given the numbered "
+    "steps (0-indexed), the ingredient list, and the swap, return: a quantity "
+    "ratio (original:substitute), ONLY the steps that change (by original index, "
+    "matching the original wording and style), knock-on effects, any allergens "
+    "the new ingredient adds or removes, diets it enables or breaks, and an "
+    "approximate signed per-serving nutrition delta (omit if genuinely unsure)."
+)
+
+
+def _apply_freetext_swap(
+    session: Session, recipe: Recipe, from_ing: Ingredient, to_name: str
+) -> ModifyResponse:
+    """Swap to an ingredient outside our vocabulary — the LLM estimates the ratio,
+    step edits, allergen/diet effects, and nutrition delta. Flagged approximate."""
+    if not is_enabled():
+        raise HTTPException(
+            422,
+            f"'{to_name}' isn't a known ingredient, and the recipe assistant "
+            "needed to adapt to it isn't configured.",
+        )
+
+    steps = recipe.steps or []
+    numbered = "\n".join(f"{i}. {s}" for i, s in enumerate(steps))
+    ing_list = "; ".join(
+        f"{_measure_str(l)} {l.get('name', '')}".strip() for l in (recipe.ingredients or [])
+    )
+    prompt = (
+        f"{_FREESWAP_SYSTEM}\n\n"
+        f'Swap: replace "{from_ing.name}" with "{to_name}".\n'
+        f"Title: {recipe.title}\nIngredients: {ing_list}\nSteps:\n{numbered}"
+    )
+    try:
+        adapt = get_llm().generate_structured(
+            messages=[{"role": "user", "content": prompt}],
+            schema=FreeSwapAdaptation,
+            model=settings.LLM_MODEL_MAIN,
+            max_tokens=1600,
+        )
+    except LLMError as e:
+        logger.warning("free-text swap adaptation failed: %s", e)
+        raise HTTPException(503, "Couldn't adapt this swap right now — try again.")
+
+    multiplier, ratio_ok = _parse_ratio(adapt.ratio)
+    from_keys = {normalize(from_ing.name)} | {normalize(a) for a in from_ing.aliases or []}
+
+    # Category dots for the unchanged display lines (the free-text line has none).
+    cat_by_norm: dict[str, str] = {}
+    for ing in session.execute(select(Ingredient)).scalars():
+        cat_by_norm.setdefault(normalize(ing.name), ing.category)
+        for a in ing.aliases or []:
+            cat_by_norm.setdefault(normalize(a), ing.category)
+
+    new_lines: list[dict] = []
+    for item in recipe.ingredients or []:
+        line = dict(item)
+        if normalize(line.get("name", "")) in from_keys:
+            line["name"] = to_name
+            if line.get("qty") is not None:
+                line["qty"] = round(float(line["qty"]) * multiplier, 2)
+        new_lines.append(line)
+
+    to_norm = normalize(to_name)
+    lines_out = [
+        RecipeIngredientLine(
+            name=l.get("name", ""),
+            qty=l.get("qty"),
+            unit=l.get("unit"),
+            essential=l.get("essential", True),
+            category=None
+            if normalize(l.get("name", "")) == to_norm
+            else cat_by_norm.get(normalize(l.get("name", ""))),
+        )
+        for l in new_lines
+    ]
+
+    new_steps = list(steps)
+    changed: list[int] = []
+    for st in adapt.changed_steps:
+        if 0 <= st.index < len(new_steps):
+            new_steps[st.index] = st.text
+            changed.append(st.index)
+
+    old_all = set(recipe.allergens or [])
+    added, removed = set(adapt.added_allergens), set(adapt.removed_allergens)
+    new_allergens = sorted((old_all | added) - removed)
+
+    diet = [d for d in (recipe.diet_labels or []) if d not in adapt.breaks_diets]
+    for d in adapt.enables_diets:
+        if d not in diet:
+            diet.append(d)
+
+    baseline = recipe.nutrition or {}
+    nutrition: dict = {}
+    nutrition_delta: dict = {}
+    if adapt.nutrition_delta and baseline:
+        d = adapt.nutrition_delta
+        nutrition_delta = {k: round(getattr(d, k), 1) for k in _MACROS if k in baseline}
+        nutrition = {
+            k: max(0.0, round(baseline[k] + nutrition_delta[k], 1))
+            for k in baseline
+            if k in nutrition_delta
+        }
+
+    warnings = [
+        f"Estimated — “{to_name}” isn't in our verified data, so labels and "
+        "nutrition are approximate."
+    ]
+    if not nutrition:
+        warnings.append(NUTRITION_WARNING)
+    if not ratio_ok:
+        warnings.append(f"Couldn't read the ratio '{adapt.ratio}'; kept quantities unchanged.")
+
+    return ModifyResponse(
+        recipe_id=recipe.id,
+        title=recipe.title,
+        swap=SwapInfo(from_ingredient=from_ing.name, to_ingredient=to_name, ratio=adapt.ratio),
+        ingredients=lines_out,
+        steps=new_steps,
+        changed_step_indexes=sorted(set(changed)),
+        diet_labels=diet,
+        allergens=new_allergens,
+        added_allergens=sorted(added - old_all),
+        removed_allergens=sorted(removed & old_all),
+        nutrition=nutrition,
+        nutrition_delta=nutrition_delta,
+        knock_on_flags=adapt.knock_on_flags,
+        warnings=warnings,
+        llm_used=True,
+        approximate=True,
+    )
+
+
 def modify_recipe(
     session: Session, recipe_id: int, req: ModifyRequest
 ) -> ModifyResponse:
@@ -158,23 +292,8 @@ def modify_recipe(
             index.setdefault(normalize(alias), ing)
 
     from_ing = index.get(normalize(req.from_ingredient))
-    to_ing = index.get(normalize(req.to_ingredient))
     if from_ing is None:
         raise HTTPException(422, f"unknown ingredient: {req.from_ingredient}")
-    if to_ing is None:
-        raise HTTPException(422, f"unknown ingredient: {req.to_ingredient}")
-
-    # Table-grounded swaps only.
-    sub = session.execute(
-        select(Substitution).where(
-            Substitution.ingredient_id == from_ing.id,
-            Substitution.substitute_id == to_ing.id,
-        )
-    ).scalar_one_or_none()
-    if sub is None:
-        raise HTTPException(
-            422, f"no known substitution from {from_ing.name} to {to_ing.name}"
-        )
 
     # The recipe must actually use the from-ingredient (authoritative: the
     # canonical join, not the source-worded display list).
@@ -182,7 +301,24 @@ def modify_recipe(
     if from_ing.id not in recipe_ing_ids:
         raise HTTPException(422, f"recipe does not use {from_ing.name}")
 
-    multiplier, ratio_ok = _parse_ratio(sub.ratio)
+    to_ing = index.get(normalize(req.to_ingredient))
+    if to_ing is None:
+        # Target isn't in our vocabulary — adapt via the LLM so the cook can swap
+        # in anything (e.g. "dahi"). The result is flagged approximate.
+        return _apply_freetext_swap(
+            session, recipe, from_ing, req.to_ingredient.strip()
+        )
+
+    # Prefer a curated ratio when we have one; otherwise 1:1 for a canonical swap
+    # (WS4: any canonical ingredient is now a valid target, not just table rows).
+    sub = session.execute(
+        select(Substitution).where(
+            Substitution.ingredient_id == from_ing.id,
+            Substitution.substitute_id == to_ing.id,
+        )
+    ).scalar_one_or_none()
+    ratio_str = sub.ratio if sub else "1:1"
+    multiplier, ratio_ok = _parse_ratio(ratio_str)
     from_keys = {normalize(from_ing.name)} | {
         normalize(a) for a in from_ing.aliases or []
     }
@@ -248,13 +384,13 @@ def modify_recipe(
     )
 
     steps_out, changed_idx, knock_flags, llm_used, step_warnings = _rewrite_steps(
-        recipe.title, recipe.steps or [], from_ing.name, to_ing.name, sub.ratio
+        recipe.title, recipe.steps or [], from_ing.name, to_ing.name, ratio_str
     )
 
     warnings: list[str] = []
     if not ratio_ok:
         warnings.append(
-            f"Couldn't read the substitution ratio '{sub.ratio}'; kept quantities unchanged."
+            f"Couldn't read the substitution ratio '{ratio_str}'; kept quantities unchanged."
         )
     warnings.extend(step_warnings)
     if not nutrition:
@@ -265,7 +401,7 @@ def modify_recipe(
         recipe_id=recipe.id,
         title=recipe.title,
         swap=SwapInfo(
-            from_ingredient=from_ing.name, to_ingredient=to_ing.name, ratio=sub.ratio
+            from_ingredient=from_ing.name, to_ingredient=to_ing.name, ratio=ratio_str
         ),
         ingredients=lines_out,
         steps=steps_out,
@@ -279,4 +415,5 @@ def modify_recipe(
         knock_on_flags=knock_flags,
         warnings=warnings,
         llm_used=llm_used,
+        approximate=False,
     )

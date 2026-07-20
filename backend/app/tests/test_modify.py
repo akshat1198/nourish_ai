@@ -80,13 +80,19 @@ def test_modify_unknown_ingredient_422(session):
 
 
 @requires_db
-def test_modify_no_substitution_422(session):
-    # tomato and rice are both real, but there's no tomato->rice substitution.
+def test_modify_arbitrary_canonical_swap_ok(session):
+    # WS4: any canonical target is allowed now (not just table rows). tomato->rice
+    # has no curated row, so it defaults to 1:1 and is NOT flagged approximate.
     r = client.post(
         f"/v1/recipes/{_pasta_id(session)}/modify",
         json={"from_ingredient": "tomato", "to_ingredient": "rice"},
     )
-    assert r.status_code == 422
+    assert r.status_code == 200
+    body = r.json()
+    names = [i["name"] for i in body["ingredients"]]
+    assert "rice" in names and "tomato" not in names
+    assert body["approximate"] is False
+    assert body["swap"]["ratio"] == "1:1"
 
 
 @requires_db
@@ -183,3 +189,64 @@ def test_modify_llm_disabled_warns(session):
     ).json()
     assert body["llm_used"] is False
     assert any("isn't configured" in w for w in body["warnings"])
+
+
+# --- WS4: free-text (out-of-vocabulary) swaps + LLM suggestions ------------ #
+@requires_db
+def test_modify_freetext_swap_needs_llm(session):
+    # _llm_off: a target we don't know can't be adapted without the assistant.
+    r = client.post(
+        f"/v1/recipes/{_pasta_id(session)}/modify",
+        json={"from_ingredient": "parmesan", "to_ingredient": "nutritional yeast"},
+    )
+    assert r.status_code == 422
+
+
+@requires_db
+def test_modify_freetext_swap_llm_estimates(session, monkeypatch):
+    from app.schemas.llm import FreeSwapAdaptation, MacroDelta, ModifiedStep
+    from app.services import modify
+
+    monkeypatch.setattr(modify, "is_enabled", lambda: True)
+    fake = MagicMock()
+    fake.generate_structured.return_value = FreeSwapAdaptation(
+        ratio="1:1",
+        changed_steps=[ModifiedStep(index=0, text="Use nutritional yeast for a cheesy, dairy-free finish.")],
+        knock_on_flags=["Less melt than cheese."],
+        added_allergens=[],
+        removed_allergens=["dairy"],
+        enables_diets=["vegan"],
+        breaks_diets=[],
+        nutrition_delta=MacroDelta(calories=-40, protein_g=2, carbs_g=1, fat_g=-6),
+        note="Nutritional yeast stands in for parmesan.",
+    )
+    monkeypatch.setattr(modify, "get_llm", lambda: fake)
+
+    body = client.post(
+        f"/v1/recipes/{_pasta_id(session)}/modify",
+        json={"from_ingredient": "parmesan", "to_ingredient": "nutritional yeast"},
+    ).json()
+
+    names = [i["name"] for i in body["ingredients"]]
+    assert "nutritional yeast" in names and "parmesan" not in names
+    assert body["approximate"] is True
+    assert body["llm_used"] is True
+    assert "dairy" in body["removed_allergens"]
+    assert any("approximate" in w.lower() for w in body["warnings"])
+
+
+@requires_db
+def test_substitutions_merges_llm_suggestions(monkeypatch):
+    from app.api import substitutions as subs_api
+    from app.schemas.llm import SuggestedSwap, SuggestedSwaps
+
+    monkeypatch.setattr(subs_api, "is_enabled", lambda: True)
+    fake = MagicMock()
+    fake.generate_structured.return_value = SuggestedSwaps(
+        substitutes=[SuggestedSwap(use="dahi", ratio="1:1", note="tangy Indian yogurt", enables_diets=[])]
+    )
+    monkeypatch.setattr(subs_api, "get_llm", lambda: fake)
+
+    body = client.post("/v1/substitutions", json={"ingredient": "greek yogurt"}).json()
+    suggested = [s for s in body["substitutes"] if s.get("source") == "suggested"]
+    assert any(s["use"] == "dahi" for s in suggested)

@@ -1,6 +1,8 @@
 """Schemas for LLM structured output (LLM-02)."""
 from __future__ import annotations
 
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -34,3 +36,59 @@ class ModifiedSteps(BaseModel):
         description="Side effects to flag: cooking time, texture, binding, seasoning, moisture",
     )
     notes: str = Field("", description="Anything else worth flagging")
+
+
+# --------------------------------------------------------------------------- #
+# Substitution suggestions + free-text adaptation (WS4)
+# --------------------------------------------------------------------------- #
+class SuggestedSwap(BaseModel):
+    use: str = Field(..., description="The substitute ingredient name")
+    ratio: str = Field("1:1", description="original:substitute quantity ratio, e.g. 1:1 or 1:0.75")
+    note: str = Field("", description="Short why/how it works, <= 12 words")
+    enables_diets: list[str] = Field(
+        default_factory=list, description="Diets this swap enables: vegan, vegetarian, gluten_free, dairy_free"
+    )
+
+
+class SuggestedSwaps(BaseModel):
+    """LLM-proposed alternatives for one ingredient (WS4), realistic and common."""
+
+    substitutes: list[SuggestedSwap] = Field(default_factory=list)
+
+
+class MacroDelta(BaseModel):
+    calories: float = 0
+    protein_g: float = 0
+    carbs_g: float = 0
+    fat_g: float = 0
+
+
+class FreeSwapAdaptation(BaseModel):
+    """Adapt a recipe for a swap to an ingredient outside our vocabulary (WS4).
+
+    Everything here is the model's best estimate — the caller flags the result
+    as approximate."""
+
+    ratio: str = Field("1:1", description="original:substitute quantity ratio")
+    changed_steps: list[ModifiedStep] = Field(
+        default_factory=list, description="ONLY steps that change, by 0-based original index"
+    )
+    knock_on_flags: list[str] = Field(
+        default_factory=list, description="Side effects: cooking time, texture, binding, moisture"
+    )
+    added_allergens: list[str] = Field(
+        default_factory=list, description="Allergens the substitute introduces (dairy, gluten, nuts, egg, soy, shellfish, fish)"
+    )
+    removed_allergens: list[str] = Field(
+        default_factory=list, description="Allergens no longer present after the swap"
+    )
+    enables_diets: list[str] = Field(
+        default_factory=list, description="Diets now satisfied (vegan, vegetarian, gluten_free, dairy_free)"
+    )
+    breaks_diets: list[str] = Field(
+        default_factory=list, description="Diets no longer satisfied after the swap"
+    )
+    nutrition_delta: Optional[MacroDelta] = Field(
+        None, description="Approx signed per-serving change; omit if genuinely unsure"
+    )
+    note: str = Field("", description="One-line summary of the adaptation")
