@@ -1,4 +1,4 @@
-import { Clock3, Users } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cuisineLabel, titleCase } from "@/lib/filter-options";
 import type { RecipeDetail } from "@/types/api";
@@ -35,9 +35,6 @@ export function RecipeHeader({ recipe }: { recipe: RecipeDetail }) {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1 tabular">
             <Clock3 className="size-4" /> {recipe.time_minutes} min
-          </span>
-          <span className="inline-flex items-center gap-1 tabular">
-            <Users className="size-4" /> serves {recipe.servings}
           </span>
           {cuisine && <Badge variant="primary">{cuisine}</Badge>}
           {recipe.diet_labels.map((d) => (

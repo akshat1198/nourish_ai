@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AttributionFooter } from "@/components/recipe/attribution-footer";
@@ -34,6 +35,9 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 export function RecipeDetailView({ id }: { id: number }) {
   const { data: recipe, isLoading, isError, error, refetch } = useRecipe(id);
+  // Serving override (null = the recipe's own servings). Reset on navigation.
+  const [servingsOverride, setServingsOverride] = useState<number | null>(null);
+  useEffect(() => setServingsOverride(null), [id]);
 
   if (isLoading) {
     return (
@@ -72,10 +76,17 @@ export function RecipeDetailView({ id }: { id: number }) {
 
   if (!recipe) return null;
 
+  const servings = servingsOverride ?? recipe.servings;
+
   return (
     <Shell>
       <RecipeHeader recipe={recipe} />
-      <IngredientsPanel ingredients={recipe.ingredients} />
+      <IngredientsPanel
+        ingredients={recipe.ingredients}
+        servings={servings}
+        baseServings={recipe.servings}
+        onServings={setServingsOverride}
+      />
       <StepsList steps={recipe.steps} />
       <NutritionPanel recipe={recipe} />
       <AttributionFooter recipe={recipe} />
