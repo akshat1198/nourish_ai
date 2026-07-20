@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2, RotateCcw } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { AttributionFooter } from "@/components/recipe/attribution-footer";
 import { IngredientsPanel } from "@/components/recipe/ingredients-panel";
+import { ModifiedBanner } from "@/components/recipe/modified-banner";
 import { NutritionPanel } from "@/components/recipe/nutrition-panel";
 import { RecipeHeader } from "@/components/recipe/recipe-header";
 import { StepsList } from "@/components/recipe/steps-list";
@@ -99,18 +100,7 @@ export function RecipeDetailView({ id }: { id: number }) {
       <RecipeHeader recipe={recipe} />
 
       {modified && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
-          <span>
-            Modified:{" "}
-            <span className="font-medium text-primary">
-              {modified.swap.to_ingredient}
-            </span>{" "}
-            for {modified.swap.from_ingredient} ({modified.swap.ratio})
-          </span>
-          <Button variant="outline" size="sm" onClick={() => setModified(null)}>
-            <RotateCcw className="mr-1 size-3.5" /> Reset
-          </Button>
-        </div>
+        <ModifiedBanner modified={modified} onReset={() => setModified(null)} />
       )}
       {modify.isPending && (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -131,7 +121,10 @@ export function RecipeDetailView({ id }: { id: number }) {
         onSwap={applySwap}
         pendingSwap={modify.isPending}
       />
-      <StepsList steps={steps} />
+      <StepsList
+        steps={steps}
+        changedIndexes={modified?.changed_step_indexes ?? []}
+      />
       <NutritionPanel recipe={recipe} />
       <AttributionFooter recipe={recipe} />
     </Shell>
