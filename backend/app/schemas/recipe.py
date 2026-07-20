@@ -48,3 +48,35 @@ class RecipeDetail(BaseModel):
     attribution: Optional[str] = None
     image_url: Optional[str] = None
     license_note: Optional[str] = None
+
+
+# --------------------------------------------------------------------------- #
+# Substitution-aware modification (Stage 7.3)
+# --------------------------------------------------------------------------- #
+class ModifyRequest(BaseModel):
+    from_ingredient: str = Field(..., max_length=80)
+    to_ingredient: str = Field(..., max_length=80)
+
+
+class SwapInfo(BaseModel):
+    from_ingredient: str
+    to_ingredient: str
+    ratio: str
+
+
+class ModifyResponse(BaseModel):
+    recipe_id: int
+    title: str
+    swap: SwapInfo
+    ingredients: list[RecipeIngredientLine]
+    steps: list[str]
+    # Indexes of steps the LLM rewrote (7.3c); empty in the deterministic core.
+    changed_step_indexes: list[int] = Field(default_factory=list)
+    diet_labels: list[str] = Field(default_factory=list)
+    allergens: list[str] = Field(default_factory=list)
+    # Diff vs the original recipe's allergens — the safety payoff of the swap.
+    added_allergens: list[str] = Field(default_factory=list)
+    removed_allergens: list[str] = Field(default_factory=list)
+    knock_on_flags: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    llm_used: bool = False

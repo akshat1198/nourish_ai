@@ -11,8 +11,14 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.api.deps import get_session
 from app.models import Ingredient, Recipe
-from app.schemas.recipe import RecipeDetail, RecipeIngredientLine
+from app.schemas.recipe import (
+    ModifyRequest,
+    ModifyResponse,
+    RecipeDetail,
+    RecipeIngredientLine,
+)
 from app.services.ingredients import normalize
+from app.services.modify import modify_recipe
 
 router = APIRouter(prefix="/v1", tags=["recipes"])
 
@@ -81,3 +87,10 @@ def get_recipe(
         image_url=recipe.image_url,
         license_note=recipe.license_note,
     )
+
+
+@router.post("/recipes/{recipe_id}/modify", response_model=ModifyResponse)
+def post_modify_recipe(
+    recipe_id: int, req: ModifyRequest, session: Session = Depends(get_session)
+) -> ModifyResponse:
+    return modify_recipe(session, recipe_id, req)
