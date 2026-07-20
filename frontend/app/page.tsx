@@ -1,4 +1,5 @@
 import { ChefHat, Refrigerator, SlidersHorizontal } from "lucide-react";
+import { HeroShowcase } from "@/components/landing/hero-showcase";
 import { LandingHero } from "@/components/landing/landing-hero";
 import { Reveal } from "@/components/reveal";
 import { Card } from "@/components/ui/card";
@@ -27,6 +28,28 @@ export default function Home() {
   return (
     <div className="dark min-h-dvh bg-background text-foreground">
       <LandingHero />
+
+      {/* See it work — the live pantry → recipe demo */}
+      <section className="relative overflow-hidden border-t border-border/60">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-6 py-24 lg:grid-cols-2">
+          <Reveal>
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
+              See it work
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              Your pantry, tonight&apos;s plan
+            </h2>
+            <p className="mt-4 max-w-md text-muted-foreground">
+              Drop in what you have and NourishAI matches it to a real recipe across
+              any cuisine — showing what&apos;s already on hand and what to swap.
+              Here&apos;s a taste, on rotation.
+            </p>
+          </Reveal>
+          <Reveal delay={120} className="flex justify-center lg:justify-end">
+            <HeroShowcase />
+          </Reveal>
+        </div>
+      </section>
 
       {/* How it works — dark, numbered, editorial */}
       <section id="how" className="relative overflow-hidden border-t border-border/60">
