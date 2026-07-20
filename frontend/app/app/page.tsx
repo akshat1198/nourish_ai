@@ -12,10 +12,11 @@ export default function AppPage() {
           behind the tool. Fades into the page before the cards. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] overflow-hidden"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[560px] overflow-hidden"
       >
-        <div className="animate-aurora absolute -left-24 -top-32 size-[34rem] rounded-full bg-primary/15 blur-[120px]" />
-        <div className="animate-aurora absolute -right-28 -top-20 size-[30rem] rounded-full bg-turmeric/15 blur-[120px] [animation-delay:-6s]" />
+        <div className="animate-aurora absolute -left-24 -top-40 size-[40rem] rounded-full bg-primary/25 blur-[120px]" />
+        <div className="animate-aurora absolute -right-28 -top-24 size-[34rem] rounded-full bg-turmeric/25 blur-[120px] [animation-delay:-6s]" />
+        <div className="animate-aurora absolute left-1/3 -top-16 size-[26rem] rounded-full bg-primary/15 blur-[110px] [animation-delay:-11s]" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
       </div>
 

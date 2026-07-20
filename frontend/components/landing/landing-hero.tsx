@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { GetStartedButton } from "@/components/get-started-button";
 import { IngredientToken } from "@/components/ingredient-token";
 import { KitchenStatus } from "@/components/kitchen-status";
 import { Magnetic } from "@/components/magnetic";
@@ -132,8 +132,7 @@ export function LandingHero() {
           style={{ animationDelay: "320ms" }}
         >
           <Magnetic strength={0.4}>
-            <Link
-              href="/app"
+            <GetStartedButton
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "group h-14 px-9 text-base glow-primary",
@@ -141,7 +140,7 @@ export function LandingHero() {
             >
               Set up my pantry
               <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
-            </Link>
+            </GetStartedButton>
           </Magnetic>
           <span className="text-sm text-muted-foreground">
             Free · your pantry, your recipes
