@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Newsreader, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -23,13 +23,24 @@ export const metadata: Metadata = {
     "Tell NourishAI what's in your pantry and what you're in the mood for; get recipes you can actually make.",
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f4ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#12140d" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${newsreader.variable} ${hanken.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${newsreader.variable} ${hanken.variable}`}
+    >
       <body className="min-h-dvh font-sans antialiased">
         <Providers>{children}</Providers>
       </body>

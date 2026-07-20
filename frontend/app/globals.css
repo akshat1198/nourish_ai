@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  color-scheme: light;
   --radius: 0.75rem;
 
   /* Brand — "Fresh Editorial": warm paper, herb-green, honey-amber, warm line.
@@ -48,6 +49,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --paper: #15180f;
   --ink: #ece7d8;
   --curry-leaf: #63b07f;

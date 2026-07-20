@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FilterFlow } from "@/components/filters/filter-flow";
 import { KitchenStatus } from "@/components/kitchen-status";
 import { PantryManager } from "@/components/pantry/pantry-manager";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
 
 export default function AppPage() {
@@ -11,8 +12,9 @@ export default function AppPage() {
         <Link href="/" className="font-display text-2xl font-semibold tracking-tight">
           Nourish<span className="text-primary">AI</span>
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <KitchenStatus />
+          <ThemeToggle />
           <UserMenu />
         </div>
       </header>

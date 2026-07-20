@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   ArrowRight,
   ChefHat,
@@ -13,8 +13,9 @@ import { HeroShowcase } from "@/components/landing/hero-showcase";
 import { KitchenStatus } from "@/components/kitchen-status";
 import { Magnetic } from "@/components/magnetic";
 import { Reveal } from "@/components/reveal";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +38,6 @@ const STEPS = [
 ];
 
 export default function Home() {
-  const router = useRouter();
   return (
     <div className="flex min-h-dvh flex-col">
       {/* Header */}
@@ -45,8 +45,9 @@ export default function Home() {
         <span className="font-display text-2xl font-semibold tracking-tight">
           Nourish<span className="text-primary">AI</span>
         </span>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <KitchenStatus />
+          <ThemeToggle />
           <UserMenu />
         </div>
       </header>
@@ -77,14 +78,13 @@ export default function Home() {
 
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Magnetic>
-                <Button
-                  size="lg"
-                  className="group glow-primary"
-                  onClick={() => router.push("/app")}
+                <Link
+                  href="/app"
+                  className={cn(buttonVariants({ size: "lg" }), "group glow-primary")}
                 >
                   Set up my pantry
                   <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
-                </Button>
+                </Link>
               </Magnetic>
               <span className="text-sm text-muted-foreground">
                 Free · your pantry, your recipes
