@@ -11,6 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY app ./app
+# Canonical ingredient properties (diet/allergen/nutrition) live here, read at
+# runtime by app/services/derivation.py for post-swap re-validation (7.3).
+COPY seed_data ./seed_data
 
 EXPOSE 8000
 
