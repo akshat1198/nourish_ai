@@ -97,6 +97,15 @@ export function FilterWizard({
       };
     });
 
+  // Cuisines are additive (pick several) and toggle off when re-clicked.
+  const toggleCuisine = (id: string) =>
+    setAnswers((a) => ({
+      ...a,
+      cuisines: a.cuisines.includes(id)
+        ? a.cuisines.filter((c) => c !== id)
+        : [...a.cuisines, id],
+    }));
+
   // ---- cuisine helpers ---------------------------------------------------- #
   const cuisineSelected = (topId: string) =>
     answers.cuisines.some((c) => c === topId || c.startsWith(`${topId}/`));
@@ -149,21 +158,15 @@ export function FilterWizard({
                   label={c.label}
                   count={c.count}
                   disabled={c.count === 0}
-                  selected={answers.cuisines.length === 1 && answers.cuisines[0] === c.id}
-                  onClick={() => {
-                    set({ cuisines: [c.id] });
-                    advance();
-                  }}
+                  selected={answers.cuisines.includes(c.id)}
+                  onClick={() => toggleCuisine(c.id)}
                 />
               ),
             )}
             <CuisineCard
               label="Any cuisine"
               selected={answers.cuisines.length === 0}
-              onClick={() => {
-                set({ cuisines: [] });
-                advance();
-              }}
+              onClick={() => set({ cuisines: [] })}
             />
           </div>
         )}
@@ -187,7 +190,9 @@ export function FilterWizard({
                 key={m.value}
                 selected={answers.meal_type === m.value}
                 onClick={() => {
-                  set({ meal_type: m.value });
+                  set({
+                    meal_type: answers.meal_type === m.value ? null : m.value,
+                  });
                   advance();
                 }}
               >
@@ -222,7 +227,9 @@ export function FilterWizard({
                   <OptionPill
                     key={d.value}
                     selected={answers.diet === d.value}
-                    onClick={() => set({ diet: d.value })}
+                    onClick={() =>
+                      set({ diet: answers.diet === d.value ? null : d.value })
+                    }
                   >
                     {d.label}
                   </OptionPill>
@@ -317,7 +324,12 @@ export function FilterWizard({
                   <OptionPill
                     key={t.label}
                     selected={answers.max_time_minutes === t.value}
-                    onClick={() => set({ max_time_minutes: t.value })}
+                    onClick={() =>
+                      set({
+                        max_time_minutes:
+                          answers.max_time_minutes === t.value ? null : t.value,
+                      })
+                    }
                   >
                     {t.label}
                   </OptionPill>
@@ -363,8 +375,6 @@ export function FilterWizard({
             <span />
           ) : editingReturn ? (
             <Button onClick={toReview}>Done</Button>
-          ) : step === "cuisine" ? (
-            <span />
           ) : (
             <Button onClick={next}>
               Continue <ArrowRight />
@@ -435,7 +445,7 @@ function CuisineSubStep({
   const selectedChildren = answers.cuisines.filter((id) =>
     id.startsWith(`${group}/`),
   );
-  const isAny = answers.cuisines.length === 1 && answers.cuisines[0] === group;
+  const isAny = answers.cuisines.includes(group);
 
   const toggleChild = (childId: string) =>
     setAnswers((a) => {
@@ -449,7 +459,16 @@ function CuisineSubStep({
       return { ...a, cuisines: [...others, ...nextChildren] };
     });
 
-  const chooseAny = () => setAnswers((a) => ({ ...a, cuisines: [group] }));
+  const chooseAny = () =>
+    setAnswers((a) => {
+      const others = a.cuisines.filter(
+        (id) => id !== group && !id.startsWith(`${group}/`),
+      );
+      return {
+        ...a,
+        cuisines: a.cuisines.includes(group) ? others : [...others, group],
+      };
+    });
 
   return (
     <div className="space-y-4">
