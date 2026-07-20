@@ -12,7 +12,6 @@ Responsibilities:
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -20,9 +19,12 @@ from typing import Optional
 from sqlalchemy import select
 
 from app.models import Ingredient, Recipe, RecipeIngredient
-# classify_and_derive moved to app.services.derivation (7.3a); re-exported here
-# so the importers' `from scripts.ingest.pipeline import classify_and_derive` hold.
-from app.services.derivation import classify_and_derive  # noqa: F401
+# classify_and_derive + measure_to_grams moved to app.services.derivation (7.3a,
+# 7.3f); re-exported so the importers' `from scripts.ingest.pipeline import ...` hold.
+from app.services.derivation import (  # noqa: F401
+    classify_and_derive,
+    measure_to_grams,
+)
 from app.services.ingredients import normalize
 from scripts.ingest.normalize import CanonicalMatcher
 
@@ -70,25 +72,6 @@ def ensure_ingredients_in_db(session) -> dict:
     if added:
         print(f"  ensured ingredients: +{added} new canonicals in DB")
     return name_to_id
-
-
-def measure_to_grams(props: dict, name: str, measure: str) -> float:
-    """Best-effort grams for one ingredient line (nutrition is estimated)."""
-    m = (measure or "").lower()
-    num = re.search(r"(\d+(?:\.\d+)?)", m)
-    qty = float(num.group(1)) if num else 1.0
-    if re.search(r"\bkg\b|kilogram", m):
-        return qty * 1000
-    if re.search(r"\bg\b|gram", m):
-        return qty
-    if re.search(r"\bml\b|litre|liter|\bl\b|cup", m):
-        return qty * (240 if "cup" in m else 1)   # ~1g/ml
-    if re.search(r"tbsp|tablespoon", m):
-        return qty * 15
-    if re.search(r"tsp|teaspoon", m):
-        return qty * 5
-    gpu = props.get(name, {}).get("grams_per_unit") or 50
-    return qty * gpu
 
 
 def title_exists(session, title: str) -> bool:

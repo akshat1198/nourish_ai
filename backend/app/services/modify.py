@@ -21,12 +21,55 @@ from app.llm.client import LLMError, get_llm, is_enabled
 from app.models import Ingredient, Recipe, Substitution
 from app.schemas.llm import ModifiedSteps
 from app.schemas.recipe import ModifyRequest, ModifyResponse, RecipeIngredientLine, SwapInfo
-from app.services.derivation import classify_and_derive, load_props
+from app.services.derivation import classify_and_derive, load_props, measure_to_grams
 from app.services.ingredients import normalize
 
 logger = logging.getLogger(__name__)
 
 NUTRITION_WARNING = "Nutrition still reflects the original recipe."
+_MACROS = ("calories", "protein_g", "carbs_g", "fat_g")
+
+
+def _measure_str(line: dict) -> str:
+    qty = line.get("qty")
+    unit = line.get("unit") or ""
+    return f"{qty} {unit}".strip() if qty is not None else unit
+
+
+def _nutrition_estimate(
+    props: dict,
+    baseline: dict,
+    from_name: str,
+    to_name: str,
+    from_keys: set[str],
+    orig_lines: list[dict],
+    new_lines: list[dict],
+    servings: int,
+) -> tuple[dict, dict]:
+    """Estimate post-swap per-serving nutrition by applying the swapped
+    ingredient's macro delta to the displayed baseline. Localized to the changed
+    line(s) — the rest of the recipe is unchanged, so its contribution cancels.
+    Returns ({}, {}) when it can't be estimated honestly."""
+    from_per = props.get(from_name, {}).get("per_100g")
+    to_per = props.get(to_name, {}).get("per_100g")
+    if not baseline or not from_per or not to_per:
+        return {}, {}
+
+    total = {k: 0.0 for k in _MACROS}
+    for orig, new in zip(orig_lines, new_lines):
+        if normalize(orig.get("name", "")) not in from_keys:
+            continue
+        g_from = measure_to_grams(props, from_name, _measure_str(orig))
+        g_to = measure_to_grams(props, to_name, _measure_str(new))
+        for k in _MACROS:
+            total[k] += (to_per.get(k, 0) * g_to - from_per.get(k, 0) * g_from) / 100
+
+    s = max(1, servings)
+    delta = {k: round(total[k] / s, 1) for k in _MACROS if k in baseline}
+    estimated = {
+        k: max(0.0, round(baseline[k] + delta[k], 1)) for k in baseline if k in delta
+    }
+    return estimated, delta
 # Don't ask the model to rewrite pathologically long methods (cost + latency).
 MAX_STEPS_FOR_LLM = 40
 
@@ -193,6 +236,17 @@ def modify_recipe(
         for l in new_lines
     ]
 
+    nutrition, nutrition_delta = _nutrition_estimate(
+        props,
+        recipe.nutrition or {},
+        from_ing.name,
+        to_ing.name,
+        from_keys,
+        recipe.ingredients or [],
+        new_lines,
+        recipe.servings,
+    )
+
     steps_out, changed_idx, knock_flags, llm_used, step_warnings = _rewrite_steps(
         recipe.title, recipe.steps or [], from_ing.name, to_ing.name, sub.ratio
     )
@@ -203,7 +257,9 @@ def modify_recipe(
             f"Couldn't read the substitution ratio '{sub.ratio}'; kept quantities unchanged."
         )
     warnings.extend(step_warnings)
-    warnings.append(NUTRITION_WARNING)
+    if not nutrition:
+        # Couldn't estimate (no baseline or missing props) — be honest.
+        warnings.append(NUTRITION_WARNING)
 
     return ModifyResponse(
         recipe_id=recipe.id,
@@ -218,6 +274,8 @@ def modify_recipe(
         allergens=new_allergens,
         added_allergens=added,
         removed_allergens=removed,
+        nutrition=nutrition,
+        nutrition_delta=nutrition_delta,
         knock_on_flags=knock_flags,
         warnings=warnings,
         llm_used=llm_used,

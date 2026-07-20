@@ -61,6 +61,25 @@ def load_props() -> dict:
     return {i["name"]: i for i in ings}
 
 
+def measure_to_grams(props: dict, name: str, measure: str) -> float:
+    """Best-effort grams for one ingredient line (nutrition is estimated)."""
+    m = (measure or "").lower()
+    num = re.search(r"(\d+(?:\.\d+)?)", m)
+    qty = float(num.group(1)) if num else 1.0
+    if re.search(r"\bkg\b|kilogram", m):
+        return qty * 1000
+    if re.search(r"\bg\b|gram", m):
+        return qty
+    if re.search(r"\bml\b|litre|liter|\bl\b|cup", m):
+        return qty * (240 if "cup" in m else 1)   # ~1g/ml
+    if re.search(r"tbsp|tablespoon", m):
+        return qty * 15
+    if re.search(r"tsp|teaspoon", m):
+        return qty * 5
+    gpu = props.get(name, {}).get("grams_per_unit") or 50
+    return qty * gpu
+
+
 def _kw_hit(text: str, kws: set[str]) -> bool:
     # Singularize each word so plurals ("shrimps", "prawns", "eggs") still match
     # the singular keyword sets — a safety-critical detail for allergen/veg flags.

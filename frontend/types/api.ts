@@ -116,6 +116,8 @@ export interface ModifyResponse {
   allergens: string[];
   added_allergens: string[];
   removed_allergens: string[];
+  nutrition: Record<string, number>;
+  nutrition_delta: Record<string, number>;
   knock_on_flags: string[];
   warnings: string[];
   llm_used: boolean;

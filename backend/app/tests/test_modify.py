@@ -101,6 +101,24 @@ def test_modify_recipe_lacks_ingredient_422(session):
 
 
 @requires_db
+def test_modify_estimates_nutrition_delta(session):
+    # rice noodles (109 kcal/100g) are lighter than pasta (157) -> calories drop.
+    from app.services.modify import NUTRITION_WARNING
+
+    pasta_id = _pasta_id(session)
+    original = client.get(f"/v1/recipes/{pasta_id}").json()["nutrition"]
+    body = client.post(
+        f"/v1/recipes/{pasta_id}/modify",
+        json={"from_ingredient": "pasta", "to_ingredient": "rice noodles"},
+    ).json()
+
+    assert body["nutrition"]  # a post-swap estimate is present
+    assert body["nutrition_delta"]["calories"] < 0
+    assert body["nutrition"]["calories"] < original["calories"]
+    assert NUTRITION_WARNING not in body["warnings"]  # real estimate -> no caveat
+
+
+@requires_db
 def test_modify_unknown_recipe_404(session):
     r = client.post(
         "/v1/recipes/999999999/modify",

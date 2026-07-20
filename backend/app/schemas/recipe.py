@@ -77,6 +77,10 @@ class ModifyResponse(BaseModel):
     # Diff vs the original recipe's allergens — the safety payoff of the swap.
     added_allergens: list[str] = Field(default_factory=list)
     removed_allergens: list[str] = Field(default_factory=list)
+    # Estimated post-swap per-serving nutrition + the signed macro delta ({} when
+    # it can't be estimated — then a warning says nutrition is unchanged).
+    nutrition: dict = Field(default_factory=dict)
+    nutrition_delta: dict = Field(default_factory=dict)
     knock_on_flags: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     llm_used: bool = False

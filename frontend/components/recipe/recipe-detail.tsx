@@ -94,6 +94,9 @@ export function RecipeDetailView({ id }: { id: number }) {
   const servings = servingsOverride ?? recipe.servings;
   const ingredients = modified?.ingredients ?? recipe.ingredients;
   const steps = modified?.steps ?? recipe.steps;
+  // Post-swap nutrition estimate when the backend could compute one.
+  const swapNutrition =
+    modified && Object.keys(modified.nutrition).length > 0 ? modified : null;
 
   return (
     <Shell>
@@ -125,7 +128,11 @@ export function RecipeDetailView({ id }: { id: number }) {
         steps={steps}
         changedIndexes={modified?.changed_step_indexes ?? []}
       />
-      <NutritionPanel recipe={recipe} />
+      <NutritionPanel
+        nutrition={swapNutrition ? swapNutrition.nutrition : recipe.nutrition}
+        estimated={swapNutrition ? true : recipe.nutrition_estimated}
+        delta={swapNutrition ? swapNutrition.nutrition_delta : undefined}
+      />
       <AttributionFooter recipe={recipe} />
     </Shell>
   );
