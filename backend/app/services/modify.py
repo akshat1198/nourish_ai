@@ -10,16 +10,78 @@ Nutrition is NOT recomputed (a warning says so). Nothing is persisted.
 """
 from __future__ import annotations
 
+import logging
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from app.core.config import settings
+from app.llm.client import LLMError, get_llm, is_enabled
 from app.models import Ingredient, Recipe, Substitution
+from app.schemas.llm import ModifiedSteps
 from app.schemas.recipe import ModifyRequest, ModifyResponse, RecipeIngredientLine, SwapInfo
 from app.services.derivation import classify_and_derive, load_props
 from app.services.ingredients import normalize
 
+logger = logging.getLogger(__name__)
+
 NUTRITION_WARNING = "Nutrition still reflects the original recipe."
+# Don't ask the model to rewrite pathologically long methods (cost + latency).
+MAX_STEPS_FOR_LLM = 40
+
+_STEP_SYSTEM = (
+    "You adapt a recipe's method for a SINGLE ingredient substitution. You get "
+    "the numbered steps (0-indexed) and the swap. Rewrite ONLY the steps that "
+    "mention the original ingredient or its handling; leave every other step "
+    "untouched and DO NOT renumber. Return each changed step with its original "
+    "index and the new text, matching the original wording and style. Also list "
+    "knock-on effects the cook should know (cooking time, texture, binding, "
+    "seasoning, moisture)."
+)
+
+
+def _rewrite_steps(
+    title: str, steps: list[str], from_name: str, to_name: str, ratio: str
+) -> tuple[list[str], list[int], list[str], bool, list[str]]:
+    """LLM step rewrite. Fail-open degraded: returns the original steps + a
+    warning when the LLM is unavailable, never raising. Returns
+    (steps, changed_indexes, knock_on_flags, llm_used, warnings)."""
+    if not is_enabled():
+        return steps, [], [], False, [
+            "Steps weren't adjusted for the swap — the recipe assistant isn't configured."
+        ]
+    if len(steps) > MAX_STEPS_FOR_LLM:
+        return steps, [], [], False, [
+            "Steps weren't adjusted — this method is too long to rewrite reliably."
+        ]
+
+    numbered = "\n".join(f"{i}. {s}" for i, s in enumerate(steps))
+    prompt = (
+        f"{_STEP_SYSTEM}\n\n"
+        f'Swap: replace "{from_name}" with "{to_name}" (ratio {ratio}).\n'
+        f"Title: {title}\nSteps:\n{numbered}"
+    )
+    try:
+        result = get_llm().generate_structured(
+            messages=[{"role": "user", "content": prompt}],
+            schema=ModifiedSteps,
+            model=settings.LLM_MODEL_MAIN,
+            max_tokens=2000,
+        )
+    except LLMError as e:
+        logger.warning("modify step rewrite failed, showing original method: %s", e)
+        return steps, [], [], False, [
+            "Steps couldn't be adjusted for the swap; showing the original method."
+        ]
+
+    new_steps = list(steps)
+    changed: list[int] = []
+    for st in result.steps:
+        if 0 <= st.index < len(new_steps):
+            new_steps[st.index] = st.text
+            changed.append(st.index)
+    return new_steps, sorted(set(changed)), result.knock_on_flags, True, []
 
 
 def _parse_ratio(ratio: str) -> tuple[float, bool]:
@@ -131,11 +193,16 @@ def modify_recipe(
         for l in new_lines
     ]
 
+    steps_out, changed_idx, knock_flags, llm_used, step_warnings = _rewrite_steps(
+        recipe.title, recipe.steps or [], from_ing.name, to_ing.name, sub.ratio
+    )
+
     warnings: list[str] = []
     if not ratio_ok:
         warnings.append(
             f"Couldn't read the substitution ratio '{sub.ratio}'; kept quantities unchanged."
         )
+    warnings.extend(step_warnings)
     warnings.append(NUTRITION_WARNING)
 
     return ModifyResponse(
@@ -145,13 +212,13 @@ def modify_recipe(
             from_ingredient=from_ing.name, to_ingredient=to_ing.name, ratio=sub.ratio
         ),
         ingredients=lines_out,
-        steps=recipe.steps or [],
-        changed_step_indexes=[],
+        steps=steps_out,
+        changed_step_indexes=changed_idx,
         diet_labels=derived["diet_labels"],
         allergens=new_allergens,
         added_allergens=added,
         removed_allergens=removed,
-        knock_on_flags=[],
+        knock_on_flags=knock_flags,
         warnings=warnings,
-        llm_used=False,
+        llm_used=llm_used,
     )

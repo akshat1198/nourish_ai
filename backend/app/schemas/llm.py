@@ -16,3 +16,21 @@ class ParsedPantry(BaseModel):
         default_factory=list, description="Bare ingredient names, lowercase, singular"
     )
     notes: str = Field("", description="Anything ambiguous or worth flagging")
+
+
+class ModifiedStep(BaseModel):
+    index: int = Field(..., description="0-based index of the step being replaced")
+    text: str = Field(..., description="Rewritten step text")
+
+
+class ModifiedSteps(BaseModel):
+    """Result of adapting a recipe's method for a single ingredient swap (7.3c)."""
+
+    steps: list[ModifiedStep] = Field(
+        default_factory=list, description="ONLY the steps that changed, by original index"
+    )
+    knock_on_flags: list[str] = Field(
+        default_factory=list,
+        description="Side effects to flag: cooking time, texture, binding, seasoning, moisture",
+    )
+    notes: str = Field("", description="Anything else worth flagging")

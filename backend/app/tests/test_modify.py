@@ -3,14 +3,28 @@
 DB-backed. Uses seed recipes + seed substitutions (both in the CI baseline);
 looks the recipe up by title so it never hard-codes an id.
 """
+from unittest.mock import MagicMock
+
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
+from app.llm.client import LLMError
 from app.main import app
 from app.models import Recipe
+from app.schemas.llm import ModifiedStep, ModifiedSteps
 from app.tests.conftest import requires_db
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _llm_off(monkeypatch):
+    # Default the LLM OFF so the deterministic-core assertions don't depend on
+    # whether an API key is set in the environment. LLM tests re-enable it.
+    from app.services import modify
+
+    monkeypatch.setattr(modify, "is_enabled", lambda: False)
 
 
 def _pasta_id(session) -> int:
@@ -93,3 +107,61 @@ def test_modify_unknown_recipe_404(session):
         json={"from_ingredient": "pasta", "to_ingredient": "rice noodles"},
     )
     assert r.status_code == 404
+
+
+# --- LLM step rewrite (7.3c), mocked -------------------------------------- #
+@requires_db
+def test_modify_llm_rewrites_steps(session, monkeypatch):
+    from app.services import modify
+
+    monkeypatch.setattr(modify, "is_enabled", lambda: True)
+    fake = MagicMock()
+    fake.generate_structured.return_value = ModifiedSteps(
+        steps=[ModifiedStep(index=0, text="Cook the rice noodles until just tender.")],
+        knock_on_flags=["Rice noodles cook faster than pasta — watch closely."],
+        notes="",
+    )
+    monkeypatch.setattr(modify, "get_llm", lambda: fake)
+
+    body = client.post(
+        f"/v1/recipes/{_pasta_id(session)}/modify",
+        json={"from_ingredient": "pasta", "to_ingredient": "rice noodles"},
+    ).json()
+
+    assert body["llm_used"] is True
+    assert body["changed_step_indexes"] == [0]
+    assert body["steps"][0] == "Cook the rice noodles until just tender."
+    assert body["knock_on_flags"]
+
+
+@requires_db
+def test_modify_llm_error_degrades_to_original_steps(session, monkeypatch):
+    from app.services import modify
+
+    monkeypatch.setattr(modify, "is_enabled", lambda: True)
+    fake = MagicMock()
+    fake.generate_structured.side_effect = LLMError("model down")
+    monkeypatch.setattr(modify, "get_llm", lambda: fake)
+
+    pasta_id = _pasta_id(session)
+    original = client.get(f"/v1/recipes/{pasta_id}").json()["steps"]
+    body = client.post(
+        f"/v1/recipes/{pasta_id}/modify",
+        json={"from_ingredient": "pasta", "to_ingredient": "rice noodles"},
+    ).json()
+
+    assert body["llm_used"] is False
+    assert body["changed_step_indexes"] == []
+    assert body["steps"] == original  # degraded: original method, still a 200
+    assert any("couldn't be adjusted" in w.lower() for w in body["warnings"])
+
+
+@requires_db
+def test_modify_llm_disabled_warns(session):
+    # _llm_off fixture leaves the LLM disabled.
+    body = client.post(
+        f"/v1/recipes/{_pasta_id(session)}/modify",
+        json={"from_ingredient": "pasta", "to_ingredient": "rice noodles"},
+    ).json()
+    assert body["llm_used"] is False
+    assert any("isn't configured" in w for w in body["warnings"])
