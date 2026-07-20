@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Fraunces, Hanken_Grotesk } from "next/font/google";
+import { Newsreader, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const fraunces = Fraunces({
+// Editorial serif display (variable weights + optical sizing) — the "Fresh
+// Editorial" identity. Replaces Fraunces.
+const newsreader = Newsreader({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-newsreader",
   display: "swap",
 });
 
@@ -27,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${hanken.variable}`}>
+    <html lang="en" className={`${newsreader.variable} ${hanken.variable}`}>
       <body className="min-h-dvh font-sans antialiased">
         <Providers>{children}</Providers>
       </body>

@@ -6,13 +6,15 @@
 :root {
   --radius: 0.75rem;
 
-  /* Brand — "spice tin": warm paper, herb ink, curry-leaf green, turmeric, chili */
-  --paper: #fbf8f2;
-  --ink: #20271f;
-  --curry-leaf: #2e6a4f;
-  --turmeric: #e5a036;
+  /* Brand — "Fresh Editorial": warm paper, herb-green, honey-amber, warm line.
+     (Var names kept for continuity; palette evolved from the earlier spice set:
+      curry-leaf→herb-green, turmeric→honey, chili→errors only, cardamom→line.) */
+  --paper: #f7f4ec;
+  --ink: #22271e;
+  --curry-leaf: #3e7d54;
+  --turmeric: #d69a3e;
   --chili: #bf4128;
-  --cardamom: #c9d3c3;
+  --cardamom: #e5e0d5;
 
   /* shadcn semantic tokens — light */
   --background: var(--paper);
@@ -22,15 +24,15 @@
   --popover: #ffffff;
   --popover-foreground: var(--ink);
   --primary: var(--curry-leaf);
-  --primary-foreground: #fbf8f2;
-  --secondary: #efeae0;
+  --primary-foreground: #ffffff;
+  --secondary: #efe9dc;
   --secondary-foreground: var(--ink);
-  --muted: #efeae0;
-  --muted-foreground: #6b7268;
-  --accent: #f3e6cf;
-  --accent-foreground: #5a4420;
+  --muted: #efe9dc;
+  --muted-foreground: #63695b;
+  --accent: #f3e7d0;
+  --accent-foreground: #6b4f1f;
   --destructive: var(--chili);
-  --destructive-foreground: #fbf8f2;
+  --destructive-foreground: #f7f4ec;
   --border: var(--cardamom);
   --input: var(--cardamom);
   --ring: var(--curry-leaf);
@@ -46,28 +48,30 @@
 }
 
 .dark {
-  --paper: #171b16;
-  --ink: #ece7da;
-  --background: #12150f;
-  --foreground: #ece7da;
-  --card: #1c211a;
-  --card-foreground: #ece7da;
-  --popover: #1c211a;
-  --popover-foreground: #ece7da;
-  --primary: #6fb891;
-  --primary-foreground: #10130e;
-  --secondary: #262c23;
-  --secondary-foreground: #ece7da;
-  --muted: #262c23;
-  --muted-foreground: #a6ac9e;
-  --accent: #322a1a;
-  --accent-foreground: #ead4a6;
+  --paper: #15180f;
+  --ink: #ece7d8;
+  --curry-leaf: #63b07f;
+  --turmeric: #e0a94a;
+  --cardamom: #333829;
+  --background: #12140d;
+  --foreground: #ece7d8;
+  --card: #1b1e15;
+  --card-foreground: #ece7d8;
+  --popover: #1b1e15;
+  --popover-foreground: #ece7d8;
+  --primary: var(--curry-leaf);
+  --primary-foreground: #0f120b;
+  --secondary: #262a1e;
+  --secondary-foreground: #ece7d8;
+  --muted: #262a1e;
+  --muted-foreground: #a7ac9c;
+  --accent: #322a19;
+  --accent-foreground: #e6c88f;
   --destructive: #e06a52;
-  --destructive-foreground: #10130e;
-  --border: #333a30;
-  --input: #333a30;
-  --ring: #6fb891;
-  --cardamom: #333a30;
+  --destructive-foreground: #10130b;
+  --border: #333829;
+  --input: #333829;
+  --ring: var(--curry-leaf);
 }
 
 @theme inline {
@@ -112,7 +116,7 @@
   --color-cat-other: var(--cat-other);
 
   --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
 }
 
 @layer base {
@@ -138,11 +142,14 @@ html {
   0% {
     transform: translate3d(0, 0, 0) scale(1);
   }
-  50% {
-    transform: translate3d(4%, -6%, 0) scale(1.14);
+  33% {
+    transform: translate3d(5%, -7%, 0) scale(1.16);
+  }
+  66% {
+    transform: translate3d(-6%, 3%, 0) scale(1.08);
   }
   100% {
-    transform: translate3d(-4%, 4%, 0) scale(1.05);
+    transform: translate3d(3%, 6%, 0) scale(1.13);
   }
 }
 @keyframes float-slow {
@@ -191,12 +198,12 @@ html {
   .text-balance {
     text-wrap: balance;
   }
-  /* Warm "simmer" accent gradient — the one energetic flourish */
+  /* Warm "simmer" accent gradient — honey → herb (fresh, appetite-forward) */
   .bg-simmer {
-    background-image: linear-gradient(120deg, var(--turmeric), #e0614a);
+    background-image: linear-gradient(120deg, var(--turmeric), var(--curry-leaf));
   }
   .text-simmer {
-    background-image: linear-gradient(120deg, var(--turmeric), #d8492f);
+    background-image: linear-gradient(115deg, var(--turmeric), var(--curry-leaf));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

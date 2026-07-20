@@ -8,8 +8,11 @@ import {
   Sparkles,
   SlidersHorizontal,
 } from "lucide-react";
+import { AuroraBackdrop } from "@/components/landing/aurora-backdrop";
 import { HeroShowcase } from "@/components/landing/hero-showcase";
 import { KitchenStatus } from "@/components/kitchen-status";
+import { Magnetic } from "@/components/magnetic";
+import { Reveal } from "@/components/reveal";
 import { UserMenu } from "@/components/user-menu";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -51,12 +54,7 @@ export default function Home() {
       <main className="flex flex-1 flex-col">
       {/* Hero */}
       <section className="relative flex-1 overflow-hidden">
-        {/* animated aurora */}
-        <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
-          <div className="absolute -left-40 -top-32 size-[42rem] rounded-full bg-primary/25 blur-3xl animate-aurora" />
-          <div className="absolute -right-48 top-1/4 size-[38rem] rounded-full bg-turmeric/25 blur-3xl animate-aurora [animation-delay:-6s]" />
-          <div className="absolute -bottom-40 left-1/3 size-[34rem] rounded-full bg-chili/15 blur-3xl animate-aurora [animation-delay:-11s]" />
-        </div>
+        <AuroraBackdrop />
 
         <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
           {/* Left — the pitch */}
@@ -78,14 +76,16 @@ export default function Home() {
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">
-              <Button
-                size="lg"
-                className="group glow-primary"
-                onClick={() => router.push("/app")}
-              >
-                Set up my pantry
-                <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
-              </Button>
+              <Magnetic>
+                <Button
+                  size="lg"
+                  className="group glow-primary"
+                  onClick={() => router.push("/app")}
+                >
+                  Set up my pantry
+                  <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+                </Button>
+              </Magnetic>
               <span className="text-sm text-muted-foreground">
                 Free · your pantry, your recipes
               </span>
@@ -110,19 +110,18 @@ export default function Home() {
           </p>
 
           <div className="mt-10 grid gap-5 sm:grid-cols-3">
-            {STEPS.map(({ icon: Icon, title, body }) => (
-              <Card
-                key={title}
-                className="p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md"
-              >
-                <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="size-5" />
-                </div>
-                <h3 className="mt-4 font-display text-xl font-medium">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {body}
-                </p>
-              </Card>
+            {STEPS.map(({ icon: Icon, title, body }, i) => (
+              <Reveal key={title} delay={i * 90}>
+                <Card className="h-full p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md">
+                  <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <Icon className="size-5" />
+                  </div>
+                  <h3 className="mt-4 font-display text-xl font-medium">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {body}
+                  </p>
+                </Card>
+              </Reveal>
             ))}
           </div>
         </div>

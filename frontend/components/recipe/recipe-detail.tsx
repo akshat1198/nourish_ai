@@ -9,6 +9,7 @@ import { ModifiedBanner } from "@/components/recipe/modified-banner";
 import { NutritionPanel } from "@/components/recipe/nutrition-panel";
 import { RecipeHeader } from "@/components/recipe/recipe-header";
 import { StepsList } from "@/components/recipe/steps-list";
+import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api";
@@ -116,23 +117,29 @@ export function RecipeDetailView({ id }: { id: number }) {
         </p>
       )}
 
-      <IngredientsPanel
-        ingredients={ingredients}
-        servings={servings}
-        baseServings={recipe.servings}
-        onServings={setServingsOverride}
-        onSwap={applySwap}
-        pendingSwap={modify.isPending}
-      />
-      <StepsList
-        steps={steps}
-        changedIndexes={modified?.changed_step_indexes ?? []}
-      />
-      <NutritionPanel
-        nutrition={swapNutrition ? swapNutrition.nutrition : recipe.nutrition}
-        estimated={swapNutrition ? true : recipe.nutrition_estimated}
-        delta={swapNutrition ? swapNutrition.nutrition_delta : undefined}
-      />
+      <Reveal>
+        <IngredientsPanel
+          ingredients={ingredients}
+          servings={servings}
+          baseServings={recipe.servings}
+          onServings={setServingsOverride}
+          onSwap={applySwap}
+          pendingSwap={modify.isPending}
+        />
+      </Reveal>
+      <Reveal>
+        <StepsList
+          steps={steps}
+          changedIndexes={modified?.changed_step_indexes ?? []}
+        />
+      </Reveal>
+      <Reveal>
+        <NutritionPanel
+          nutrition={swapNutrition ? swapNutrition.nutrition : recipe.nutrition}
+          estimated={swapNutrition ? true : recipe.nutrition_estimated}
+          delta={swapNutrition ? swapNutrition.nutrition_delta : undefined}
+        />
+      </Reveal>
       <AttributionFooter recipe={recipe} />
     </Shell>
   );

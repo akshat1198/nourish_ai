@@ -2,6 +2,7 @@
 
 import { ModeBanner } from "@/components/results/mode-banner";
 import { RecipeCard } from "@/components/results/recipe-card";
+import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -78,7 +79,9 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
       ) : (
         <div className="space-y-4">
           {data.results.map((r, i) => (
-            <RecipeCard key={r.id} recipe={r} top={i === 0} />
+            <Reveal key={r.id} delay={Math.min(i, 6) * 60}>
+              <RecipeCard recipe={r} top={i === 0} />
+            </Reveal>
           ))}
           {data.results.length < 10 && (
             <p className="pt-1 text-center text-sm text-muted-foreground">
