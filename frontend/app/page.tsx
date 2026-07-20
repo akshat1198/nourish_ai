@@ -1,23 +1,7 @@
-"use client";
-
-import Link from "next/link";
-import {
-  ArrowRight,
-  ChefHat,
-  Refrigerator,
-  Sparkles,
-  SlidersHorizontal,
-} from "lucide-react";
-import { AuroraBackdrop } from "@/components/landing/aurora-backdrop";
-import { HeroShowcase } from "@/components/landing/hero-showcase";
-import { KitchenStatus } from "@/components/kitchen-status";
-import { Magnetic } from "@/components/magnetic";
+import { ChefHat, Refrigerator, SlidersHorizontal } from "lucide-react";
+import { LandingHero } from "@/components/landing/landing-hero";
 import { Reveal } from "@/components/reveal";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { UserMenu } from "@/components/user-menu";
-import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 const STEPS = [
   {
@@ -37,87 +21,45 @@ const STEPS = [
   },
 ];
 
+// The landing is an art-directed dark experience (forced `.dark`); the /app tool
+// keeps its own light/dark toggle.
 export default function Home() {
   return (
-    <div className="flex min-h-dvh flex-col">
-      {/* Header */}
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
-        <span className="font-display text-2xl font-semibold tracking-tight">
-          Nourish<span className="text-primary">AI</span>
-        </span>
-        <div className="flex items-center gap-3">
-          <KitchenStatus />
-          <ThemeToggle />
-          <UserMenu />
-        </div>
-      </header>
+    <div className="dark min-h-dvh bg-background text-foreground">
+      <LandingHero />
 
-      <main className="flex flex-1 flex-col">
-      {/* Hero */}
-      <section className="relative flex-1 overflow-hidden">
-        <AuroraBackdrop />
-
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
-          {/* Left — the pitch */}
-          <div className={cn("animate-fade-up")}>
-            <p className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              <Sparkles className="size-3.5" />
-              AI recipes from what’s already in your kitchen
+      {/* How it works — dark, numbered, editorial */}
+      <section id="how" className="relative overflow-hidden border-t border-border/60">
+        {/* faint aurora continuity behind the section */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 left-1/4 -z-0 size-[32rem] rounded-full bg-primary/10 blur-[130px]"
+        />
+        <div className="relative mx-auto w-full max-w-6xl px-6 py-24">
+          <Reveal>
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
+              How it works
             </p>
-
-            <h1 className="font-display text-6xl font-semibold leading-[0.98] tracking-tight text-balance sm:text-7xl">
-              Cook what you{" "}
-              <span className="text-primary">already have.</span>
-            </h1>
-
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
-              Keep your pantry current, tell us the mood, and get recipes across
-              every cuisine that you can actually make tonight — no last-minute
-              grocery run.
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              Dinner, sorted in three steps
+            </h2>
+            <p className="mt-3 max-w-lg text-muted-foreground">
+              From a full pantry to a plan you&apos;ll actually cook.
             </p>
+          </Reveal>
 
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <Magnetic>
-                <Link
-                  href="/app"
-                  className={cn(buttonVariants({ size: "lg" }), "group glow-primary")}
-                >
-                  Set up my pantry
-                  <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </Magnetic>
-              <span className="text-sm text-muted-foreground">
-                Free · your pantry, your recipes
-              </span>
-            </div>
-          </div>
-
-          {/* Right — the living demo */}
-          <div className="flex justify-center lg:justify-end">
-            <HeroShowcase />
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section id="how" className="border-t border-border bg-card/40">
-        <div className="mx-auto w-full max-w-6xl px-6 py-16">
-          <h2 className="font-display text-3xl font-semibold tracking-tight">
-            Dinner, sorted in three steps
-          </h2>
-          <p className="mt-2 max-w-lg text-muted-foreground">
-            From a full pantry to a plan you’ll actually cook.
-          </p>
-
-          <div className="mt-10 grid gap-5 sm:grid-cols-3">
+          <div className="mt-14 grid gap-6 sm:grid-cols-3">
             {STEPS.map(({ icon: Icon, title, body }, i) => (
               <Reveal key={title} delay={i * 90}>
-                <Card className="h-full p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md">
-                  <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                <Card className="group h-full border-border/60 bg-card/60 p-7 backdrop-blur transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-black/30">
+                  <span className="font-display text-5xl font-light text-primary/30">
+                    0{i + 1}
+                  </span>
+                  <div className="mt-5 grid size-11 place-items-center rounded-xl bg-primary/15 text-primary">
                     <Icon className="size-5" />
                   </div>
-                  <h3 className="mt-4 font-display text-xl font-medium">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  <h3 className="mt-5 font-display text-2xl font-medium">{title}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
                     {body}
                   </p>
                 </Card>
@@ -126,15 +68,14 @@ export default function Home() {
           </div>
         </div>
       </section>
-      </main>
 
       {/* Footer */}
-      <footer className="border-t border-border">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-2 gap-y-1 px-6 py-6 text-sm text-muted-foreground">
-          <span className="font-display text-base font-semibold text-foreground">
+      <footer className="border-t border-border/60">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-6 py-8 text-sm text-muted-foreground">
+          <span className="font-display text-lg font-semibold text-foreground">
             Nourish<span className="text-primary">AI</span>
           </span>
-          <span className="ml-auto text-xs">Foundation · Stage 5.2</span>
+          <span className="ml-auto text-xs">Cook what you already have.</span>
         </div>
       </footer>
     </div>
