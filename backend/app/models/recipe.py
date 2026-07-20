@@ -21,6 +21,9 @@ class Recipe(Base):
     # Matching NEVER runs on this — it runs on recipe_ingredients.
     ingredients: Mapped[list] = mapped_column(JSONB)
     steps: Mapped[list[str]] = mapped_column(ARRAY(Text))
+    # LLM-enriched method (WS6): prep state + cooking cues. Nullable; the detail
+    # endpoint prefers it when present, else falls back to `steps`.
+    steps_rich: Mapped[Optional[list[str]]] = mapped_column(ARRAY(Text), nullable=True)
     tags: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     diet_labels: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     allergens: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)

@@ -305,6 +305,23 @@ def test_modify_remove_substitute_freetext(session, monkeypatch):
     assert body["approximate"] is True
 
 
+# --- WS6: enriched steps preferred at render ------------------------------- #
+@requires_db
+def test_recipe_detail_prefers_steps_rich(session):
+    r = session.execute(
+        select(Recipe).where(Recipe.title == "Tomato Garlic Pasta")
+    ).scalar_one()
+    original = r.steps_rich
+    r.steps_rich = ["Finely dice the onion.", "Sauté until golden, about 5 minutes."]
+    session.commit()
+    try:
+        steps = client.get(f"/v1/recipes/{r.id}").json()["steps"]
+        assert steps == ["Finely dice the onion.", "Sauté until golden, about 5 minutes."]
+    finally:
+        r.steps_rich = original
+        session.commit()
+
+
 @requires_db
 def test_substitutions_merges_llm_suggestions(monkeypatch):
     from app.api import substitutions as subs_api

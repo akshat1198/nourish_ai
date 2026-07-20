@@ -80,7 +80,8 @@ def get_recipe(
         nutrition=recipe.nutrition or {},
         nutrition_estimated=recipe.nutrition_estimated,
         ingredients=lines,
-        steps=recipe.steps or [],
+        # Prefer the LLM-enriched method when it's been generated (WS6).
+        steps=recipe.steps_rich or recipe.steps or [],
         source=recipe.source,
         source_url=recipe.source_url,
         attribution=recipe.attribution,

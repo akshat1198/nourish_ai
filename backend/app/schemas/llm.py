@@ -94,6 +94,16 @@ class FreeSwapAdaptation(BaseModel):
     note: str = Field("", description="One-line summary of the adaptation")
 
 
+class EnrichedSteps(BaseModel):
+    """Clearer method for one recipe (WS6): SAME steps, same count/order, each
+    rewritten with prep state + cooking cues. Invents no new ingredients."""
+
+    steps: list[str] = Field(
+        default_factory=list,
+        description="The rewritten steps — exactly as many as the original, same order",
+    )
+
+
 class RemovalPlan(BaseModel):
     """The creative part of removing an ingredient (WS5). Deliberately SMALL — a
     larger schema blows the structured-output grammar budget ("Grammar
