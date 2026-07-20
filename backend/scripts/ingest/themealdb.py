@@ -11,6 +11,7 @@ Run from backend/ (DB must be up):
 from __future__ import annotations
 
 import argparse
+import re
 import string
 import sys
 import time
@@ -33,6 +34,37 @@ from scripts.ingest.taxonomy_maps import map_mealdb_area, map_mealdb_category  #
 
 API = "https://www.themealdb.com/api/json/v1/1/search.php?f="
 DEFAULT_TIME, DEFAULT_SERVINGS = 40, 4
+
+# TheMealDB delimits steps inconsistently: some entries put a standalone
+# "STEP 1" marker line before each step, others prefix the text ("STEP 1: ...").
+# Both would otherwise render as bare-number steps on the detail page.
+_STEP_MARKER_ONLY = re.compile(r"^step\s*\d+$", re.IGNORECASE)
+_STEP_MARKER_PREFIX = re.compile(r"^step\s*\d+\s*[:.)\-]\s*", re.IGNORECASE)
+
+
+def clean_steps(steps: list[str]) -> list[str]:
+    """Drop standalone 'STEP N' marker lines; strip 'STEP N:' prefixes.
+
+    Idempotent, so it also cleans already-imported rows in place. Line-wise and
+    conservative: a prefix is only stripped when a delimiter follows the number,
+    so a genuine step like 'Step 1 minute...' is left untouched.
+    """
+    out: list[str] = []
+    for s in steps:
+        s = (s or "").strip()
+        if not s or _STEP_MARKER_ONLY.match(s):
+            continue
+        s = _STEP_MARKER_PREFIX.sub("", s).strip()
+        if s:
+            out.append(s)
+    return out
+
+
+def parse_instructions(instr: str) -> list[str]:
+    """Split raw TheMealDB instructions into clean, marker-free steps."""
+    text = (instr or "").replace("\r\n", "\n")
+    steps = clean_steps(text.split("\n"))
+    return steps or ([instr.strip()] if instr and instr.strip() else [])
 # Staple categories/names default to non-essential (don't gate pantry coverage).
 _STAPLE_CATS = {"spice", "pantry", "sauce"}
 _STAPLE_NAMES = {"salt", "water", "sugar", "olive oil", "oil", "black pepper"}
@@ -88,8 +120,7 @@ def normalize_meal(meal: dict, props, matcher) -> dict | None:
     cuisine, region = map_mealdb_area(area)
     derived = classify_and_derive(props, gram_items, raw_names, DEFAULT_SERVINGS,
                                   category=meal.get("strCategory"), title=meal["strMeal"])
-    instr = (meal.get("strInstructions") or "").replace("\r\n", "\n")
-    steps = [s.strip() for s in instr.split("\n") if s.strip()] or [instr.strip()]
+    steps = parse_instructions(meal.get("strInstructions") or "")
     tags = [t.strip().lower() for t in (meal.get("strTags") or "").split(",") if t.strip()]
     if meal.get("strCategory"):
         tags.append(meal["strCategory"].lower())
@@ -97,7 +128,8 @@ def normalize_meal(meal: dict, props, matcher) -> dict | None:
 
     fields = {
         "title": meal["strMeal"].strip(),
-        "description": steps[0][:200] if steps else "",
+        # TheMealDB has no native description field; the method carries the recipe.
+        "description": "",
         "ingredients": display,
         "steps": steps,
         "tags": list(dict.fromkeys(tags)),

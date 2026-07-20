@@ -1,0 +1,84 @@
+"use client";
+
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { AttributionFooter } from "@/components/recipe/attribution-footer";
+import { IngredientsPanel } from "@/components/recipe/ingredients-panel";
+import { NutritionPanel } from "@/components/recipe/nutrition-panel";
+import { RecipeHeader } from "@/components/recipe/recipe-header";
+import { StepsList } from "@/components/recipe/steps-list";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ApiError } from "@/lib/api";
+import { useRecipe } from "@/lib/hooks/use-recipe";
+
+function BackLink() {
+  return (
+    <Link
+      href="/app"
+      className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+    >
+      <ArrowLeft className="size-4" /> Back to your kitchen
+    </Link>
+  );
+}
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mx-auto w-full max-w-2xl space-y-8 px-6 py-10">
+      <BackLink />
+      {children}
+    </div>
+  );
+}
+
+export function RecipeDetailView({ id }: { id: number }) {
+  const { data: recipe, isLoading, isError, error, refetch } = useRecipe(id);
+
+  if (isLoading) {
+    return (
+      <Shell>
+        <div className="space-y-4">
+          <Skeleton className="h-10 w-2/3 rounded-lg" />
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+        </div>
+      </Shell>
+    );
+  }
+
+  if (isError) {
+    const notFound = error instanceof ApiError && error.status === 404;
+    return (
+      <Shell>
+        <div className="space-y-3 py-8">
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
+            {notFound ? "Recipe not found" : "Couldn't load this recipe"}
+          </h1>
+          <p className="text-muted-foreground">
+            {notFound
+              ? "This recipe may have been removed. Head back and keep exploring."
+              : "Something went wrong fetching this recipe."}
+          </p>
+          {!notFound && (
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Retry
+            </Button>
+          )}
+        </div>
+      </Shell>
+    );
+  }
+
+  if (!recipe) return null;
+
+  return (
+    <Shell>
+      <RecipeHeader recipe={recipe} />
+      <IngredientsPanel ingredients={recipe.ingredients} />
+      <StepsList steps={recipe.steps} />
+      <NutritionPanel recipe={recipe} />
+      <AttributionFooter recipe={recipe} />
+    </Shell>
+  );
+}

@@ -8,6 +8,7 @@ from app.api.ingredients import router as ingredients_router
 from app.api.orchestrate import router as orchestrate_router
 from app.api.pantry import router as pantry_router
 from app.api.profile import router as profile_router
+from app.api.recipes import router as recipes_router
 from app.api.recommendations import router as recommendations_router
 from app.api.shopping_list import router as shopping_router
 from app.api.substitutions import router as substitutions_router
@@ -33,6 +34,7 @@ app.add_middleware(
 # Include routers
 app.include_router(health_router)
 app.include_router(recommendations_router)
+app.include_router(recipes_router)
 app.include_router(shopping_router)
 app.include_router(substitutions_router)
 app.include_router(agent_router)

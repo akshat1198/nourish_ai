@@ -8,6 +8,7 @@ import type {
   PantryResponse,
   Profile,
   ProfileUpdate,
+  RecipeDetail,
   RecommendRequest,
   RecommendResponse,
 } from "@/types/api";
@@ -43,4 +44,6 @@ export const api = {
       method: "POST",
       body: JSON.stringify(req),
     }),
+
+  getRecipe: (id: number) => apiFetch<RecipeDetail>(`/v1/recipes/${id}`),
 };

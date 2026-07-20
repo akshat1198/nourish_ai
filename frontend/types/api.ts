@@ -51,6 +51,37 @@ export interface RecommendResponse {
   unmatched_pantry: string[];
 }
 
+export interface RecipeIngredientLine {
+  name: string;
+  qty: number | null;
+  unit: string | null;
+  essential: boolean;
+  category: string | null;
+}
+
+export interface RecipeDetail {
+  id: number;
+  title: string;
+  description: string;
+  cuisine: string | null;
+  region: string | null;
+  meal_types: string[];
+  tags: string[];
+  diet_labels: string[];
+  allergens: string[];
+  time_minutes: number;
+  servings: number;
+  nutrition: Record<string, number>;
+  nutrition_estimated: boolean;
+  ingredients: RecipeIngredientLine[];
+  steps: string[];
+  source: string;
+  source_url: string | null;
+  attribution: string | null;
+  image_url: string | null;
+  license_note: string | null;
+}
+
 export interface IngredientSuggestion {
   name: string;
   category?: string | null;
