@@ -6,11 +6,14 @@ import type {
   IngredientSuggestion,
   PantryReplaceIn,
   PantryResponse,
+  ModifyRequest,
+  ModifyResponse,
   Profile,
   ProfileUpdate,
   RecipeDetail,
   RecommendRequest,
   RecommendResponse,
+  SubstitutionsResponse,
 } from "@/types/api";
 
 // One typed function per endpoint the UI uses.
@@ -46,4 +49,16 @@ export const api = {
     }),
 
   getRecipe: (id: number) => apiFetch<RecipeDetail>(`/v1/recipes/${id}`),
+
+  findSubstitutions: (ingredient: string) =>
+    apiFetch<SubstitutionsResponse>("/v1/substitutions", {
+      method: "POST",
+      body: JSON.stringify({ ingredient }),
+    }),
+
+  modifyRecipe: (id: number, body: ModifyRequest) =>
+    apiFetch<ModifyResponse>(`/v1/recipes/${id}/modify`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 };

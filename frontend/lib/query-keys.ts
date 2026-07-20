@@ -21,6 +21,7 @@ export const queryKeys = {
   ingredients: (q: string) => ["ingredients", q] as const,
   cuisines: ["cuisines"] as const,
   recipe: (id: number) => ["recipe", id] as const,
+  substitutions: (ingredient: string) => ["substitutions", ingredient] as const,
   recommendations: (req: RecommendRequest) =>
     ["recommendations", canonicalizeRequest(req)] as const,
 };

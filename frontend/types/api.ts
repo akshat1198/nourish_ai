@@ -82,6 +82,45 @@ export interface RecipeDetail {
   license_note: string | null;
 }
 
+export interface SubstituteOption {
+  use: string;
+  ratio: string;
+  confidence: number;
+  enables_diets: string[];
+}
+
+export interface SubstitutionsResponse {
+  ingredient: string;
+  substitutes: SubstituteOption[];
+}
+
+export interface ModifyRequest {
+  from_ingredient: string;
+  to_ingredient: string;
+}
+
+export interface SwapInfo {
+  from_ingredient: string;
+  to_ingredient: string;
+  ratio: string;
+}
+
+export interface ModifyResponse {
+  recipe_id: number;
+  title: string;
+  swap: SwapInfo;
+  ingredients: RecipeIngredientLine[];
+  steps: string[];
+  changed_step_indexes: number[];
+  diet_labels: string[];
+  allergens: string[];
+  added_allergens: string[];
+  removed_allergens: string[];
+  knock_on_flags: string[];
+  warnings: string[];
+  llm_used: boolean;
+}
+
 export interface IngredientSuggestion {
   name: string;
   category?: string | null;

@@ -2,6 +2,7 @@
 
 import { IngredientToken } from "@/components/ingredient-token";
 import { ServingsStepper } from "@/components/recipe/servings-stepper";
+import { SwapPopover } from "@/components/recipe/swap-popover";
 import { usePantry } from "@/lib/hooks/use-pantry";
 import { toDotCategory } from "@/lib/ingredient-category";
 import { scaleFactor, scaleLine } from "@/lib/scale";
@@ -20,11 +21,15 @@ export function IngredientsPanel({
   servings,
   baseServings,
   onServings,
+  onSwap,
+  pendingSwap,
 }: {
   ingredients: RecipeIngredientLine[];
   servings: number;
   baseServings: number;
   onServings: (next: number) => void;
+  onSwap: (from: string, to: string) => void;
+  pendingSwap: boolean;
 }) {
   const have = usePantryNames();
   const anyHave = ingredients.some((l) => have.has(l.name.toLowerCase()));
@@ -51,6 +56,11 @@ export function IngredientsPanel({
                 name={line.name}
                 category={toDotCategory(line.category)}
                 muted={!onHand}
+              />
+              <SwapPopover
+                ingredient={line.name}
+                onApply={(to) => onSwap(line.name, to)}
+                pending={pendingSwap}
               />
             </li>
           );

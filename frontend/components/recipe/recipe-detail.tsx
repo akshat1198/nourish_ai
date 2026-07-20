@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2, RotateCcw } from "lucide-react";
 import { AttributionFooter } from "@/components/recipe/attribution-footer";
 import { IngredientsPanel } from "@/components/recipe/ingredients-panel";
 import { NutritionPanel } from "@/components/recipe/nutrition-panel";
@@ -11,7 +11,9 @@ import { StepsList } from "@/components/recipe/steps-list";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api";
+import { useModifyRecipe } from "@/lib/hooks/use-modify-recipe";
 import { useRecipe } from "@/lib/hooks/use-recipe";
+import type { ModifyResponse } from "@/types/api";
 
 function BackLink() {
   return (
@@ -37,7 +39,19 @@ export function RecipeDetailView({ id }: { id: number }) {
   const { data: recipe, isLoading, isError, error, refetch } = useRecipe(id);
   // Serving override (null = the recipe's own servings). Reset on navigation.
   const [servingsOverride, setServingsOverride] = useState<number | null>(null);
-  useEffect(() => setServingsOverride(null), [id]);
+  // Applied ingredient swap (null = original). One active swap at a time.
+  const [modified, setModified] = useState<ModifyResponse | null>(null);
+  const modify = useModifyRecipe(id);
+  useEffect(() => {
+    setServingsOverride(null);
+    setModified(null);
+  }, [id]);
+
+  const applySwap = (from: string, to: string) =>
+    modify.mutate(
+      { from_ingredient: from, to_ingredient: to },
+      { onSuccess: setModified },
+    );
 
   if (isLoading) {
     return (
@@ -77,17 +91,47 @@ export function RecipeDetailView({ id }: { id: number }) {
   if (!recipe) return null;
 
   const servings = servingsOverride ?? recipe.servings;
+  const ingredients = modified?.ingredients ?? recipe.ingredients;
+  const steps = modified?.steps ?? recipe.steps;
 
   return (
     <Shell>
       <RecipeHeader recipe={recipe} />
+
+      {modified && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+          <span>
+            Modified:{" "}
+            <span className="font-medium text-primary">
+              {modified.swap.to_ingredient}
+            </span>{" "}
+            for {modified.swap.from_ingredient} ({modified.swap.ratio})
+          </span>
+          <Button variant="outline" size="sm" onClick={() => setModified(null)}>
+            <RotateCcw className="mr-1 size-3.5" /> Reset
+          </Button>
+        </div>
+      )}
+      {modify.isPending && (
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" /> Adjusting the recipe…
+        </p>
+      )}
+      {modify.isError && (
+        <p className="text-sm text-destructive">
+          Couldn&apos;t apply that swap. Try another.
+        </p>
+      )}
+
       <IngredientsPanel
-        ingredients={recipe.ingredients}
+        ingredients={ingredients}
         servings={servings}
         baseServings={recipe.servings}
         onServings={setServingsOverride}
+        onSwap={applySwap}
+        pendingSwap={modify.isPending}
       />
-      <StepsList steps={recipe.steps} />
+      <StepsList steps={steps} />
       <NutritionPanel recipe={recipe} />
       <AttributionFooter recipe={recipe} />
     </Shell>
