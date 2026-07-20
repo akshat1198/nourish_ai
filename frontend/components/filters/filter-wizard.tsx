@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Pencil, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pencil, Sparkles, X } from "lucide-react";
 import { IngredientToken } from "@/components/ingredient-token";
 import { OptionPill } from "@/components/filters/option-pill";
 import { IngredientCombobox } from "@/components/pantry/ingredient-combobox";
@@ -51,6 +51,9 @@ export function FilterWizard({
   const [answers, setAnswers] = useState<FilterAnswers>(initial);
   const [step, setStep] = useState<Step>(startAtReview ? "review" : "cuisine");
   const [group, setGroup] = useState<string | null>(null); // cuisine drill-down
+  // True when a single filter was opened from the review — selecting returns
+  // straight to review instead of walking the rest of the wizard.
+  const [editingReturn, setEditingReturn] = useState(false);
   // Live taxonomy + counts (6.4); falls back to the static list while loading.
   const { data: cuisineData } = useCuisines();
   const cuisineList = cuisineData ?? CUISINES;
@@ -59,7 +62,23 @@ export function FilterWizard({
   const set = (patch: Partial<FilterAnswers>) =>
     setAnswers((a) => ({ ...a, ...patch }));
   const next = () => setStep(STEPS[Math.min(idx + 1, STEPS.length - 1)]);
+  const toReview = () => {
+    setEditingReturn(false);
+    setGroup(null);
+    setStep("review");
+  };
+  const advance = () => {
+    setGroup(null);
+    if (editingReturn) toReview();
+    else next();
+  };
+  const startEdit = (target: Step) => {
+    setGroup(null);
+    setEditingReturn(true);
+    setStep(target);
+  };
   const back = () => {
+    if (editingReturn) return toReview();
     if (group) return setGroup(null);
     setStep(STEPS[Math.max(idx - 1, 0)]);
   };
@@ -91,16 +110,20 @@ export function FilterWizard({
             <span className="font-medium uppercase tracking-wide">
               Tonight&apos;s recipe
             </span>
-            <span className="tabular">
-              Step {idx + 1} of {STEPS.length}
-            </span>
+            {!editingReturn && (
+              <span className="tabular">
+                Step {idx + 1} of {STEPS.length}
+              </span>
+            )}
           </div>
-          <div className="h-1 overflow-hidden rounded-full bg-secondary">
-            <div
-              className="h-full rounded-full bg-primary transition-[width] duration-300"
-              style={{ width: `${((idx + 1) / STEPS.length) * 100}%` }}
-            />
-          </div>
+          {!editingReturn && (
+            <div className="h-1 overflow-hidden rounded-full bg-secondary">
+              <div
+                className="h-full rounded-full bg-primary transition-[width] duration-300"
+                style={{ width: `${((idx + 1) / STEPS.length) * 100}%` }}
+              />
+            </div>
+          )}
         </div>
 
         <h2 className="font-display text-2xl font-semibold tracking-tight">
@@ -129,7 +152,7 @@ export function FilterWizard({
                   selected={answers.cuisines.length === 1 && answers.cuisines[0] === c.id}
                   onClick={() => {
                     set({ cuisines: [c.id] });
-                    next();
+                    advance();
                   }}
                 />
               ),
@@ -139,7 +162,7 @@ export function FilterWizard({
               selected={answers.cuisines.length === 0}
               onClick={() => {
                 set({ cuisines: [] });
-                next();
+                advance();
               }}
             />
           </div>
@@ -151,10 +174,8 @@ export function FilterWizard({
             cuisineList={cuisineList}
             answers={answers}
             setAnswers={setAnswers}
-            onDone={() => {
-              setGroup(null);
-              next();
-            }}
+            editing={editingReturn}
+            onDone={advance}
           />
         )}
 
@@ -167,7 +188,7 @@ export function FilterWizard({
                 selected={answers.meal_type === m.value}
                 onClick={() => {
                   set({ meal_type: m.value });
-                  next();
+                  advance();
                 }}
               >
                 {m.label}
@@ -177,7 +198,7 @@ export function FilterWizard({
               selected={answers.meal_type === null}
               onClick={() => {
                 set({ meal_type: null });
-                next();
+                advance();
               }}
             >
               Doesn&apos;t matter
@@ -308,14 +329,18 @@ export function FilterWizard({
 
         {/* ---- REVIEW ---- */}
         {step === "review" && (
-          <ReviewStep answers={answers} goTo={setStep} />
+          <ReviewStep
+            answers={answers}
+            setAnswers={setAnswers}
+            onEdit={startEdit}
+          />
         )}
 
         {/* ---- FOOTER NAV ---- */}
         <div className="flex items-center justify-between border-t border-border pt-5">
-          {idx > 0 || group ? (
+          {idx > 0 || group || editingReturn ? (
             <Button variant="ghost" onClick={back}>
-              <ArrowLeft /> Back
+              <ArrowLeft /> {editingReturn ? "Back to summary" : "Back"}
             </Button>
           ) : (
             <span />
@@ -334,6 +359,10 @@ export function FilterWizard({
                 <Sparkles /> Find recipes
               </Button>
             </div>
+          ) : group ? (
+            <span />
+          ) : editingReturn ? (
+            <Button onClick={toReview}>Done</Button>
           ) : step === "cuisine" ? (
             <span />
           ) : (
@@ -391,12 +420,14 @@ function CuisineSubStep({
   cuisineList,
   answers,
   setAnswers,
+  editing,
   onDone,
 }: {
   group: string;
   cuisineList: CuisineNode[];
   answers: FilterAnswers;
   setAnswers: React.Dispatch<React.SetStateAction<FilterAnswers>>;
+  editing: boolean;
   onDone: () => void;
 }) {
   const node = cuisineList.find((c) => c.id === group);
@@ -446,95 +477,191 @@ function CuisineSubStep({
           onDone();
         }}
       >
-        Continue <ArrowRight />
+        {editing ? "Done" : "Continue"} <ArrowRight />
       </Button>
     </div>
   );
 }
 
-function ReviewRow({
+function RemovableChip({
   label,
-  value,
-  onEdit,
+  onRemove,
 }: {
   label: string;
-  value: string;
-  onEdit: () => void;
+  onRemove: () => void;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-border py-3 last:border-0">
-      <div>
+    <span className="inline-flex h-8 items-center gap-1 rounded-full border border-primary/25 bg-primary/10 pl-3 pr-1.5 text-sm text-foreground">
+      {label}
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={`Remove ${label}`}
+        className="grid size-5 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <X className="size-3" />
+      </button>
+    </span>
+  );
+}
+
+function ReviewGroup({
+  label,
+  empty,
+  onEdit,
+  children,
+}: {
+  label: string;
+  empty?: boolean;
+  onEdit: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2 border-b border-border pb-4 last:border-0 last:pb-0">
+      <div className="flex items-center justify-between">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">
           {label}
         </p>
-        <p className="mt-0.5 text-sm">{value}</p>
+        <button
+          type="button"
+          onClick={onEdit}
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+        >
+          <Pencil className="size-3.5" /> {empty ? "Add" : "Edit"}
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={onEdit}
-        className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-      >
-        <Pencil className="size-3.5" /> Edit
-      </button>
+      <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );
 }
 
 function ReviewStep({
   answers,
-  goTo,
+  setAnswers,
+  onEdit,
 }: {
   answers: FilterAnswers;
-  goTo: (s: Step) => void;
+  setAnswers: React.Dispatch<React.SetStateAction<FilterAnswers>>;
+  onEdit: (s: Step) => void;
 }) {
-  const cuisineText =
-    answers.cuisines.length === 0
-      ? "Any cuisine"
-      : answers.cuisines.map(cuisineLabel).join(", ");
-  const dietText = answers.diet
+  const dietLabel = answers.diet
     ? DIETS.find((d) => d.value === answers.diet)?.label ?? answers.diet
-    : "No preference";
-  const goalsText =
-    answers.nutrition_goals.length === 0
-      ? "—"
-      : answers.nutrition_goals
-          .map((g) => NUTRITION_GOALS.find((n) => n.value === g)?.label ?? g)
-          .join(", ");
-  const timeText =
-    TIME_OPTIONS.find((t) => t.value === answers.max_time_minutes)?.label ??
-    "Any time";
+    : null;
+  const timeLabel =
+    answers.max_time_minutes != null
+      ? TIME_OPTIONS.find((t) => t.value === answers.max_time_minutes)?.label ??
+        `${answers.max_time_minutes} min`
+      : null;
+
+  const remove = <K extends keyof FilterAnswers>(key: K, value: string) =>
+    setAnswers((a) => ({
+      ...a,
+      [key]: (a[key] as string[]).filter((v) => v !== value),
+    }));
+  const muted = "text-sm text-muted-foreground";
+
+  const dietGoalsEmpty = !dietLabel && answers.nutrition_goals.length === 0;
+  const dislikesTimeEmpty =
+    answers.disliked_ingredients.length === 0 && timeLabel == null;
 
   return (
-    <div>
-      <ReviewRow label="Cuisine" value={cuisineText} onEdit={() => goTo("cuisine")} />
-      <ReviewRow
+    <div className="space-y-4">
+      <ReviewGroup
+        label="Cuisine"
+        empty={answers.cuisines.length === 0}
+        onEdit={() => onEdit("cuisine")}
+      >
+        {answers.cuisines.length === 0 ? (
+          <span className={muted}>Any cuisine</span>
+        ) : (
+          answers.cuisines.map((id) => (
+            <RemovableChip
+              key={id}
+              label={cuisineLabel(id)}
+              onRemove={() => remove("cuisines", id)}
+            />
+          ))
+        )}
+      </ReviewGroup>
+
+      <ReviewGroup
         label="Meal"
-        value={answers.meal_type ? titleCase(answers.meal_type) : "Any meal"}
-        onEdit={() => goTo("meal")}
-      />
-      <ReviewRow
+        empty={answers.meal_type == null}
+        onEdit={() => onEdit("meal")}
+      >
+        {answers.meal_type ? (
+          <RemovableChip
+            label={titleCase(answers.meal_type)}
+            onRemove={() => setAnswers((a) => ({ ...a, meal_type: null }))}
+          />
+        ) : (
+          <span className={muted}>Any meal</span>
+        )}
+      </ReviewGroup>
+
+      <ReviewGroup
         label="Diet & goals"
-        value={`${dietText}${goalsText !== "—" ? ` · ${goalsText}` : ""}`}
-        onEdit={() => goTo("dietary")}
-      />
-      <ReviewRow
+        empty={dietGoalsEmpty}
+        onEdit={() => onEdit("dietary")}
+      >
+        {dietGoalsEmpty && <span className={muted}>No preference</span>}
+        {dietLabel && (
+          <RemovableChip
+            label={dietLabel}
+            onRemove={() => setAnswers((a) => ({ ...a, diet: null }))}
+          />
+        )}
+        {answers.nutrition_goals.map((g) => (
+          <RemovableChip
+            key={g}
+            label={NUTRITION_GOALS.find((n) => n.value === g)?.label ?? g}
+            onRemove={() => remove("nutrition_goals", g)}
+          />
+        ))}
+      </ReviewGroup>
+
+      <ReviewGroup
         label="Avoid"
-        value={
-          answers.exclude_allergens.length
-            ? answers.exclude_allergens.map(titleCase).join(", ")
-            : "Nothing"
-        }
-        onEdit={() => goTo("allergens")}
-      />
-      <ReviewRow
+        empty={answers.exclude_allergens.length === 0}
+        onEdit={() => onEdit("allergens")}
+      >
+        {answers.exclude_allergens.length === 0 ? (
+          <span className={muted}>Nothing</span>
+        ) : (
+          answers.exclude_allergens.map((a) => (
+            <RemovableChip
+              key={a}
+              label={titleCase(a)}
+              onRemove={() => remove("exclude_allergens", a)}
+            />
+          ))
+        )}
+      </ReviewGroup>
+
+      <ReviewGroup
         label="Dislikes & time"
-        value={`${
-          answers.disliked_ingredients.length
-            ? answers.disliked_ingredients.join(", ")
-            : "No dislikes"
-        } · ${timeText}`}
-        onEdit={() => goTo("dislikes")}
-      />
+        empty={dislikesTimeEmpty}
+        onEdit={() => onEdit("dislikes")}
+      >
+        {dislikesTimeEmpty && (
+          <span className={muted}>No dislikes · Any time</span>
+        )}
+        {answers.disliked_ingredients.map((n) => (
+          <RemovableChip
+            key={n}
+            label={n}
+            onRemove={() => remove("disliked_ingredients", n)}
+          />
+        ))}
+        {timeLabel && (
+          <RemovableChip
+            label={timeLabel}
+            onRemove={() =>
+              setAnswers((a) => ({ ...a, max_time_minutes: null }))
+            }
+          />
+        )}
+      </ReviewGroup>
     </div>
   );
 }
