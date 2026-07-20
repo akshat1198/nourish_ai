@@ -21,7 +21,7 @@ export function ServingsStepper({
   onChange: (next: number) => void;
 }) {
   const stepBtn =
-    "grid size-8 place-items-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40";
+    "relative grid size-8 touch-manipulation place-items-center text-muted-foreground transition-colors before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40";
 
   return (
     <div className="flex items-center gap-3">

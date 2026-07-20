@@ -29,12 +29,12 @@ export function SwapPopover({
         <button
           type="button"
           aria-label={`Swap ${ingredient}`}
-          className="grid size-6 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="relative grid size-6 touch-manipulation place-items-center rounded-full text-muted-foreground transition-colors before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ArrowLeftRight className="size-3.5" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-3">
+      <PopoverContent className="w-[min(16rem,calc(100vw-2rem))] p-3">
         <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Swap {ingredient} for
         </p>

@@ -64,7 +64,7 @@ export function PantryManager() {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-start justify-between gap-4 space-y-0">
+      <CardHeader className="flex-col items-stretch gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <CardTitle className="font-display text-xl">Your pantry</CardTitle>
           <CardDescription>
@@ -96,7 +96,7 @@ export function PantryManager() {
                           key={s.name}
                           type="button"
                           onClick={() => quickAddStaple(s.name, s.category)}
-                          className="inline-flex h-7 items-center gap-1.5 rounded-full border border-border bg-card px-2.5 text-xs transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          className="inline-flex h-8 touch-manipulation items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           <span
                             className={cn("size-1.5 rounded-full", dotClass(s.category))}

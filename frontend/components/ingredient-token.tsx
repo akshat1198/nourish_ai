@@ -63,7 +63,9 @@ export function IngredientToken({
           aria-label={staple ? `Unpin ${name} from staples` : `Pin ${name} as a staple`}
           aria-pressed={staple}
           className={cn(
-            "-mr-0.5 ml-0.5 grid size-5 place-items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            // visual stays size-5; a `before` pseudo widens the tap zone to
+            // ~32px (mobile) with zero layout impact — see remove button below.
+            "relative -mr-0.5 ml-0.5 grid size-5 touch-manipulation place-items-center rounded-full transition-colors before:absolute before:left-1/2 before:top-1/2 before:size-8 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             staple
               ? "text-primary hover:bg-primary/10"
               : "text-muted-foreground hover:bg-secondary hover:text-foreground",
@@ -77,7 +79,7 @@ export function IngredientToken({
           type="button"
           onClick={onRemove}
           aria-label={`Remove ${name}`}
-          className="-mr-1 grid size-5 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="relative -mr-1 grid size-5 touch-manipulation place-items-center rounded-full text-muted-foreground before:absolute before:left-1/2 before:top-1/2 before:size-8 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <X className="size-3" />
         </button>

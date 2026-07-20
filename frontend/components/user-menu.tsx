@@ -47,10 +47,11 @@ export function UserMenu() {
       <button
         type="button"
         onClick={() => signOut({ callbackUrl: "/" })}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        aria-label="Sign out"
+        className="relative inline-flex touch-manipulation items-center gap-1 text-sm text-muted-foreground before:absolute before:left-1/2 before:top-1/2 before:size-9 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:text-foreground sm:before:hidden"
       >
         <LogOut className="size-3.5" />
-        Sign out
+        <span className="hidden sm:inline">Sign out</span>
       </button>
     </div>
   );

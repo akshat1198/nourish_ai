@@ -15,7 +15,13 @@ export function KitchenStatus() {
         ? "Kitchen online"
         : "Kitchen degraded";
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-sm text-muted-foreground backdrop-blur">
+    <span
+      className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-2.5 py-1 text-sm text-muted-foreground backdrop-blur sm:px-3"
+      // On phones the pill collapses to just the status dot to keep the header
+      // uncrowded; the label returns from `sm` up. Keep the meaning for SRs.
+      aria-label={label}
+      title={label}
+    >
       <span
         className={cn(
           "size-2 rounded-full",
@@ -25,7 +31,7 @@ export function KitchenStatus() {
         )}
         aria-hidden
       />
-      {label}
+      <span className="hidden sm:inline">{label}</span>
     </span>
   );
 }

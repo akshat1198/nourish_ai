@@ -51,12 +51,12 @@ export function IngredientCombobox({ existing, onAdd }: Props) {
       }}
     >
       <PopoverTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="w-full gap-2 sm:w-auto">
           <Plus className="size-4" />
           Add an ingredient
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-72" align="start">
+      <PopoverContent className="w-[min(18rem,calc(100vw-2rem))]" align="start">
         {/* backend already filters — don't let cmdk re-filter */}
         <Command shouldFilter={false}>
           <CommandInput
