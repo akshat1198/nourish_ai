@@ -92,3 +92,26 @@ class FreeSwapAdaptation(BaseModel):
         None, description="Approx signed per-serving change; omit if genuinely unsure"
     )
     note: str = Field("", description="One-line summary of the adaptation")
+
+
+class RemovalPlan(BaseModel):
+    """The creative part of removing an ingredient (WS5). Deliberately SMALL — a
+    larger schema blows the structured-output grammar budget ("Grammar
+    compilation timed out"). Allergens, diet, and nutrition are re-derived
+    deterministically in code, not by the model."""
+
+    # Plain string (not a Literal enum) — enums also inflate grammar compilation.
+    strategy: str = Field(
+        "omit", description="'omit' to leave it out, or 'substitute' to use an alternative"
+    )
+    substitute: str = Field("", description="If substituting: the ingredient to use instead")
+    ratio: str = Field("1:1", description="removed:substitute ratio (if substituting)")
+    changed_steps: list[ModifiedStep] = Field(
+        default_factory=list, description="ONLY steps that change, by 0-based original index"
+    )
+    knock_on_flags: list[str] = Field(
+        default_factory=list, description="Side effects: texture, binding, moisture, flavour"
+    )
+    note: str = Field(
+        "", description="One line: what you did and how to compensate, e.g. 'Left out the cashews — add 1 tbsp cream for richness.'"
+    )

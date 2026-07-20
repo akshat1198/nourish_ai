@@ -235,6 +235,76 @@ def test_modify_freetext_swap_llm_estimates(session, monkeypatch):
     assert any("approximate" in w.lower() for w in body["warnings"])
 
 
+# --- WS5: remove-ingredient adaptation ------------------------------------- #
+@requires_db
+def test_modify_remove_needs_llm(session):
+    # _llm_off: can't adapt a removal without the assistant.
+    r = client.post(
+        f"/v1/recipes/{_pasta_id(session)}/modify",
+        json={"op": "remove", "from_ingredient": "parmesan"},
+    )
+    assert r.status_code == 422
+
+
+@requires_db
+def test_modify_remove_omit(session, monkeypatch):
+    # LLM only decides omit + rewrites a step; allergens/diet/nutrition are derived
+    # in code, so removing the recipe's only dairy (parmesan) drops the dairy label.
+    from app.schemas.llm import ModifiedStep, RemovalPlan
+    from app.services import modify
+
+    monkeypatch.setattr(modify, "is_enabled", lambda: True)
+    fake = MagicMock()
+    fake.generate_structured.return_value = RemovalPlan(
+        strategy="omit",
+        changed_steps=[ModifiedStep(index=0, text="Cook the pasta and toss with the garlic oil.")],
+        knock_on_flags=["Less savoury depth without the cheese."],
+        note="Left out the parmesan — finish with a pinch of salt for savouriness.",
+    )
+    monkeypatch.setattr(modify, "get_llm", lambda: fake)
+
+    body = client.post(
+        f"/v1/recipes/{_pasta_id(session)}/modify",
+        json={"op": "remove", "from_ingredient": "parmesan"},
+    ).json()
+
+    names = [i["name"] for i in body["ingredients"]]
+    assert "parmesan" not in names  # the line is gone
+    assert body["operation"] == "remove"
+    assert body["note"] and body["changed_step_indexes"] == [0]
+    assert "dairy" in body["removed_allergens"]  # deterministic re-derivation
+    assert body["approximate"] is False  # omit is derived from our own data
+
+
+@requires_db
+def test_modify_remove_substitute_freetext(session, monkeypatch):
+    # Substitute to something outside our vocab -> flagged approximate.
+    from app.schemas.llm import ModifiedStep, RemovalPlan
+    from app.services import modify
+
+    monkeypatch.setattr(modify, "is_enabled", lambda: True)
+    fake = MagicMock()
+    fake.generate_structured.return_value = RemovalPlan(
+        strategy="substitute",
+        substitute="nutritional yeast",
+        ratio="1:0.5",
+        changed_steps=[ModifiedStep(index=0, text="Finish with nutritional yeast for a cheesy note.")],
+        note="Used nutritional yeast instead of parmesan.",
+    )
+    monkeypatch.setattr(modify, "get_llm", lambda: fake)
+
+    body = client.post(
+        f"/v1/recipes/{_pasta_id(session)}/modify",
+        json={"op": "remove", "from_ingredient": "parmesan"},
+    ).json()
+
+    names = [i["name"] for i in body["ingredients"]]
+    assert "nutritional yeast" in names and "parmesan" not in names
+    assert body["operation"] == "remove"
+    assert body["swap"]["to_ingredient"] == "nutritional yeast"
+    assert body["approximate"] is True
+
+
 @requires_db
 def test_substitutions_merges_llm_suggestions(monkeypatch):
     from app.api import substitutions as subs_api

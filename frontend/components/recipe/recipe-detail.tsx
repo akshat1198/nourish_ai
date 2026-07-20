@@ -51,7 +51,13 @@ export function RecipeDetailView({ id }: { id: number }) {
 
   const applySwap = (from: string, to: string) =>
     modify.mutate(
-      { from_ingredient: from, to_ingredient: to },
+      { op: "swap", from_ingredient: from, to_ingredient: to },
+      { onSuccess: setModified },
+    );
+
+  const applyRemove = (from: string) =>
+    modify.mutate(
+      { op: "remove", from_ingredient: from },
       { onSuccess: setModified },
     );
 
@@ -124,6 +130,7 @@ export function RecipeDetailView({ id }: { id: number }) {
           baseServings={recipe.servings}
           onServings={setServingsOverride}
           onSwap={applySwap}
+          onRemove={applyRemove}
           pendingSwap={modify.isPending}
         />
       </Reveal>

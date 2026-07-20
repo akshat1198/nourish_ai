@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.config import settings
 from app.llm.client import LLMError, get_llm, is_enabled
 from app.models import Ingredient, Recipe, Substitution
-from app.schemas.llm import FreeSwapAdaptation, ModifiedSteps
+from app.schemas.llm import FreeSwapAdaptation, ModifiedSteps, RemovalPlan
 from app.schemas.recipe import ModifyRequest, ModifyResponse, RecipeIngredientLine, SwapInfo
 from app.services.derivation import classify_and_derive, load_props, measure_to_grams
 from app.services.ingredients import normalize
@@ -273,6 +273,201 @@ def _apply_freetext_swap(
     )
 
 
+_REMOVE_SYSTEM = (
+    "You adapt a recipe when the cook wants ONE ingredient GONE. Choose the "
+    "strategy that keeps the dish working: 'substitute' with the best common "
+    "alternative when the ingredient is important (e.g. a binder or fat), or "
+    "'omit' when it's safe to just leave out. Return: the strategy, the "
+    "substitute (if any) with a removed:substitute ratio, ONLY the steps that "
+    "change (by original 0-based index, matching wording/style), knock-on "
+    "effects, allergen/diet changes, an approximate signed per-serving nutrition "
+    "delta, and a one-line note on what you did and how to compensate."
+)
+
+
+def _category_map(session: Session) -> dict[str, str]:
+    cat: dict[str, str] = {}
+    for ing in session.execute(select(Ingredient)).scalars():
+        cat.setdefault(normalize(ing.name), ing.category)
+        for a in ing.aliases or []:
+            cat.setdefault(normalize(a), ing.category)
+    return cat
+
+
+def _subtract_nutrition(
+    props: dict, baseline: dict, from_name: str, from_keys: set[str],
+    orig_lines: list[dict], servings: int,
+) -> tuple[dict, dict]:
+    """Per-serving nutrition after simply removing an ingredient: subtract its
+    contribution from the baseline. ({}, {}) when it can't be estimated."""
+    from_per = props.get(from_name, {}).get("per_100g")
+    if not baseline or not from_per:
+        return {}, {}
+    total = {k: 0.0 for k in _MACROS}
+    for orig in orig_lines:
+        if normalize(orig.get("name", "")) not in from_keys:
+            continue
+        g = measure_to_grams(props, from_name, _measure_str(orig))
+        for k in _MACROS:
+            total[k] -= from_per.get(k, 0) * g / 100
+    s = max(1, servings)
+    delta = {k: round(total[k] / s, 1) for k in _MACROS if k in baseline}
+    estimated = {k: max(0.0, round(baseline[k] + delta[k], 1)) for k in baseline if k in delta}
+    return estimated, delta
+
+
+def _apply_remove(
+    session: Session,
+    recipe: Recipe,
+    from_ing: Ingredient,
+    index: dict,
+    id_to_name: dict[int, str],
+) -> ModifyResponse:
+    """Remove an ingredient — a SMALL LLM call decides omit vs substitute and
+    rewrites the affected steps; allergens/diet/nutrition are re-derived in code
+    (accurate + keeps the constrained-decoding grammar small so it doesn't time
+    out)."""
+    if not is_enabled():
+        raise HTTPException(
+            422,
+            f"Removing “{from_ing.name}” needs the recipe assistant, which isn't configured.",
+        )
+
+    steps = recipe.steps or []
+    numbered = "\n".join(f"{i}. {s}" for i, s in enumerate(steps))
+    ing_list = "; ".join(
+        f"{_measure_str(l)} {l.get('name', '')}".strip() for l in (recipe.ingredients or [])
+    )
+    prompt = (
+        f"{_REMOVE_SYSTEM}\n\n"
+        f'Remove: "{from_ing.name}".\n'
+        f"Title: {recipe.title}\nIngredients: {ing_list}\nSteps:\n{numbered}"
+    )
+    try:
+        plan = get_llm().generate_structured(
+            messages=[{"role": "user", "content": prompt}],
+            schema=RemovalPlan,
+            model=settings.LLM_MODEL_MAIN,
+            max_tokens=1200,
+        )
+    except LLMError as e:
+        logger.warning("remove adaptation failed: %s", e)
+        raise HTTPException(503, "Couldn't adjust the recipe right now — try again.")
+
+    substituting = plan.strategy.strip().lower().startswith("sub") and bool(
+        plan.substitute.strip()
+    )
+    to_name = plan.substitute.strip() if substituting else ""
+    to_ing = index.get(normalize(to_name)) if substituting else None
+    from_keys = {normalize(from_ing.name)} | {normalize(a) for a in from_ing.aliases or []}
+    multiplier, ratio_ok = _parse_ratio(plan.ratio) if substituting else (1.0, True)
+    cat_by_norm = _category_map(session)
+
+    # Rewrite the display lines: rename+scale if substituting, else drop the line.
+    new_lines: list[dict] = []
+    for item in recipe.ingredients or []:
+        if normalize(item.get("name", "")) in from_keys:
+            if not substituting:
+                continue  # omit: the line disappears
+            line = dict(item)
+            line["name"] = to_name
+            if line.get("qty") is not None:
+                line["qty"] = round(float(line["qty"]) * multiplier, 2)
+            new_lines.append(line)
+        else:
+            new_lines.append(dict(item))
+
+    lines_out = [
+        RecipeIngredientLine(
+            name=l.get("name", ""),
+            qty=l.get("qty"),
+            unit=l.get("unit"),
+            essential=l.get("essential", True),
+            category=cat_by_norm.get(normalize(l.get("name", ""))),
+        )
+        for l in new_lines
+    ]
+
+    new_steps = list(steps)
+    changed: list[int] = []
+    for st in plan.changed_steps:
+        if 0 <= st.index < len(new_steps):
+            new_steps[st.index] = st.text
+            changed.append(st.index)
+
+    # Re-derive diet/allergen deterministically on the post-removal canonical set.
+    props = load_props()
+    post_names: list[str] = []
+    post_items: list[tuple] = []
+    for ri in recipe.recipe_ingredients:
+        if ri.ingredient_id == from_ing.id:
+            if substituting and to_ing is not None:
+                name = to_ing.name  # canonical substitute
+            else:
+                continue  # omit, or a free-text substitute we can't classify
+        else:
+            name = id_to_name.get(ri.ingredient_id, "unknown")
+        post_names.append(name)
+        if name in props:
+            post_items.append((name, 1.0, ri.essential))
+    derived = classify_and_derive(
+        props, post_items, post_names, servings=recipe.servings, title=recipe.title
+    )
+    new_allergens = derived["allergens"]
+    old_all = set(recipe.allergens or [])
+
+    # Nutrition: exact-ish for omit / canonical substitute; skipped for unknown.
+    baseline = recipe.nutrition or {}
+    if substituting and to_ing is not None:
+        nutrition, nutrition_delta = _nutrition_estimate(
+            props, baseline, from_ing.name, to_ing.name, from_keys,
+            recipe.ingredients or [], new_lines, recipe.servings,
+        )
+    elif not substituting:
+        nutrition, nutrition_delta = _subtract_nutrition(
+            props, baseline, from_ing.name, from_keys, recipe.ingredients or [], recipe.servings
+        )
+    else:
+        nutrition, nutrition_delta = {}, {}
+
+    # Only a free-text (unknown) substitute is truly approximate; omit and
+    # canonical-substitute re-derive labels from our own data.
+    approximate = substituting and to_ing is None
+    warnings: list[str] = []
+    if approximate:
+        warnings.append(
+            f"Estimated — “{to_name}” isn't in our verified data, so labels and "
+            "nutrition are approximate."
+        )
+    if not nutrition:
+        warnings.append(NUTRITION_WARNING)
+
+    return ModifyResponse(
+        recipe_id=recipe.id,
+        title=recipe.title,
+        operation="remove",
+        note=plan.note,
+        swap=SwapInfo(
+            from_ingredient=from_ing.name,
+            to_ingredient=to_name or "(removed)",
+            ratio=plan.ratio if substituting else "—",
+        ),
+        ingredients=lines_out,
+        steps=new_steps,
+        changed_step_indexes=sorted(set(changed)),
+        diet_labels=derived["diet_labels"],
+        allergens=new_allergens,
+        added_allergens=sorted(set(new_allergens) - old_all),
+        removed_allergens=sorted(old_all - set(new_allergens)),
+        nutrition=nutrition,
+        nutrition_delta=nutrition_delta,
+        knock_on_flags=plan.knock_on_flags,
+        warnings=warnings,
+        llm_used=True,
+        approximate=approximate,
+    )
+
+
 def modify_recipe(
     session: Session, recipe_id: int, req: ModifyRequest
 ) -> ModifyResponse:
@@ -300,6 +495,12 @@ def modify_recipe(
     recipe_ing_ids = {ri.ingredient_id for ri in recipe.recipe_ingredients}
     if from_ing.id not in recipe_ing_ids:
         raise HTTPException(422, f"recipe does not use {from_ing.name}")
+
+    if req.op == "remove":
+        return _apply_remove(session, recipe, from_ing, index, id_to_name)
+
+    if not req.to_ingredient:
+        raise HTTPException(422, "to_ingredient is required for a swap")
 
     to_ing = index.get(normalize(req.to_ingredient))
     if to_ing is None:

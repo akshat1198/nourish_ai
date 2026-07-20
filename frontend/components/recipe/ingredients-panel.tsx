@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { IngredientToken } from "@/components/ingredient-token";
 import { ServingsStepper } from "@/components/recipe/servings-stepper";
 import { SwapPopover } from "@/components/recipe/swap-popover";
@@ -22,6 +23,7 @@ export function IngredientsPanel({
   baseServings,
   onServings,
   onSwap,
+  onRemove,
   pendingSwap,
 }: {
   ingredients: RecipeIngredientLine[];
@@ -29,6 +31,7 @@ export function IngredientsPanel({
   baseServings: number;
   onServings: (next: number) => void;
   onSwap: (from: string, to: string) => void;
+  onRemove: (from: string) => void;
   pendingSwap: boolean;
 }) {
   const have = usePantryNames();
@@ -62,6 +65,15 @@ export function IngredientsPanel({
                 onApply={(to) => onSwap(line.name, to)}
                 pending={pendingSwap}
               />
+              <button
+                type="button"
+                disabled={pendingSwap}
+                onClick={() => onRemove(line.name)}
+                aria-label={`Remove ${line.name} — adapt the recipe without it`}
+                className="relative grid size-6 touch-manipulation place-items-center rounded-full text-muted-foreground transition-colors before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
+              >
+                <X className="size-3.5" />
+              </button>
             </li>
           );
         })}

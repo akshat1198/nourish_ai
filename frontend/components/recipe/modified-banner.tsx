@@ -13,22 +13,44 @@ export function ModifiedBanner({
   modified: ModifyResponse;
   onReset: () => void;
 }) {
-  const { swap, added_allergens, removed_allergens, knock_on_flags, warnings } =
-    modified;
+  const {
+    operation,
+    note,
+    swap,
+    added_allergens,
+    removed_allergens,
+    knock_on_flags,
+    warnings,
+  } = modified;
   const hasAllergenChange =
     removed_allergens.length > 0 || added_allergens.length > 0;
+
+  const isRemove = operation === "remove";
+  const substituted = isRemove && swap.to_ingredient !== "(removed)";
+  const headline = !isRemove ? (
+    <>
+      Modified:{" "}
+      <span className="font-medium text-primary">{swap.to_ingredient}</span> for{" "}
+      {swap.from_ingredient} ({swap.ratio})
+    </>
+  ) : substituted ? (
+    <>
+      Used <span className="font-medium text-primary">{swap.to_ingredient}</span>{" "}
+      instead of {swap.from_ingredient}
+    </>
+  ) : (
+    <>
+      Removed{" "}
+      <span className="font-medium text-primary">{swap.from_ingredient}</span>
+    </>
+  );
 
   return (
     <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-sm">
-            Modified:{" "}
-            <span className="font-medium text-primary">
-              {swap.to_ingredient}
-            </span>{" "}
-            for {swap.from_ingredient} ({swap.ratio})
-          </p>
+          <p className="text-sm">{headline}</p>
+          {note && <p className="text-sm text-muted-foreground">{note}</p>}
           {hasAllergenChange && (
             <p className="text-sm font-medium">
               This swap{" "}

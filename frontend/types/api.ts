@@ -111,8 +111,9 @@ export interface SubstitutionsResponse {
 }
 
 export interface ModifyRequest {
+  op?: "swap" | "remove";
   from_ingredient: string;
-  to_ingredient: string;
+  to_ingredient?: string; // omitted for "remove"
 }
 
 export interface SwapInfo {
@@ -124,6 +125,8 @@ export interface SwapInfo {
 export interface ModifyResponse {
   recipe_id: number;
   title: string;
+  operation?: "swap" | "remove";
+  note?: string;
   swap: SwapInfo;
   ingredients: RecipeIngredientLine[];
   steps: string[];

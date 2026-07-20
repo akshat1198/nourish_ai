@@ -6,7 +6,7 @@ estimated nutrition — so the detail page renders entirely from our own data.
 """
 from __future__ import annotations
 
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -54,8 +54,10 @@ class RecipeDetail(BaseModel):
 # Substitution-aware modification (Stage 7.3)
 # --------------------------------------------------------------------------- #
 class ModifyRequest(BaseModel):
+    # "swap" needs to_ingredient; "remove" adapts the recipe without from_ingredient.
+    op: Literal["swap", "remove"] = "swap"
     from_ingredient: str = Field(..., max_length=80)
-    to_ingredient: str = Field(..., max_length=80)
+    to_ingredient: Optional[str] = Field(None, max_length=80)
 
 
 class SwapInfo(BaseModel):
@@ -67,6 +69,9 @@ class SwapInfo(BaseModel):
 class ModifyResponse(BaseModel):
     recipe_id: int
     title: str
+    operation: str = "swap"  # "swap" | "remove" — drives the banner wording
+    # For a removal: a one-line summary of what was done (omitted, or substituted).
+    note: str = ""
     swap: SwapInfo
     ingredients: list[RecipeIngredientLine]
     steps: list[str]
