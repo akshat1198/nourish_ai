@@ -6,6 +6,34 @@ Draft plans for the upcoming features described in the [README](README.md#roadma
 
 ---
 
+## UX Redesign — Immersive paged flow  ·  medium  ·  (can go first)
+
+**Why:** replace the single dense `/app` screen with a guided, **one-thing-per-page** experience. It reshapes the shell the feature phases below then live in (results/ratings/save land on the new pages), so it's reasonable to do this before or alongside Phase 1.
+
+**Flow & screens**
+1. **Pantry page** (`/app`) — `PantryManager` (structured combobox **+** the free-text "describe what you have" box) and staples; primary CTA **"Start cooking."**
+2. **Filter pages — one filter per page:** Cuisine → Meal → Diet & goals → Avoid (allergens) → Dislikes & time. Each is a full screen with a single filter component, a slim progress indicator, and a **Back** / **Next** footer. On the **last** filter page the forward button reads **Review**.
+3. **Review page** — the current editable review (removable chips, focused "Edit" jump-back to a step), primary CTA **"Find recipes."**
+4. **Results page** — a dedicated page listing the ranked recipes to pick from (each → recipe detail).
+
+**Navigation & state (recommended)**
+- **URL-driven steps** so browser Back/Forward and deep links work and each step is a real page: e.g. `/app` (pantry), `/app/filters/[step]` (`cuisine|meal|diet|avoid|more|review`), `/app/results`. (A `?step=` query param is a lighter alternative.)
+- Filter answers persist in a small client store (extend the existing localStorage "last-used" prefill, or a lightweight context/zustand) so **Back never loses input** and a mid-flow refresh resumes.
+- Forward is guarded only where a step is genuinely required (e.g. optionally require a cuisine); most filters are optional, so **Next** stays enabled.
+
+**Reuse — this is mostly re-composition, not new logic**
+- The existing `FilterWizard` step bodies (cuisine drill-down, meal/diet/allergen/dislike pills, the review chips) become per-page components.
+- `PantryManager` → the pantry page; `ResultsList` → the results page; the removable-chip review → the review page.
+- A shared `useFilterAnswers` store replaces the wizard's internal `useState`.
+
+**Polish:** directional slide transitions between steps (respect `prefers-reduced-motion`), consistent Back/Next footer, mobile-first (the paged flow suits phones better than the dense single screen). Keep the "Fresh Editorial" tokens and ingredient-token motif.
+
+**Verification:** walk the flow forward and backward with no lost input; refresh mid-step resumes; deep-link a step; "Find recipes" → results → detail; lint/build; light + dark; 375 px.
+
+**Effort:** ~2–3 sessions (routing + answers store + re-composing components + transitions). **No backend changes** — the pantry, filters, and recommend endpoints are unchanged; this is a frontend shell/routing rework.
+
+---
+
 ## Phase 1 — Ratings & feedback loop (UI)  ·  small
 
 **Why first:** the backend already has the home for this — `interaction_history` and `POST /v1/feedback` exist and are only written by the agent logging "recommended." This closes a one-way log into a real loop and is highly demoable.
@@ -120,6 +148,6 @@ Draft plans for the upcoming features described in the [README](README.md#roadma
 
 ## Suggested sequence
 
-`Phase 1 (feedback UI)` → `Phase 2 (saved + plans)` → `Phase 6 (MCP tools, once plans exist)` → `Phase 3 (personalization)` → `Phase 4 (analytics/A-B)` → `Phase 5 (observability)`.
+`UX Redesign (paged flow)` → `Phase 1 (feedback UI)` → `Phase 2 (saved + plans)` → `Phase 6 (MCP tools, once plans exist)` → `Phase 3 (personalization)` → `Phase 4 (analytics/A-B)` → `Phase 5 (observability)`.
 
-Phases 1–2 are the most user-visible and unlock the rest (save/cook signals feed Phase 3; plans back Phase 6). Phases 3–5 are the "make it smart and measurable" layer and can be interleaved. Each phase is independently shippable with its own demo, and none regress the deterministic-first, fail-open guarantees the app already holds.
+The paged-flow redesign comes first (or alongside Phase 1) because it defines the pages the feature work then lands on — ratings on the results/detail pages, "Save" and "Add to plan" as actions in the new flow. Phases 1–2 are the most user-visible and unlock the rest (save/cook signals feed Phase 3; plans back Phase 6). Phases 3–5 are the "make it smart and measurable" layer and can be interleaved. Each phase is independently shippable with its own demo, and none regress the deterministic-first, fail-open guarantees the app already holds.
