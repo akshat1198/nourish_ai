@@ -118,6 +118,23 @@ def test_recommendations_high_protein_goal():
 
 
 @requires_db
+def test_pantry_parse_freetext(monkeypatch):
+    # LLM extraction is mocked; the endpoint resolves terms to canonical/generic
+    # items and reports what it couldn't place.
+    from app.api import pantry as pantry_api
+
+    monkeypatch.setattr(
+        pantry_api, "parse_pantry_text",
+        lambda text: ["spinach", "eggs", "chicken", "unicorn tears"],
+    )
+    body = client.post("/v1/pantry/parse", json={"text": "whatever"}).json()
+    recognized = {r["name"]: r for r in body["recognized"]}
+    assert {"spinach", "eggs"} <= recognized.keys()
+    assert recognized.get("chicken", {}).get("is_group") is True  # generic
+    assert "unicorn tears" in body["unmatched"]
+
+
+@requires_db
 def test_generic_chicken_expands_to_breast_and_thigh():
     # Picking the generic "chicken" should match recipes using either cut.
     with SessionLocal() as s:

@@ -159,6 +159,12 @@ export interface IngredientSuggestion {
   members?: string[] | null; // member canonical names (groups only)
 }
 
+// POST /v1/pantry/parse — free text → recognized pantry items.
+export interface PantryParseResponse {
+  recognized: IngredientSuggestion[];
+  unmatched: string[];
+}
+
 export interface PantryItem {
   ingredient: string;
   category?: string | null;

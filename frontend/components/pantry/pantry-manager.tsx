@@ -1,6 +1,7 @@
 "use client";
 
-import { Lightbulb, Pin, Plus } from "lucide-react";
+import { useState } from "react";
+import { Lightbulb, Pin, Plus, Sparkles } from "lucide-react";
 import { IngredientCombobox } from "@/components/pantry/ingredient-combobox";
 import { IngredientLegend } from "@/components/ingredient-legend";
 import { IngredientToken } from "@/components/ingredient-token";
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePantry, useUpdatePantry } from "@/lib/hooks/use-pantry";
+import { useParsePantry } from "@/lib/hooks/use-parse-pantry";
 import { dotClass, toDotCategory } from "@/lib/ingredient-category";
 import { cn } from "@/lib/utils";
 import type { IngredientSuggestion, PantryItem } from "@/types/api";
@@ -41,6 +43,37 @@ export function PantryManager() {
   const existing = new Set(items.map((i) => i.ingredient));
 
   const commit = (next: PantryItem[]) => update.mutate(next);
+
+  // Free-text → recognized items → merged into the pantry (LLM parse).
+  const [text, setText] = useState("");
+  const [note, setNote] = useState<string | null>(null);
+  const parse = useParsePantry();
+  const addFromText = () => {
+    const t = text.trim();
+    if (!t) return;
+    parse.mutate(t, {
+      onSuccess: (res) => {
+        const have = new Set(items.map((i) => i.ingredient));
+        const additions = res.recognized.filter((r) => !have.has(r.name));
+        if (additions.length) {
+          commit([
+            ...items,
+            ...additions.map((r) => ({
+              ingredient: r.name,
+              category: r.category ?? undefined,
+              is_staple: false,
+            })),
+          ]);
+        }
+        const parts: string[] = [];
+        if (additions.length) parts.push(`Added ${additions.map((r) => r.name).join(", ")}`);
+        if (res.unmatched.length) parts.push(`didn't recognise ${res.unmatched.join(", ")}`);
+        setNote(parts.length ? parts.join(" · ") : "Nothing new found — try naming ingredients.");
+        setText("");
+      },
+      onError: () => setNote("Couldn't read that — try again."),
+    });
+  };
 
   const add = (s: IngredientSuggestion) => {
     if (existing.has(s.name)) return;
@@ -75,6 +108,43 @@ export function PantryManager() {
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Free-text intake: describe the pantry in a sentence, LLM extracts it. */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            addFromText();
+          }}
+          className="space-y-1.5"
+        >
+          <div className="flex items-end gap-2">
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  addFromText();
+                }
+              }}
+              rows={2}
+              placeholder="Or just describe what you have — “half a bag of spinach, a couple eggs, some paneer”"
+              aria-label="Describe your pantry in plain words"
+              className="min-h-0 flex-1 resize-none rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              disabled={parse.isPending || !text.trim()}
+              className="shrink-0 gap-1.5"
+            >
+              <Sparkles className="size-3.5" />
+              {parse.isPending ? "Reading…" : "Add"}
+            </Button>
+          </div>
+          {note && <p className="text-xs text-muted-foreground">{note}</p>}
+        </form>
+
         {!isLoading && !isError && items.length < MIN_INGREDIENTS && (
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
             <div className="flex items-start gap-2.5">

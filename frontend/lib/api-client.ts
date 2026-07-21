@@ -5,6 +5,7 @@ import type {
   CuisineCount,
   HealthResponse,
   IngredientSuggestion,
+  PantryParseResponse,
   PantryReplaceIn,
   PantryResponse,
   ModifyRequest,
@@ -35,6 +36,12 @@ export const api = {
     apiFetch<PantryResponse>("/v1/pantry", {
       method: "PUT",
       body: JSON.stringify(body),
+    }),
+
+  parsePantry: (text: string) =>
+    apiFetch<PantryParseResponse>("/v1/pantry/parse", {
+      method: "POST",
+      body: JSON.stringify({ text }),
     }),
 
   getProfile: () =>
