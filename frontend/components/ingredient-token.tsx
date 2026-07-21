@@ -34,6 +34,8 @@ interface IngredientTokenProps {
   /** When provided, shows a pin toggle that flips staple state. */
   onToggleStaple?: () => void;
   onRemove?: () => void;
+  /** Checked-off on a recipe: struck through + dimmed. */
+  struck?: boolean;
 }
 
 export function IngredientToken({
@@ -43,6 +45,7 @@ export function IngredientToken({
   muted = false,
   onToggleStaple,
   onRemove,
+  struck = false,
 }: IngredientTokenProps) {
   return (
     <span
@@ -52,10 +55,11 @@ export function IngredientToken({
           ? "border-primary/25 bg-primary/8 text-foreground"
           : "border-border bg-card text-foreground",
         muted && "border-dashed bg-transparent text-muted-foreground",
+        struck && "opacity-50",
       )}
     >
       <span className={cn("size-2 shrink-0 rounded-full", DOT_COLOR[category])} aria-hidden />
-      <span className="leading-none">{name}</span>
+      <span className={cn("leading-none", struck && "line-through")}>{name}</span>
       {onToggleStaple && (
         <button
           type="button"

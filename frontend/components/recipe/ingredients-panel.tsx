@@ -1,12 +1,14 @@
 "use client";
 
-import { X } from "lucide-react";
+import { useState } from "react";
+import { Check, X } from "lucide-react";
 import { IngredientToken } from "@/components/ingredient-token";
 import { ServingsStepper } from "@/components/recipe/servings-stepper";
 import { SwapPopover } from "@/components/recipe/swap-popover";
 import { usePantry } from "@/lib/hooks/use-pantry";
 import { toDotCategory } from "@/lib/ingredient-category";
 import { scaleFactor, scaleLine } from "@/lib/scale";
+import { cn } from "@/lib/utils";
 import type { RecipeIngredientLine } from "@/types/api";
 
 // Loose exact-name match against the pantry — highlights the confident hits
@@ -37,6 +39,16 @@ export function IngredientsPanel({
   const have = usePantryNames();
   const anyHave = ingredients.some((l) => have.has(l.name.toLowerCase()));
   const factor = scaleFactor(baseServings, servings);
+  // Cooking checklist — tick off ingredients as you use them. Session-only
+  // (resets when you leave the recipe or refresh). Keyed by line index so the
+  // same ingredient used at two stages is checked independently.
+  const [used, setUsed] = useState<Set<number>>(new Set());
+  const toggleUsed = (i: number) =>
+    setUsed((prev) => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
 
   return (
     <section className="space-y-3">
@@ -50,15 +62,37 @@ export function IngredientsPanel({
         {ingredients.map((line, i) => {
           const onHand = have.has(line.name.toLowerCase());
           const measure = scaleLine(line, factor).text;
+          const checked = used.has(i);
           return (
             <li key={`${line.name}-${i}`} className="flex items-center gap-3">
-              <span className="tabular w-24 shrink-0 text-right text-sm text-muted-foreground">
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={checked}
+                aria-label={`Mark ${line.name} as used`}
+                onClick={() => toggleUsed(i)}
+                className={cn(
+                  "relative grid size-5 shrink-0 touch-manipulation place-items-center rounded-[0.4rem] border transition-colors before:absolute before:-inset-2 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  checked
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border text-transparent hover:border-primary/50",
+                )}
+              >
+                <Check className="size-3.5" />
+              </button>
+              <span
+                className={cn(
+                  "tabular w-24 shrink-0 text-right text-sm text-muted-foreground",
+                  checked && "line-through opacity-50",
+                )}
+              >
                 {measure}
               </span>
               <IngredientToken
                 name={line.name}
                 category={toDotCategory(line.category)}
                 muted={!onHand}
+                struck={checked}
               />
               <SwapPopover
                 ingredient={line.name}
