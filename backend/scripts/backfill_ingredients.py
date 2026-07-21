@@ -282,11 +282,77 @@ def cmd_apply(limit: int, relabel: bool) -> None:
         print(f"done. re-linked={relinked}, relabelled={relabelled}, nutrition recomputed={renutri}")
 
 
+def cmd_reparse(limit: int) -> None:
+    """Clean re-parse of archanas from the raw CSV with the fixed vocab: rebuild
+    each existing recipe's display list + mapping + derived labels straight from
+    source (not from the already-relabeled display), which removes the sticky
+    relabel artifacts. Leaves search_text/embeddings + steps untouched."""
+    import csv as _csv
+
+    from scripts.ingest.archanas import CSV, normalize_row
+    from scripts.ingest.pipeline import load_props as pipeline_load_props
+
+    _csv.field_size_limit(10**7)
+    props, matcher = pipeline_load_props()
+    rows = list(_csv.DictReader(open(CSV, encoding="utf-8-sig")))
+    print(f"read {len(rows)} raw rows")
+
+    with SessionLocal() as s:
+        name_to_id = ensure_ingredients_in_db(s)
+        s.commit()
+        recs = {
+            normalize(r.title): r
+            for r in s.execute(select(Recipe).where(Recipe.source == "archanas")).scalars()
+        }
+        updated = missing = 0
+        processed: set[int] = set()
+        for i, row in enumerate(rows, 1):
+            if limit and updated >= limit:
+                break
+            n = normalize_row(row, props, matcher)
+            if not n:
+                continue
+            rec = recs.get(normalize(n["fields"]["title"]))
+            if rec is None:
+                missing += 1
+                continue
+            if rec.id in processed:  # duplicate-title CSV rows → one DB recipe
+                continue
+            processed.add(rec.id)
+            f = n["fields"]
+            rec.ingredients = f["ingredients"]        # fresh display (canonical for matched)
+            rec.diet_labels = f["diet_labels"]
+            rec.allergens = f["allergens"]
+            if f["nutrition"]:                         # keep old only if we can't derive
+                rec.nutrition = f["nutrition"]
+                rec.nutrition_estimated = True
+            rec.steps_rich = None                      # re-enrich with corrected names
+            rec.ingredients_rich = None
+
+            s.execute(delete(RecipeIngredient).where(RecipeIngredient.recipe_id == rec.id))
+            seen: set[int] = set()
+            for cname, qty, unit, essential in n["matched_items"]:
+                iid = name_to_id.get(cname)
+                if iid is None or iid in seen:
+                    continue
+                seen.add(iid)
+                s.add(RecipeIngredient(recipe_id=rec.id, ingredient_id=iid,
+                                       qty=qty, unit=unit, essential=essential))
+            updated += 1
+            if updated % 500 == 0:
+                s.commit()
+                print(f"  reparsed {updated}…")
+        s.commit()
+        print(f"done. reparsed={updated}, csv rows with no DB match={missing}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--map", action="store_true", help="LLM-map top unmapped names to aliases")
     ap.add_argument("--audit", action="store_true", help="drop inaccurate stand-in aliases")
     ap.add_argument("--apply", action="store_true", help="re-link + re-derive the corpus")
+    ap.add_argument("--reparse", action="store_true",
+                    help="clean re-parse archanas from the raw CSV (removes relabel artifacts)")
     ap.add_argument("--relabel", action="store_true",
                     help="with --apply: rename display ingredients to their canonical")
     ap.add_argument("--limit", type=int, default=200,
@@ -296,10 +362,12 @@ def main() -> None:
         cmd_map(args.limit)
     elif args.audit:
         cmd_audit()
+    elif args.reparse:
+        cmd_reparse(args.limit if args.limit != 200 else 0)
     elif args.apply:
         cmd_apply(args.limit if args.limit != 200 else 0, args.relabel)
     else:
-        ap.error("pass --map, --audit, or --apply")
+        ap.error("pass --map, --audit, --reparse, or --apply")
 
 
 if __name__ == "__main__":
