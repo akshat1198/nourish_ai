@@ -25,11 +25,14 @@ logger = logging.getLogger(__name__)
 
 _SYSTEM = (
     "You improve a recipe WITHOUT changing what's made. Do two things:\n"
-    "1) Rewrite the method: keep the SAME number of steps in the SAME order; add "
-    "the prep state of ingredients (finely diced, thinly sliced, minced) and "
-    "concrete cues (heat level, rough timing, the visual sign of doneness). Invent "
-    "no new ingredients; don't merge, split, add, or drop steps; one or two "
-    "sentences each.\n"
+    "1) Rewrite the method into clear, correctly-ordered cooking steps. Add prep "
+    "state (finely diced, thinly sliced, minced) and concrete cues (heat level, "
+    "rough timing, the visual sign of doneness). Fix obvious transcription typos "
+    "(e.g. 'steal the paneer' → 'strain the paneer'). DROP lines that aren't real "
+    "cooking instructions — side notes like 'you can also buy it from outside', "
+    "repeated serving blurbs, or links. You may merge redundant micro-steps. NEVER "
+    "invent ingredients or add steps: the result must have AT MOST the original "
+    "number of steps, in order; one or two sentences each.\n"
     "2) For each listed measure-less ingredient, give a typical amount for this "
     "dish as a short measure like '1 teaspoon' or '2 tablespoons', or 'to taste' "
     "for things like salt — in the SAME order as listed."
@@ -131,8 +134,10 @@ def enrich_recipe(session: Session, recipe_id: int) -> RecipeEnrichment:
         return _build(steps, items, cat, enriched=False)
 
     new_steps = [s.strip() for s in result.steps if s.strip()]
-    if len(new_steps) != len(steps):
-        new_steps = steps  # step-count drift — keep the original method
+    # Cleaning may DROP junk lines (fewer steps is fine); reject only empty output
+    # or invented extra steps (more than the original).
+    if not new_steps or len(new_steps) > len(steps):
+        new_steps = steps
 
     fills: dict[str, str] = {}
     for name, meas in zip(measure_less, result.quantities):
