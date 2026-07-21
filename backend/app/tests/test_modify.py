@@ -305,7 +305,71 @@ def test_modify_remove_substitute_freetext(session, monkeypatch):
     assert body["approximate"] is True
 
 
-# --- WS6: enriched steps preferred at render ------------------------------- #
+# --- WS6: lazy enrichment on view + cache ---------------------------------- #
+@requires_db
+def test_enrich_caches_and_flags(session, monkeypatch):
+    from app.schemas.llm import EnrichedRecipe
+    from app.services import enrich
+
+    r = session.execute(
+        select(Recipe).where(Recipe.title == "Tomato Garlic Pasta")
+    ).scalar_one()
+    orig_rich, orig_ing = r.steps_rich, r.ingredients_rich
+    r.steps_rich, r.ingredients_rich = None, None
+    session.commit()
+
+    monkeypatch.setattr(enrich, "is_enabled", lambda: True)
+    fake = MagicMock()
+    fake.generate_structured.return_value = EnrichedRecipe(
+        steps=[f"Enriched: {s}" for s in r.steps], quantities=[]
+    )
+    monkeypatch.setattr(enrich, "get_llm", lambda: fake)
+    try:
+        body = client.post(f"/v1/recipes/{r.id}/enrich").json()
+        assert body["enriched"] is True
+        assert body["steps"][0].startswith("Enriched:")
+
+        # Cached: a second call serves it without hitting the LLM again.
+        fake.generate_structured.reset_mock()
+        client.post(f"/v1/recipes/{r.id}/enrich")
+        fake.generate_structured.assert_not_called()
+
+        # GET now flags enriched and serves the rich method.
+        detail = client.get(f"/v1/recipes/{r.id}").json()
+        assert detail["steps_enriched"] is True
+        assert detail["steps"][0].startswith("Enriched:")
+    finally:
+        session.rollback()
+        row = session.get(Recipe, r.id)
+        row.steps_rich, row.ingredients_rich = orig_rich, orig_ing
+        session.commit()
+
+
+@requires_db
+def test_enrich_disabled_returns_original_unstored(session, monkeypatch):
+    from app.services import enrich
+
+    r = session.execute(
+        select(Recipe).where(Recipe.title == "Tomato Garlic Pasta")
+    ).scalar_one()
+    orig_rich = r.steps_rich
+    r.steps_rich, r.ingredients_rich = None, None
+    session.commit()
+
+    monkeypatch.setattr(enrich, "is_enabled", lambda: False)
+    try:
+        body = client.post(f"/v1/recipes/{r.id}/enrich").json()
+        assert body["enriched"] is False
+        assert body["steps"] == r.steps
+        session.rollback()
+        assert session.get(Recipe, r.id).steps_rich is None  # nothing stored
+    finally:
+        session.rollback()
+        row = session.get(Recipe, r.id)
+        row.steps_rich = orig_rich
+        session.commit()
+
+
 @requires_db
 def test_recipe_detail_prefers_steps_rich(session):
     r = session.execute(

@@ -8,11 +8,12 @@ import { IngredientsPanel } from "@/components/recipe/ingredients-panel";
 import { ModifiedBanner } from "@/components/recipe/modified-banner";
 import { NutritionPanel } from "@/components/recipe/nutrition-panel";
 import { RecipeHeader } from "@/components/recipe/recipe-header";
-import { StepsList } from "@/components/recipe/steps-list";
+import { MethodSkeleton, StepsList } from "@/components/recipe/steps-list";
 import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api";
+import { useEnrichRecipe } from "@/lib/hooks/use-enrich-recipe";
 import { useModifyRecipe } from "@/lib/hooks/use-modify-recipe";
 import { useRecipe } from "@/lib/hooks/use-recipe";
 import type { ModifyResponse } from "@/types/api";
@@ -44,6 +45,12 @@ export function RecipeDetailView({ id }: { id: number }) {
   // Applied ingredient swap (null = original). One active swap at a time.
   const [modified, setModified] = useState<ModifyResponse | null>(null);
   const modify = useModifyRecipe(id);
+  // WS6: on first view of an un-enriched recipe, kick off the one-time
+  // enrichment (cached server-side). The Method shows a skeleton meanwhile.
+  const { data: enrichment, isLoading: enriching } = useEnrichRecipe(
+    id,
+    !!recipe && !recipe.steps_enriched,
+  );
   useEffect(() => {
     setServingsOverride(null);
     setModified(null);
@@ -99,8 +106,11 @@ export function RecipeDetailView({ id }: { id: number }) {
   if (!recipe) return null;
 
   const servings = servingsOverride ?? recipe.servings;
-  const ingredients = modified?.ingredients ?? recipe.ingredients;
-  const steps = modified?.steps ?? recipe.steps;
+  // Precedence: a user's swap/remove > the enriched version > the raw original.
+  const ingredients =
+    modified?.ingredients ?? enrichment?.ingredients ?? recipe.ingredients;
+  const steps = modified?.steps ?? enrichment?.steps ?? recipe.steps;
+  const methodLoading = enriching && !enrichment && !modified;
   // Post-swap nutrition estimate when the backend could compute one.
   const swapNutrition =
     modified && Object.keys(modified.nutrition).length > 0 ? modified : null;
@@ -135,10 +145,14 @@ export function RecipeDetailView({ id }: { id: number }) {
         />
       </Reveal>
       <Reveal>
-        <StepsList
-          steps={steps}
-          changedIndexes={modified?.changed_step_indexes ?? []}
-        />
+        {methodLoading ? (
+          <MethodSkeleton count={recipe.steps.length} />
+        ) : (
+          <StepsList
+            steps={steps}
+            changedIndexes={modified?.changed_step_indexes ?? []}
+          />
+        )}
       </Reveal>
       <Reveal>
         <NutritionPanel

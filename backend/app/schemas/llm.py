@@ -94,13 +94,18 @@ class FreeSwapAdaptation(BaseModel):
     note: str = Field("", description="One-line summary of the adaptation")
 
 
-class EnrichedSteps(BaseModel):
-    """Clearer method for one recipe (WS6): SAME steps, same count/order, each
-    rewritten with prep state + cooking cues. Invents no new ingredients."""
+class EnrichedRecipe(BaseModel):
+    """Clearer method + filled-in measures for one recipe (WS6). Both fields are
+    plain string lists on purpose — nested/optional schemas blow the
+    structured-output grammar budget (see RemovalPlan)."""
 
     steps: list[str] = Field(
         default_factory=list,
-        description="The rewritten steps — exactly as many as the original, same order",
+        description="The rewritten steps — SAME count and order, each with prep state and cooking cues; invent no new ingredients",
+    )
+    quantities: list[str] = Field(
+        default_factory=list,
+        description="A typical measure for EACH listed measure-less ingredient, in the SAME order, e.g. '1 teaspoon' or 'to taste'",
     )
 
 

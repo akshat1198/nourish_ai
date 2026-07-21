@@ -15,8 +15,10 @@ from app.schemas.recipe import (
     ModifyRequest,
     ModifyResponse,
     RecipeDetail,
+    RecipeEnrichment,
     RecipeIngredientLine,
 )
+from app.services.enrich import enrich_recipe
 from app.services.ingredients import normalize
 from app.services.modify import modify_recipe
 
@@ -54,6 +56,8 @@ def get_recipe(
         raise HTTPException(404, "recipe not found")
 
     cat = _category_map(recipe, session)
+    # Prefer the enriched ingredient list (filled measures) once it exists (WS6).
+    ingredient_items = recipe.ingredients_rich or recipe.ingredients or []
     lines = [
         RecipeIngredientLine(
             name=item.get("name", ""),
@@ -62,7 +66,7 @@ def get_recipe(
             essential=item.get("essential", True),
             category=cat.get(normalize(item.get("name", ""))),
         )
-        for item in (recipe.ingredients or [])
+        for item in ingredient_items
     ]
 
     return RecipeDetail(
@@ -82,12 +86,22 @@ def get_recipe(
         ingredients=lines,
         # Prefer the LLM-enriched method when it's been generated (WS6).
         steps=recipe.steps_rich or recipe.steps or [],
+        steps_enriched=recipe.steps_rich is not None,
         source=recipe.source,
         source_url=recipe.source_url,
         attribution=recipe.attribution,
         image_url=recipe.image_url,
         license_note=recipe.license_note,
     )
+
+
+@router.post("/recipes/{recipe_id}/enrich", response_model=RecipeEnrichment)
+def post_enrich_recipe(
+    recipe_id: int, session: Session = Depends(get_session)
+) -> RecipeEnrichment:
+    """Lazily enrich the method + fill blank measures on first view, then cache
+    (WS6). Idempotent: returns the cache instantly once enriched."""
+    return enrich_recipe(session, recipe_id)
 
 
 @router.post("/recipes/{recipe_id}/modify", response_model=ModifyResponse)

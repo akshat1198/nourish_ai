@@ -42,12 +42,25 @@ class RecipeDetail(BaseModel):
     nutrition_estimated: bool = False
     ingredients: list[RecipeIngredientLine] = Field(default_factory=list)
     steps: list[str] = Field(default_factory=list)
+    # WS6: whether the method has been LLM-enriched yet. When False, the client
+    # triggers a one-time enrichment (and shows a skeleton meanwhile).
+    steps_enriched: bool = False
     # Provenance (Stage 6): seed rows have neither url nor attribution.
     source: str
     source_url: Optional[str] = None
     attribution: Optional[str] = None
     image_url: Optional[str] = None
     license_note: Optional[str] = None
+
+
+class RecipeEnrichment(BaseModel):
+    """Result of the lazy first-view enrichment (WS6): the richer method and the
+    ingredient list with blank measures filled in. `enriched` is False when the
+    assistant was unavailable (nothing stored — the client keeps the originals)."""
+
+    steps: list[str] = Field(default_factory=list)
+    ingredients: list[RecipeIngredientLine] = Field(default_factory=list)
+    enriched: bool = False
 
 
 # --------------------------------------------------------------------------- #

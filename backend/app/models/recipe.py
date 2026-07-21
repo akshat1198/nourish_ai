@@ -24,6 +24,10 @@ class Recipe(Base):
     # LLM-enriched method (WS6): prep state + cooking cues. Nullable; the detail
     # endpoint prefers it when present, else falls back to `steps`.
     steps_rich: Mapped[Optional[list[str]]] = mapped_column(ARRAY(Text), nullable=True)
+    # Enriched ingredient lines (WS6): same list with a measure filled in for the
+    # source's blank ones. Preferred when present. Both are set together on the
+    # first-view enrichment, so steps_rich != None implies this is set too.
+    ingredients_rich: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
     tags: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     diet_labels: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     allergens: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)

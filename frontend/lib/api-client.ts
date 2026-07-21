@@ -12,6 +12,7 @@ import type {
   Profile,
   ProfileUpdate,
   RecipeDetail,
+  RecipeEnrichment,
   RecommendRequest,
   RecommendResponse,
   SubstitutionsResponse,
@@ -52,6 +53,9 @@ export const api = {
     }),
 
   getRecipe: (id: number) => apiFetch<RecipeDetail>(`/v1/recipes/${id}`),
+
+  enrichRecipe: (id: number) =>
+    apiFetch<RecipeEnrichment>(`/v1/recipes/${id}/enrich`, { method: "POST" }),
 
   findSubstitutions: (ingredient: string) =>
     apiFetch<SubstitutionsResponse>("/v1/substitutions", {

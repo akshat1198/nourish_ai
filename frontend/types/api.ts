@@ -89,11 +89,19 @@ export interface RecipeDetail {
   nutrition_estimated: boolean;
   ingredients: RecipeIngredientLine[];
   steps: string[];
+  steps_enriched: boolean; // WS6: whether the method is already LLM-enriched
   source: string;
   source_url: string | null;
   attribution: string | null;
   image_url: string | null;
   license_note: string | null;
+}
+
+// WS6: POST /recipes/{id}/enrich — richer method + filled-in measures.
+export interface RecipeEnrichment {
+  steps: string[];
+  ingredients: RecipeIngredientLine[];
+  enriched: boolean; // false when the assistant was unavailable (originals kept)
 }
 
 export interface SubstituteOption {
