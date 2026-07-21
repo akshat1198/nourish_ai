@@ -58,41 +58,86 @@ It's a full-stack, working application built to demonstrate **production-oriente
 ## How It Works
 
 ```text
-Frontend (Next.js)  ──JSON──►  FastAPI
-  pantry · filters                │
-  recipe UI                       ▼
-                        ┌───────────────────────┐
-                        │  Recommend endpoint    │
-                        │  Redis cache (key:      │
-                        │   pantry+filters+mode)  │
-                        └───────┬────────────────┘
-                          hit  │  miss
-                    ┌──────────┘        └───────────────┐
-                    ▼                                    ▼
-             return cached                      Hybrid Retrieval
-                                          SQL ingredient-match ⨉ pgvector
-                                          → RRF fusion → hard filters
-                                                     │ top-K
-                                                     ▼
-                                          Ranking (weighted + why)
-                                                     │
-                                          empty? → relax soft filters
-                                                     │
-                                                     ▼
-                                          Fallback classifier
-                                       (normal / substitution_first /
-                                        shopping_assisted / relaxed)
-                                                     │
-                                                     ▼
-                                              Response (results,
-                                              mode, explanation)
-
-Recipe detail ── enrich (LLM, cached) · modify/remove (LLM + deterministic
-                 re-derivation) · scale (client) · shopping list
-
-Agent path   ── tool-calling loop / LangGraph orchestrator ── MCP (stdio)
-                deterministic validator + repair; everything logged
+┌────────────────────────────────────────────────────────────────┐
+│                    Frontend  (Next.js / React)                  │
+│   pantry · filters · recipe detail · swap & remove · checklist  │
+│   · serving scaling · Google sign-in                            │
+└───────────────────────────────┬────────────────────────────────┘
+                                 │  JSON request
+                                 │  (X-User-Key dev · Bearer JWT prod)
+                                 ▼
+┌────────────────────────────────────────────────────────────────┐
+│                   API Gateway  (FastAPI · /v1)                  │
+│           CORS · auth (disabled | jwt) · request schemas        │
+└───────────────────────────────┬────────────────────────────────┘
+                                 ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Recommend endpoint  ·  Redis cache (key: pantry+filters+mode) │
+└──────────────┬──────────────────────────────────┬──────────────┘
+          hit  │                                   │  miss
+               ▼                                   ▼
+        return cached           ┌───────────────────────────────────┐
+                                │   Retrieval Service               │
+                                │   SQL ingredient-match  ⨉         │
+                                │   pgvector KNN  →  RRF fusion      │
+                                └────────────────┬──────────────────┘
+                                                 ▼
+                                ┌───────────────────────────────────┐
+                                │   Rules / Filter Engine (safety)  │
+                                │   diet · allergens · time ·       │
+                                │   cuisine · meal · nutrition      │
+                                │   (hard filters, applied          │
+                                │   POST-fusion so nothing leaks)   │
+                                └────────────────┬──────────────────┘
+                                                 ▼
+                                ┌───────────────────────────────────┐
+                                │   Ranking  +  "why"               │
+                                │   dislikes demoted (soft) ·       │
+                                │   relax soft filters if empty ·   │
+                                │   fallback mode → normal /        │
+                                │   substitution_first /            │
+                                │   shopping_assisted / relaxed     │
+                                └────────────────┬──────────────────┘
+                                                 │
+   LLM-assisted paths                            │
+   (recipe enrich · swap · remove ·              │
+    agent / LangGraph ── MCP)                    │
+              │                                  │
+              ▼                                  │
+┌───────────────────────────────────┐           │
+│   LLM Adapter (guarded, fail-open)│           │
+│   Claude sonnet / haiku ·         │           │
+│   structured output · tool calls  │           │
+└─────────────────┬─────────────────┘           │
+                  ▼                              │
+┌───────────────────────────────────┐           │
+│   Validator / Safety Net (det.)   │           │
+│   re-check recipe/diet/allergen/  │           │
+│   time vs DB · repair loop →      │           │
+│   constraint-clean fallback ·     │           │
+│   re-derive diet/allergen/        │           │
+│   nutrition after any edit        │           │
+└─────────────────┬─────────────────┘           │
+                  └───────────────┬──────────────┘
+                                  ▼
+┌────────────────────────────────────────────────────────────────┐
+│                       Response Builder                         │
+│   ranked recipes + why · substitutions · adapted steps ·       │
+│   nutrition deltas · shopping list (missing items)             │
+└───────────────────────────────┬────────────────────────────────┘
+                                 ▼
+                         Frontend (render)
+                                 ▼
+┌────────────────────────────────────────────────────────────────┐
+│                    Logging & Evaluation                        │
+│   generation_events · agent_traces · cache metrics ·           │
+│   offline eval harnesses (retrieval hit@k / MRR ·              │
+│   agent pass-rate / cost)                                      │
+│   [ online analytics / A-B — planned: see ROADMAP.md ]         │
+└────────────────────────────────────────────────────────────────┘
 ```
+
+Basic recommendations run the deterministic spine (retrieval → filter → rank → fallback) with **no LLM in the hot path**; the LLM Adapter + Validator/Safety Net sit on the paths that do use a model — free-text pantry parsing, recipe enrichment, swap/remove adaptation, and the agent/orchestrator endpoints.
 
 Everything the LLM produces is **re-validated deterministically** against the database (recipe exists, allergens, diet, time), and every generation is logged (`generation_events`, `agent_traces`).
 
