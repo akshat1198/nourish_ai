@@ -80,8 +80,7 @@
     "name": "pork loin",
     "category": "protein",
     "aliases": [
-      "pork",
-      "chorizo"
+      "pork"
     ],
     "allergens": [],
     "vegan": false,
@@ -153,9 +152,7 @@
     "name": "cod",
     "category": "protein",
     "aliases": [
-      "white fish",
-      "fish fillet",
-      "fish"
+      "white fish"
     ],
     "allergens": [
       "fish"
@@ -413,9 +410,7 @@
   {
     "name": "brown rice",
     "category": "grain",
-    "aliases": [
-      "black rice"
-    ],
+    "aliases": [],
     "allergens": [],
     "vegan": true,
     "vegetarian": true,
@@ -764,8 +759,7 @@
     "aliases": [
       "courgette",
       "green zucchini",
-      "yellow zucchini",
-      "chow chow"
+      "yellow zucchini"
     ],
     "allergens": [],
     "vegan": true,
@@ -889,9 +883,7 @@
   {
     "name": "green beans",
     "category": "vegetable",
-    "aliases": [
-      "avarekalu / lilva beans"
-    ],
+    "aliases": [],
     "allergens": [],
     "vegan": true,
     "vegetarian": true,
@@ -1063,7 +1055,6 @@
       "इंच अदरक",
       "छोटा चमच्च अदरक",
       "1-1/2 ginger",
-      "galangal",
       "छोटा चम्मच अदरक"
     ],
     "allergens": [],
@@ -1083,8 +1074,7 @@
     "category": "vegetable",
     "aliases": [
       "red cabbage",
-      "purple cabbage",
-      "bok choy"
+      "purple cabbage"
     ],
     "allergens": [],
     "vegan": true,
@@ -1227,8 +1217,7 @@
       "छोटा चमच्च घी",
       "unsalted butter",
       "melted butter",
-      "nutralite garlic & oregano spread",
-      "nutralite classic spread"
+      "nutralite garlic & oregano spread"
     ],
     "allergens": [
       "dairy"
@@ -1250,8 +1239,7 @@
     "aliases": [
       "whole milk",
       "1-1/2 milk",
-      "कप दूध",
-      "almond milk"
+      "कप दूध"
     ],
     "allergens": [
       "dairy"
@@ -1489,7 +1477,6 @@
     "category": "sauce",
     "aliases": [
       "dark soy sauce",
-      "oyster sauce",
       "light soy sauce"
     ],
     "allergens": [
@@ -1774,9 +1761,9 @@
       "brown sugar",
       "छोटा चमच्च शक्कर",
       "1-1/2 sugar",
-      "muscovado sugar",
       "granulated sugar",
-      "कप शक्कर"
+      "कप शक्कर",
+      "muscovado sugar"
     ],
     "allergens": [],
     "vegan": true,
@@ -1851,8 +1838,7 @@
     "name": "chicken broth",
     "category": "pantry",
     "aliases": [
-      "chicken stock",
-      "beef stock"
+      "chicken stock"
     ],
     "allergens": [],
     "vegan": false,
@@ -1911,8 +1897,7 @@
     "aliases": [
       "cashew nuts",
       "काजू",
-      "mixed nuts",
-      "pine nuts"
+      "mixed nuts"
     ],
     "allergens": [
       "nuts"
@@ -2043,11 +2028,7 @@
       "green chilli",
       "fresh red chillies",
       "green chilies",
-      "to green chillies",
-      "fresh red chilli",
-      "scotch bonnet",
-      "red chili",
-      "thai red chilli"
+      "to green chillies"
     ],
     "allergens": [],
     "vegan": true,
@@ -2160,8 +2141,7 @@
     "aliases": [
       "garam masala powder",
       "छोटा चमच्च गरम मसाला पाउडर",
-      "छोटा चम्मच गरम मसाला पाउडर",
-      "tandoori masala"
+      "छोटा चम्मच गरम मसाला पाउडर"
     ],
     "allergens": [],
     "vegan": true,
@@ -2182,8 +2162,7 @@
       "coconut meat",
       "fresh coconut",
       "कप नारियल",
-      "बड़े चमच्च नारियल",
-      "tender coconut water"
+      "बड़े चमच्च नारियल"
     ],
     "allergens": [
       "nuts"
@@ -2589,8 +2568,7 @@
     "category": "grain",
     "aliases": [
       "ground rice",
-      "rice powder",
-      "cornstarch"
+      "rice powder"
     ],
     "allergens": [],
     "vegan": true,
@@ -2647,8 +2625,7 @@
     "category": "fruit",
     "aliases": [
       "dried grapes",
-      "kishmish",
-      "mixed dry fruits"
+      "kishmish"
     ],
     "allergens": [],
     "vegan": true,
@@ -3306,9 +3283,7 @@
     "name": "dark chocolate",
     "category": "pantry",
     "aliases": [
-      "dark cocoa chocolate",
-      "white chocolate",
-      "chocolate bar"
+      "dark cocoa chocolate"
     ],
     "allergens": [
       "soy"
@@ -3547,8 +3522,7 @@
     "category": "pantry",
     "aliases": [
       "kalamata olives",
-      "olives",
-      "green olives"
+      "olives"
     ],
     "allergens": [],
     "vegan": true,
@@ -3630,8 +3604,7 @@
     "aliases": [
       "eleusine coracana",
       "finger millet flour",
-      "raggi flour",
-      "ragi seeds"
+      "raggi flour"
     ],
     "allergens": [],
     "vegan": true,
@@ -4132,8 +4105,7 @@
     "aliases": [
       "idli chawal",
       "idli par",
-      "इडली चावल",
-      "dosa rice"
+      "इडली चावल"
     ],
     "allergens": [],
     "vegan": true,
@@ -4371,8 +4343,7 @@
     "category": "grain",
     "aliases": [
       "jwar atta",
-      "sorghum flour",
-      "jowar seeds"
+      "sorghum flour"
     ],
     "allergens": [],
     "vegan": true,
@@ -4433,9 +4404,7 @@
     "category": "sauce",
     "aliases": [
       "classic mayonnaise",
-      "mayo",
-      "nutralite cheesy garlic mayo",
-      "achari mayo"
+      "mayo"
     ],
     "allergens": [
       "eggs"
@@ -4591,7 +4560,6 @@
     "name": "cornmeal flour",
     "category": "grain",
     "aliases": [
-      "corn flour",
       "maize flour",
       "makki ka atta"
     ],
@@ -5160,8 +5128,7 @@
     "category": "fruit",
     "aliases": [
       "fig",
-      "सूखे अंजीर",
-      "prunes"
+      "सूखे अंजीर"
     ],
     "allergens": [],
     "vegan": true,
@@ -5415,8 +5382,7 @@
     "category": "herb",
     "aliases": [
       "rose petals",
-      "गुलाब की पंखुड़ियाँ",
-      "gulkand"
+      "गुलाब की पंखुड़ियाँ"
     ],
     "allergens": [],
     "vegan": true,
@@ -5455,8 +5421,7 @@
     "name": "apricots",
     "category": "fruit",
     "aliases": [
-      "खुबानी",
-      "peaches"
+      "खुबानी"
     ],
     "allergens": [],
     "vegan": true,

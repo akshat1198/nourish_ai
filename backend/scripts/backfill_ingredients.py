@@ -63,6 +63,32 @@ class NameMaps(BaseModel):
     mappings: list[NameMap] = Field(default_factory=list)
 
 
+_AUDIT_SYSTEM = (
+    "Judge whether SOURCE is TRULY the same ingredient as CANONICAL (true, safe to "
+    "relabel) or meaningfully DIFFERENT (false). Be STRICT — accuracy matters; when "
+    "unsure answer false. Answer FALSE when they differ in:\n"
+    "- protein/meat: beef stock vs chicken broth, fish vs cod, chorizo vs pork\n"
+    "- dairy vs plant: almond milk / coconut milk vs milk (this flips diet labels)\n"
+    "- form: seeds vs flour (ragi seeds vs ragi flour, jowar seeds vs jowar flour)\n"
+    "- starch/type: cornstarch vs rice flour, oyster sauce vs soy sauce\n"
+    "- nut type: pine nuts vs cashews; fruit: peaches vs apricots\n"
+    "- chilli colour/type: red chilli / scotch bonnet / thai chilli vs green chili\n"
+    "- any other distinct item (bok choy vs cabbage, black rice vs brown rice)\n"
+    "Answer TRUE only for genuine synonyms, translations (Hindi→English), oil "
+    "variants→a generic oil, salt/sugar/flour variants, 'ground/fresh/chopped/"
+    "melted/unsalted X'→X, and cheese→paneer (Indian context)."
+)
+
+
+class AliasJudge(BaseModel):
+    source: str
+    same: bool = Field(..., description="True if genuinely the same ingredient")
+
+
+class AliasJudges(BaseModel):
+    judgements: list[AliasJudge] = Field(default_factory=list)
+
+
 def _load() -> list[dict]:
     return json.loads(INGREDIENTS.read_text())
 
@@ -140,7 +166,56 @@ def cmd_map(limit: int) -> None:
         print(f"  {src!r:32} -> {canon or '(none)'}")
 
 
-def cmd_apply(limit: int) -> None:
+def cmd_audit() -> None:
+    """Judge each rename candidate (display→canonical, different name) as a true
+    synonym or a loose stand-in; remove the stand-in aliases so nothing is
+    mislabelled (accuracy > coverage)."""
+    if not is_enabled():
+        print("ANTHROPIC_API_KEY not set — cannot audit.")
+        sys.exit(1)
+    ings = _load()
+    matcher = CanonicalMatcher(ings)
+    with SessionLocal() as s:
+        counter = _display_counter(s)
+    cands: dict[str, str] = {}
+    for name in counter:
+        ca = matcher.match(name)
+        if ca and normalize(ca) != normalize(name):
+            cands[name] = ca
+    sources = sorted(cands, key=lambda n: -counter[n])
+    print(f"auditing {len(sources)} rename candidates…")
+
+    drop: set[str] = set()
+    for i in range(0, len(sources), BATCH):
+        chunk = sources[i : i + BATCH]
+        pairs = "\n".join(f"- {s} -> {cands[s]}" for s in chunk)
+        try:
+            res = get_llm().generate_structured(
+                messages=[{"role": "user", "content": f"{_AUDIT_SYSTEM}\n\nPairs:\n{pairs}"}],
+                schema=AliasJudges, model=settings.LLM_MODEL_MAIN, max_tokens=3000,
+            )
+        except LLMError as e:
+            print(f"  ! audit batch {i // BATCH} failed: {e}")
+            continue
+        for j in res.judgements:
+            if not j.same:
+                drop.add(normalize(j.source))
+        print(f"  audited batch {i // BATCH + 1}/{-(-len(sources) // BATCH)}")
+
+    removed: list[str] = []
+    for ing in ings:
+        al = ing.get("aliases", [])
+        kept = [a for a in al if normalize(a) not in drop]
+        if len(kept) != len(al):
+            removed += [f"{a} (was → {ing['name']})" for a in al if normalize(a) in drop]
+            ing["aliases"] = kept
+    INGREDIENTS.write_text(json.dumps(ings, ensure_ascii=False, indent=2) + "\n")
+    print(f"\nremoved {len(removed)} inaccurate aliases:")
+    for r in removed[:40]:
+        print(f"  - {r}")
+
+
+def cmd_apply(limit: int, relabel: bool) -> None:
     props = load_props()
     ings = _load()
     matcher = CanonicalMatcher(ings)
@@ -151,27 +226,37 @@ def cmd_apply(limit: int) -> None:
         recipes = list(s.execute(q).scalars())
         if limit:
             recipes = recipes[:limit]
-        print(f"re-linking + re-deriving {len(recipes)} recipes…")
+        print(f"re-linking{' + relabeling' if relabel else ''} + re-deriving {len(recipes)} recipes…")
 
-        relinked = renutri = 0
+        relinked = renutri = relabelled = 0
         for n, r in enumerate(recipes, 1):
             matched_for_derive: list[tuple] = []
             new_ri: list[tuple] = []
             seen: set[int] = set()
-            for line in r.ingredients or []:
+            new_display: list[dict] = []
+            changed = False
+            for line in (r.ingredients or []):
+                line = dict(line)
                 canon = matcher.match(line.get("name", ""))
-                if not canon:
-                    continue
-                iid = name_to_id.get(canon)
-                if iid is None or iid in seen:
-                    continue
-                seen.add(iid)
-                qty, unit = line.get("qty"), line.get("unit")
-                essential = line.get("essential", True)
-                new_ri.append((iid, qty, unit, essential))
-                measure = f"{qty if qty is not None else ''} {unit or ''}".strip()
-                grams = measure_to_grams(props, canon, measure)
-                matched_for_derive.append((canon, grams, essential))
+                if canon:
+                    iid = name_to_id.get(canon)
+                    if iid is not None and iid not in seen:
+                        seen.add(iid)
+                        qty, unit = line.get("qty"), line.get("unit")
+                        essential = line.get("essential", True)
+                        new_ri.append((iid, qty, unit, essential))
+                        measure = f"{qty if qty is not None else ''} {unit or ''}".strip()
+                        matched_for_derive.append((canon, measure_to_grams(props, canon, measure), essential))
+                    if relabel and normalize(canon) != normalize(line.get("name", "")):
+                        line["name"] = canon  # show the accurate canonical name
+                        changed = True
+                new_display.append(line)
+
+            if relabel and changed:
+                r.ingredients = new_display
+                r.steps_rich = None  # re-enrich so the method uses the corrected name
+                r.ingredients_rich = None
+                relabelled += 1
 
             s.execute(delete(RecipeIngredient).where(RecipeIngredient.recipe_id == r.id))
             for iid, qty, unit, essential in new_ri:
@@ -194,22 +279,27 @@ def cmd_apply(limit: int) -> None:
                 s.commit()
                 print(f"  {n}/{len(recipes)}…")
         s.commit()
-        print(f"done. re-linked={relinked}, nutrition recomputed={renutri}")
+        print(f"done. re-linked={relinked}, relabelled={relabelled}, nutrition recomputed={renutri}")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--map", action="store_true", help="LLM-map top unmapped names to aliases")
+    ap.add_argument("--audit", action="store_true", help="drop inaccurate stand-in aliases")
     ap.add_argument("--apply", action="store_true", help="re-link + re-derive the corpus")
+    ap.add_argument("--relabel", action="store_true",
+                    help="with --apply: rename display ingredients to their canonical")
     ap.add_argument("--limit", type=int, default=200,
                     help="--map: top-N names; --apply: max recipes (0=all)")
     args = ap.parse_args()
     if args.map:
         cmd_map(args.limit)
+    elif args.audit:
+        cmd_audit()
     elif args.apply:
-        cmd_apply(args.limit if args.limit != 200 else 0)
+        cmd_apply(args.limit if args.limit != 200 else 0, args.relabel)
     else:
-        ap.error("pass --map or --apply")
+        ap.error("pass --map, --audit, or --apply")
 
 
 if __name__ == "__main__":
