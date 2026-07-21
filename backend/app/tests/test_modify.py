@@ -387,6 +387,45 @@ def test_recipe_detail_prefers_steps_rich(session):
 
 
 @requires_db
+def test_modify_swap_from_noncanonical_display_name(session, monkeypatch):
+    # Recipes can carry source-worded display lines ("cheese", "oil") that don't
+    # map to our vocabulary. Swapping FROM one must work (via the LLM path), not
+    # 422 with "unknown ingredient".
+    from app.schemas.llm import FreeSwapAdaptation
+    from app.services import modify
+
+    r = session.execute(
+        select(Recipe).where(Recipe.title == "Tomato Garlic Pasta")
+    ).scalar_one()
+    orig = r.ingredients
+    r.ingredients = list(orig) + [{"name": "cheese", "qty": None, "unit": "", "essential": True}]
+    session.commit()
+
+    monkeypatch.setattr(modify, "is_enabled", lambda: True)
+    fake = MagicMock()
+    fake.generate_structured.return_value = FreeSwapAdaptation(
+        ratio="1:1", changed_steps=[], knock_on_flags=[], added_allergens=["dairy"],
+        removed_allergens=[], enables_diets=[], breaks_diets=[], nutrition_delta=None, note="",
+    )
+    monkeypatch.setattr(modify, "get_llm", lambda: fake)
+    try:
+        resp = client.post(
+            f"/v1/recipes/{r.id}/modify",
+            json={"op": "swap", "from_ingredient": "cheese", "to_ingredient": "paneer"},
+        )
+        assert resp.status_code == 200
+        body = resp.json()
+        names = [i["name"] for i in body["ingredients"]]
+        assert "paneer" in names and "cheese" not in names
+        assert body["approximate"] is True
+    finally:
+        session.rollback()
+        row = session.get(Recipe, r.id)
+        row.ingredients = orig
+        session.commit()
+
+
+@requires_db
 def test_substitutions_merges_llm_suggestions(monkeypatch):
     from app.api import substitutions as subs_api
     from app.schemas.llm import SuggestedSwap, SuggestedSwaps

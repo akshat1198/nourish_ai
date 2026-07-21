@@ -11,6 +11,7 @@ Nutrition is NOT recomputed (a warning says so). Nothing is persisted.
 from __future__ import annotations
 
 import logging
+from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -151,10 +152,11 @@ _FREESWAP_SYSTEM = (
 
 
 def _apply_freetext_swap(
-    session: Session, recipe: Recipe, from_ing: Ingredient, to_name: str
+    session: Session, recipe: Recipe, from_name: str, from_keys: set[str], to_name: str
 ) -> ModifyResponse:
-    """Swap to an ingredient outside our vocabulary — the LLM estimates the ratio,
-    step edits, allergen/diet effects, and nutrition delta. Flagged approximate."""
+    """Swap where a side is outside our vocabulary — the target OR the source (a
+    source-worded display name like "cheese"). The LLM estimates the ratio, step
+    edits, allergen/diet effects, and nutrition delta. Flagged approximate."""
     if not is_enabled():
         raise HTTPException(
             422,
@@ -169,7 +171,7 @@ def _apply_freetext_swap(
     )
     prompt = (
         f"{_FREESWAP_SYSTEM}\n\n"
-        f'Swap: replace "{from_ing.name}" with "{to_name}".\n'
+        f'Swap: replace "{from_name}" with "{to_name}".\n'
         f"Title: {recipe.title}\nIngredients: {ing_list}\nSteps:\n{numbered}"
     )
     try:
@@ -184,7 +186,6 @@ def _apply_freetext_swap(
         raise HTTPException(503, "Couldn't adapt this swap right now — try again.")
 
     multiplier, ratio_ok = _parse_ratio(adapt.ratio)
-    from_keys = {normalize(from_ing.name)} | {normalize(a) for a in from_ing.aliases or []}
 
     # Category dots for the unchanged display lines (the free-text line has none).
     cat_by_norm: dict[str, str] = {}
@@ -245,8 +246,8 @@ def _apply_freetext_swap(
         }
 
     warnings = [
-        f"Estimated — “{to_name}” isn't in our verified data, so labels and "
-        "nutrition are approximate."
+        "Estimated — this swap involves an ingredient outside our verified data, "
+        "so labels and nutrition are approximate."
     ]
     if not nutrition:
         warnings.append(NUTRITION_WARNING)
@@ -256,7 +257,7 @@ def _apply_freetext_swap(
     return ModifyResponse(
         recipe_id=recipe.id,
         title=recipe.title,
-        swap=SwapInfo(from_ingredient=from_ing.name, to_ingredient=to_name, ratio=adapt.ratio),
+        swap=SwapInfo(from_ingredient=from_name, to_ingredient=to_name, ratio=adapt.ratio),
         ingredients=lines_out,
         steps=new_steps,
         changed_step_indexes=sorted(set(changed)),
@@ -319,18 +320,21 @@ def _subtract_nutrition(
 def _apply_remove(
     session: Session,
     recipe: Recipe,
-    from_ing: Ingredient,
+    from_name: str,
+    from_keys: set[str],
+    from_ing: Optional[Ingredient],
     index: dict,
     id_to_name: dict[int, str],
 ) -> ModifyResponse:
     """Remove an ingredient — a SMALL LLM call decides omit vs substitute and
     rewrites the affected steps; allergens/diet/nutrition are re-derived in code
     (accurate + keeps the constrained-decoding grammar small so it doesn't time
-    out)."""
+    out). `from_ing` is None for a source-worded display name outside our vocab
+    (e.g. "cheese"); then labels are left conservatively unchanged (approximate)."""
     if not is_enabled():
         raise HTTPException(
             422,
-            f"Removing “{from_ing.name}” needs the recipe assistant, which isn't configured.",
+            f"Removing “{from_name}” needs the recipe assistant, which isn't configured.",
         )
 
     steps = recipe.steps or []
@@ -340,7 +344,7 @@ def _apply_remove(
     )
     prompt = (
         f"{_REMOVE_SYSTEM}\n\n"
-        f'Remove: "{from_ing.name}".\n'
+        f'Remove: "{from_name}".\n'
         f"Title: {recipe.title}\nIngredients: {ing_list}\nSteps:\n{numbered}"
     )
     try:
@@ -359,7 +363,6 @@ def _apply_remove(
     )
     to_name = plan.substitute.strip() if substituting else ""
     to_ing = index.get(normalize(to_name)) if substituting else None
-    from_keys = {normalize(from_ing.name)} | {normalize(a) for a in from_ing.aliases or []}
     multiplier, ratio_ok = _parse_ratio(plan.ratio) if substituting else (1.0, True)
     cat_by_norm = _category_map(session)
 
@@ -400,7 +403,7 @@ def _apply_remove(
     post_names: list[str] = []
     post_items: list[tuple] = []
     for ri in recipe.recipe_ingredients:
-        if ri.ingredient_id == from_ing.id:
+        if from_ing is not None and ri.ingredient_id == from_ing.id:
             if substituting and to_ing is not None:
                 name = to_ing.name  # canonical substitute
             else:
@@ -420,23 +423,26 @@ def _apply_remove(
     baseline = recipe.nutrition or {}
     if substituting and to_ing is not None:
         nutrition, nutrition_delta = _nutrition_estimate(
-            props, baseline, from_ing.name, to_ing.name, from_keys,
+            props, baseline, from_name, to_ing.name, from_keys,
             recipe.ingredients or [], new_lines, recipe.servings,
         )
     elif not substituting:
+        # _subtract_nutrition returns ({}, {}) when from_name isn't in our props
+        # (e.g. a non-canonical display name) — honest and safe.
         nutrition, nutrition_delta = _subtract_nutrition(
-            props, baseline, from_ing.name, from_keys, recipe.ingredients or [], recipe.servings
+            props, baseline, from_name, from_keys, recipe.ingredients or [], recipe.servings
         )
     else:
         nutrition, nutrition_delta = {}, {}
 
-    # Only a free-text (unknown) substitute is truly approximate; omit and
-    # canonical-substitute re-derive labels from our own data.
-    approximate = substituting and to_ing is None
+    # Approximate when the source isn't canonical (labels can't be re-derived) or
+    # the substitute is a free-text one; omit/canonical re-derive from our data.
+    approximate = from_ing is None or (substituting and to_ing is None)
     warnings: list[str] = []
     if approximate:
+        unknown = from_name if from_ing is None else to_name
         warnings.append(
-            f"Estimated — “{to_name}” isn't in our verified data, so labels and "
+            f"Estimated — “{unknown}” isn't in our verified data, so labels and "
             "nutrition are approximate."
         )
     if not nutrition:
@@ -448,7 +454,7 @@ def _apply_remove(
         operation="remove",
         note=plan.note,
         swap=SwapInfo(
-            from_ingredient=from_ing.name,
+            from_ingredient=from_name,
             to_ingredient=to_name or "(removed)",
             ratio=plan.ratio if substituting else "—",
         ),
@@ -487,42 +493,50 @@ def modify_recipe(
             index.setdefault(normalize(alias), ing)
 
     from_ing = index.get(normalize(req.from_ingredient))
-    if from_ing is None:
-        raise HTTPException(422, f"unknown ingredient: {req.from_ingredient}")
-
-    # The recipe must actually use the from-ingredient (authoritative: the
-    # canonical join, not the source-worded display list).
+    from_norm = normalize(req.from_ingredient)
     recipe_ing_ids = {ri.ingredient_id for ri in recipe.recipe_ingredients}
-    if from_ing.id not in recipe_ing_ids:
-        raise HTTPException(422, f"recipe does not use {from_ing.name}")
+    display_names = {normalize(l.get("name", "")) for l in (recipe.ingredients or [])}
+
+    # The from-ingredient must be one the recipe actually lists — either by its
+    # canonical id, OR (for source-worded display names like "cheese"/"oil" that
+    # don't map to our vocabulary) by matching a display line. Non-canonical
+    # sources are handled via the LLM path below.
+    in_canon = from_ing is not None and from_ing.id in recipe_ing_ids
+    if not in_canon and from_norm not in display_names:
+        raise HTTPException(422, f"recipe does not use {req.from_ingredient}")
+
+    from_name = from_ing.name if in_canon else req.from_ingredient.strip()
+    from_keys = (
+        {normalize(from_ing.name)} | {normalize(a) for a in from_ing.aliases or []}
+        if in_canon
+        else {from_norm}
+    )
+    from_canon = from_ing if in_canon else None
 
     if req.op == "remove":
-        return _apply_remove(session, recipe, from_ing, index, id_to_name)
+        return _apply_remove(session, recipe, from_name, from_keys, from_canon, index, id_to_name)
 
     if not req.to_ingredient:
         raise HTTPException(422, "to_ingredient is required for a swap")
 
     to_ing = index.get(normalize(req.to_ingredient))
-    if to_ing is None:
-        # Target isn't in our vocabulary — adapt via the LLM so the cook can swap
-        # in anything (e.g. "dahi"). The result is flagged approximate.
+    # LLM (approximate) path when EITHER side is outside our vocabulary — an
+    # unknown target (e.g. "dahi") or a non-canonical source display name.
+    if to_ing is None or from_canon is None:
         return _apply_freetext_swap(
-            session, recipe, from_ing, req.to_ingredient.strip()
+            session, recipe, from_name, from_keys, req.to_ingredient.strip()
         )
 
-    # Prefer a curated ratio when we have one; otherwise 1:1 for a canonical swap
-    # (WS4: any canonical ingredient is now a valid target, not just table rows).
+    # Deterministic path: both canonical, source in the recipe. Prefer a curated
+    # ratio when we have one; otherwise 1:1 (WS4: any canonical target is valid).
     sub = session.execute(
         select(Substitution).where(
-            Substitution.ingredient_id == from_ing.id,
+            Substitution.ingredient_id == from_canon.id,
             Substitution.substitute_id == to_ing.id,
         )
     ).scalar_one_or_none()
     ratio_str = sub.ratio if sub else "1:1"
     multiplier, ratio_ok = _parse_ratio(ratio_str)
-    from_keys = {normalize(from_ing.name)} | {
-        normalize(a) for a in from_ing.aliases or []
-    }
 
     # Rewrite matching display lines (best-effort for the UI).
     new_lines: list[dict] = []
