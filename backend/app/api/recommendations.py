@@ -4,8 +4,9 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy.orm import Session
 
+from app.api.auth import get_current_user_key
 from app.api.deps import get_session
-from app.core.config import nutrition_goal_label
+from app.core.config import nutrition_goal_label, settings
 from app.core.cuisines import VALID_CUISINE_IDS
 from app.schemas.recommend import RankedRecipe, RecommendRequest, RecommendResponse
 from app.services.cache import get_cached, recommend_key, set_cached
@@ -13,6 +14,7 @@ from app.services.embedder import get_embedder
 from app.services.fallback import apply_fallback
 from app.services.ingredients import disliked_recipe_ids, resolve_pantry
 from app.services.pantry_text import parse_pantry_text
+from app.services.personalization import taste_scores, taste_vector
 from app.services.ranking import annotate, rank
 from app.services.retrieval import fetch_candidates, fetch_hybrid
 
@@ -44,12 +46,20 @@ def recommend(
     response: Response,
     session: Session = Depends(get_session),
     mode: str = Query("hybrid", pattern="^(sql|hybrid)$"),
+    user_key: str = Depends(get_current_user_key),
 ):
     bad = [c for c in req.cuisines if c not in VALID_CUISINE_IDS]
     if bad:
         raise HTTPException(422, f"unknown cuisine id(s): {', '.join(bad)}")
 
-    key = recommend_key({**req.model_dump(), "mode": mode})
+    # Stage 12: a taste vector only needs (session, user_key) — no pantry
+    # resolution required — so compute it before the cache check. Personalized
+    # results must not collide across users or with the shared cold-start
+    # cache entry, so `user` only enters the key when this user IS personalized.
+    tvec = taste_vector(session, user_key) if settings.PERSONALIZATION_ENABLED else None
+    key = recommend_key(
+        {**req.model_dump(), "mode": mode, "user": user_key if tvec is not None else None}
+    )
     cached = get_cached(key)
     if cached is not None:
         response.headers["X-Cache"] = "hit"
@@ -87,9 +97,15 @@ def recommend(
             disliked = disliked_recipe_ids(
                 session, [c.id for c in candidates], req.disliked_ingredients
             )
+            # Stage 12: personalization score per candidate — {} when the user
+            # is cold-start or the feature is off; annotate() no-ops on {}.
+            tscores = taste_scores(session, user_key, [c.id for c in candidates], tvec)
             # Rank the full pool; apply_fallback trims to req.limit (it may need
             # the wider pool to find swap-eligible recipes).
-            pool = annotate(candidates, limit=CANDIDATE_POOL, disliked_ids=disliked)
+            pool = annotate(
+                candidates, limit=CANDIDATE_POOL, disliked_ids=disliked,
+                taste_scores=tscores,
+            )
         else:
             candidates = fetch_candidates(
                 session, resolved.ingredient_ids,
@@ -100,7 +116,11 @@ def recommend(
             disliked = disliked_recipe_ids(
                 session, [c.id for c in candidates], req.disliked_ingredients
             )
-            pool = rank(candidates, limit=CANDIDATE_POOL, disliked_ids=disliked)
+            tscores = taste_scores(session, user_key, [c.id for c in candidates], tvec)
+            pool = rank(
+                candidates, limit=CANDIDATE_POOL, disliked_ids=disliked,
+                taste_scores=tscores,
+            )
         return apply_fallback(
             session, pool, resolved.ingredient_ids, limit=req.limit, disliked_ids=disliked
         )

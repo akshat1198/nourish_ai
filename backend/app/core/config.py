@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # Ranking weights (RETR-03). Bump RANKING_VERSION on any change so the
     # recommendation cache (RETR-04) invalidates.
-    RANKING_VERSION: str = "v2"  # v2: soft dislike penalty
+    RANKING_VERSION: str = "v3"  # v3: adds taste term (Stage 12 personalization)
     RANK_W_COVERAGE: float = 0.6  # reward covering essential ingredients
     RANK_W_MISSING: float = 0.3  # penalize missing ingredients
     RANK_W_TIME: float = 0.1  # reward fitting the time budget
@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     # score span (~[-0.3, 0.7]) so disliked recipes sink beneath every clean one,
     # but they stay in the list — chosen only if nothing clean fits.
     RANK_W_DISLIKE: float = 1.0
+
+    # Learned personalization (Stage 12). The taste term is applied AFTER hard
+    # filters in ranking.py — it can only reorder the already-safe set.
+    PERSONALIZATION_ENABLED: bool = True
+    RANK_W_TASTE: float = 0.15  # small — base score span is ~[-0.3, 0.7]
+    TASTE_NEG_WEIGHT: float = 0.5
+    TASTE_CACHE_TTL: int = 600
 
     # Recommendation cache (RETR-04)
     CACHE_TTL_SECONDS: int = 300

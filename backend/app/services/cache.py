@@ -36,6 +36,10 @@ def recommend_key(payload: dict) -> str:
         "max_time_minutes": payload.get("max_time_minutes"),
         "limit": payload.get("limit"),
         "mode": payload.get("mode", "hybrid"),
+        # Stage 12: personalized results must not collide across users. None
+        # for every unpersonalized request (cold-start users, or the feature
+        # disabled) so the shared cache is preserved when there's no taste term.
+        "user": payload.get("user"),
     }
     blob = json.dumps(canonical, sort_keys=True, separators=(",", ":"))
     digest = hashlib.sha256(blob.encode()).hexdigest()

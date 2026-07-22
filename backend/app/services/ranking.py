@@ -20,7 +20,11 @@ from app.core.config import settings
 from app.schemas.recommend import RankedRecipe, RecipeCandidate
 
 
-def _score(candidate: RecipeCandidate, disliked_ids: set[int] | None = None) -> float:
+def _score(
+    candidate: RecipeCandidate,
+    disliked_ids: set[int] | None = None,
+    taste_scores: dict[int, float] | None = None,
+) -> float:
     coverage = (
         candidate.matched_essential / candidate.total_essential
         if candidate.total_essential
@@ -41,6 +45,11 @@ def _score(candidate: RecipeCandidate, disliked_ids: set[int] | None = None) -> 
     # Soft demotion: sink disliked recipes beneath clean ones without removing them.
     if disliked_ids and candidate.id in disliked_ids:
         score -= settings.RANK_W_DISLIKE
+    # Personalization (Stage 12): applied here, on an already hard-filtered
+    # candidate — this can only reorder the safe set, never surface a
+    # diet/allergen violation. Small weight; 0.0 contribution if no signal.
+    if taste_scores:
+        score += settings.RANK_W_TASTE * taste_scores.get(candidate.id, 0.0)
     return score
 
 
@@ -64,11 +73,20 @@ def _why(candidate: RecipeCandidate) -> str:
     return "; ".join(parts)
 
 
-def _to_ranked(c: RecipeCandidate, disliked_ids: set[int] | None = None) -> RankedRecipe:
+def _to_ranked(
+    c: RecipeCandidate,
+    disliked_ids: set[int] | None = None,
+    taste_scores: dict[int, float] | None = None,
+) -> RankedRecipe:
     why = _why(c)
     if disliked_ids and c.id in disliked_ids:
         why += "; deprioritized (contains an ingredient you dislike)"
-    return RankedRecipe(**c.model_dump(), score=round(_score(c, disliked_ids), 4), why=why)
+    # Only claim a personalization match when the term is materially positive —
+    # keeps the explanation honest rather than firing on noise near zero.
+    if taste_scores and taste_scores.get(c.id, 0.0) > 0.15:
+        why += "; matches recipes you've saved"
+    score = round(_score(c, disliked_ids, taste_scores), 4)
+    return RankedRecipe(**c.model_dump(), score=score, why=why)
 
 
 def rank(
@@ -76,14 +94,16 @@ def rank(
     *,
     limit: int,
     disliked_ids: set[int] | None = None,
+    taste_scores: dict[int, float] | None = None,
 ) -> list[RankedRecipe]:
     """Score, then re-order by score (SQL path).
 
     `disliked_ids` (recipe ids containing a disliked ingredient) get a soft
     penalty so they sink to the bottom but remain — picked only if nothing clean
-    fits. Omitted => behaviour is identical to before.
+    fits. `taste_scores` (Stage 12) adds a small personalization term to the
+    score. Both omitted => behaviour is identical to before Stage 9/12.
     """
-    ranked = [_to_ranked(c, disliked_ids) for c in candidates]
+    ranked = [_to_ranked(c, disliked_ids, taste_scores) for c in candidates]
     ranked.sort(key=lambda r: r.score, reverse=True)
     return ranked[:limit]
 
@@ -93,16 +113,18 @@ def annotate(
     *,
     limit: int,
     disliked_ids: set[int] | None = None,
+    taste_scores: dict[int, float] | None = None,
 ) -> list[RankedRecipe]:
     """Score + explain but PRESERVE incoming order (hybrid path keeps RRF order).
 
-    `score` is the ingredient-fit score for display/explanation; ordering is the
-    caller's (fusion) relevance order, not re-sorted by score. When `disliked_ids`
-    is given, disliked recipes are stably moved to the bottom (RRF order preserved
-    within the clean group and within the disliked group) — the fusion-order
-    analogue of rank()'s score penalty.
+    `score` is the ingredient-fit (+ taste, Stage 12) score for display/
+    explanation; ordering is the caller's (fusion) relevance order, not
+    re-sorted by score. When `disliked_ids` is given, disliked recipes are
+    stably moved to the bottom (RRF order preserved within the clean group and
+    within the disliked group) — the fusion-order analogue of rank()'s score
+    penalty.
     """
-    ranked = [_to_ranked(c, disliked_ids) for c in candidates[:limit]]
+    ranked = [_to_ranked(c, disliked_ids, taste_scores) for c in candidates[:limit]]
     if disliked_ids:
         ranked.sort(key=lambda r: r.id in disliked_ids)  # stable: disliked sink last
     return ranked
