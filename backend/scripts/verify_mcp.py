@@ -29,7 +29,7 @@ async def main() -> None:
             tools = (await session.list_tools()).tools
             names = [t.name for t in tools]
             print(f"list_tools -> {len(names)} tools: {names}")
-            assert len(names) == 5, names
+            assert len(names) == 7, names
 
             # A fast, deterministic tool (no embedder).
             r1 = await session.call_tool(
@@ -48,7 +48,7 @@ async def main() -> None:
             print(f"search_recipes(pasta,tomato,garlic) -> {titles}")
             assert "Tomato Garlic Pasta" in titles
 
-    print("\nMCP server OK: 5 tools listed, deterministic + hybrid tools executed.")
+    print("\nMCP server OK: 7 tools listed, deterministic + hybrid tools executed.")
 
 
 if __name__ == "__main__":

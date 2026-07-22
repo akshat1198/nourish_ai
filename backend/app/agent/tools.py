@@ -23,6 +23,8 @@ from sqlalchemy.orm import Session
 from app.models import Ingredient, Recipe, Substitution
 from app.services.embedder import get_embedder
 from app.services.ingredients import resolve_pantry
+from app.services.pantry import get_pantry
+from app.services.plans import add_item, create_plan
 from app.services.ranking import annotate
 from app.services.retrieval import fetch_hybrid
 from app.services.shopping import build_shopping_list as _build_shopping_list
@@ -151,6 +153,40 @@ def _build_shopping_list_tool(session: Session, inp: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- #
+# check_inventory  (Stage 11 — reads the persistent pantry, Stage 5)
+# --------------------------------------------------------------------------- #
+def _check_inventory(session: Session, inp: dict) -> dict:
+    user_key = inp["user_key"]
+    items = get_pantry(session, user_key)  # list[PantryItemOut]
+    return {
+        "user_key": user_key,
+        "pantry": [
+            {"ingredient": i.ingredient, "category": i.category, "is_staple": i.is_staple}
+            for i in items
+        ],
+    }
+
+
+# --------------------------------------------------------------------------- #
+# save_meal_plan  (Stage 11 — writes into Stage 10's meal_plans)
+# --------------------------------------------------------------------------- #
+def _save_meal_plan(session: Session, inp: dict) -> dict:
+    user_key = inp["user_key"]
+    recipe_ids = inp["recipe_ids"]
+    # skip ids that don't exist so add_item's FK never errors
+    valid = [rid for rid in recipe_ids if session.get(Recipe, rid) is not None]
+    plan = create_plan(session, user_key, inp["name"])
+    for rid in valid:
+        add_item(session, user_key, plan.id, rid, None)
+    return {
+        "plan_id": plan.id,
+        "name": plan.name,
+        "added": len(valid),
+        "skipped": [r for r in recipe_ids if r not in valid],
+    }
+
+
+# --------------------------------------------------------------------------- #
 # Registry
 # --------------------------------------------------------------------------- #
 TOOLS: dict[str, ToolSpec] = {
@@ -245,6 +281,40 @@ TOOLS: dict[str, ToolSpec] = {
             "additionalProperties": False,
         },
         fn=_build_shopping_list_tool,
+    ),
+    "check_inventory": ToolSpec(
+        name="check_inventory",
+        description=(
+            "Return the user's saved pantry (on-hand + staples). Call to see what "
+            "they already have before suggesting a shopping list."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "user_key": {"type": "string"},
+            },
+            "required": ["user_key"],
+            "additionalProperties": False,
+        },
+        fn=_check_inventory,
+    ),
+    "save_meal_plan": ToolSpec(
+        name="save_meal_plan",
+        description=(
+            "Persist a named meal plan of recipe ids for the user. Returns the new "
+            "plan_id."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "user_key": {"type": "string"},
+                "name": {"type": "string"},
+                "recipe_ids": {"type": "array", "items": {"type": "integer"}},
+            },
+            "required": ["user_key", "name", "recipe_ids"],
+            "additionalProperties": False,
+        },
+        fn=_save_meal_plan,
     ),
 }
 
