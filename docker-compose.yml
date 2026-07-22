@@ -14,6 +14,7 @@ services:
       # + set AUTH_SHARED_SECRET (matching the frontend) once Google is wired.
       AUTH_MODE: ${AUTH_MODE:-disabled}
       AUTH_SHARED_SECRET: ${AUTH_SHARED_SECRET:-}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}  # Stage 14: observability gate; unset = locked
     depends_on:
       db:
         condition: service_healthy

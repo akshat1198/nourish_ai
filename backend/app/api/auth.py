@@ -39,3 +39,11 @@ def get_current_user_key(request: Request) -> str:
     if not sub:
         raise HTTPException(401, "token missing sub")
     return f"google:{sub}"
+
+
+def require_admin(request: Request) -> None:
+    """Gate for the Stage-14 observability endpoints. Fail-closed: an unset
+    ADMIN_TOKEN locks the route regardless of what header a caller sends."""
+    token = settings.ADMIN_TOKEN
+    if not token or request.headers.get("X-Admin-Token") != token:
+        raise HTTPException(403, "admin access required")

@@ -72,6 +72,10 @@ class Settings(BaseSettings):
     NUTRI_LOW_FAT_G: float = 10.0  # fat_g <=
     NUTRI_LOW_CARB_G: float = 20.0  # carbs_g <=
 
+    # Observability admin gate (Stage 14). Fail-closed: an unset token locks
+    # the endpoint even if a caller somehow supplies a matching empty header.
+    ADMIN_TOKEN: str = ""
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
