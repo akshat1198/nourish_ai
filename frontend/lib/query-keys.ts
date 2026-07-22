@@ -23,6 +23,7 @@ export const queryKeys = {
   saved: ["saved"] as const,
   plans: ["plans"] as const,
   plan: (id: number) => ["plan", id] as const,
+  planShopping: (id: number) => ["plan-shopping", id] as const,
   ingredients: (q: string) => ["ingredients", q] as const,
   cuisines: ["cuisines"] as const,
   recipe: (id: number) => ["recipe", id] as const,

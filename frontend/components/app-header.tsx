@@ -23,6 +23,9 @@ export function AppHeader() {
           <Link href="/app/saved" className="transition-colors hover:text-foreground">
             Saved
           </Link>
+          <Link href="/app/plans" className="transition-colors hover:text-foreground">
+            Plans
+          </Link>
         </nav>
       </div>
       <div className="flex items-center gap-3">

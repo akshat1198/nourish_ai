@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, CookingPot, ThumbsDown, ThumbsUp } from "lucide-react";
+import { AddToPlan } from "@/components/recipe/add-to-plan";
 import { SaveButton } from "@/components/recipe/save-button";
 import { useFeedback } from "@/lib/hooks/use-feedback";
 import { useRecipeFeedback } from "@/lib/hooks/use-user-feedback";
@@ -27,6 +28,7 @@ export function RecipeActions({ recipe }: { recipe: RecipeDetail }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <SaveButton summary={summary} />
+      <AddToPlan recipeId={recipeId} />
       <ActionButton
         active={made}
         onClick={() => send(made ? "uncooked" : "cooked")}
