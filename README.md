@@ -1,6 +1,6 @@
 # NourishAI
 
-NourishAI turns what's in your pantry into recipes you can actually cook tonight. Tell it your ingredients and tonight's mood — cuisine, meal, diet, allergens, time, nutrition goals — and it returns ranked, diet- and allergen-safe recipes drawn from a ~7,600-recipe corpus, with smart substitutions, an adaptive method, serving-size scaling, and a shopping list for anything you're missing.
+NourishAI turns what's in your pantry into recipes you can actually cook tonight. Tell it your ingredients and tonight's mood — cuisine, meal, diet, allergens, time, nutrition goals — through a guided, one-filter-per-page flow, and it returns ranked, diet- and allergen-safe recipes drawn from a ~7,600-recipe corpus, with smart substitutions, an adaptive method, serving-size scaling, and a shopping list for anything you're missing. Save recipes, group them into meal plans with a combined shopping list, and the more you cook, save, and dismiss, the better it gets at ranking for your taste.
 
 It's a full-stack, working application built to demonstrate **production-oriented LLM patterns**: hybrid retrieval-augmented generation, deterministic-first validation, structured model outputs, tool/function calling, a single-agent loop, and a multi-agent LangGraph orchestrator exposed over MCP.
 
@@ -15,24 +15,28 @@ It's a full-stack, working application built to demonstrate **production-oriente
 - [Local Development](#local-development)
 - [Testing & CI](#testing--ci)
 - [Repository Structure](#repository-structure)
-- [Roadmap — Upcoming Features](#roadmap--upcoming-features)
+- [Project Status](#project-status)
 - [License](#license)
 
 ## What It Does
 
-1. **Stock a pantry** — add ingredients (with autocomplete over a canonical vocabulary and aliases) plus everyday staples; it's saved per user. Generic picks like "chicken" match any member (breast *or* thigh).
-2. **Set tonight's mood** — a short questionnaire: cuisine (two-level taxonomy), meal type, diet, allergens to avoid, dislikes, time cap, and nutrition goals (high-protein / low-fat / low-carb / low-calorie, with the actual thresholds shown).
-3. **Get ranked recipes** — hybrid SQL + vector retrieval, fused and hard-filtered for diet/allergen/time, ranked by pantry match with a plain-English "why." If strict filters match nothing, it **relaxes the soft ones and shows the closest matches** rather than a dead end.
-4. **Open a recipe** — an enriched method (prep state + cooking cues), serving-size scaling, a cook-along ingredient checklist, per-serving nutrition, and provenance/attribution.
-5. **Adapt it** — swap any ingredient (curated + LLM-suggested alternatives, or free-text), or remove one and let the assistant omit it or substitute the best alternative — with the steps, allergens, diet labels, and nutrition all re-derived.
-6. **Shop the gap** — a consolidated shopping list of what you're missing across chosen recipes.
+1. **Stock a pantry** — add ingredients (with autocomplete over a canonical vocabulary and aliases) plus everyday staples, or just describe what you have in a sentence ("half a bag of spinach, a couple eggs") and let a fast LLM pass parse it. Saved per user. Generic picks like "chicken" match any member (breast *or* thigh).
+2. **Walk a guided flow** — one filter per page (cuisine, meal, diet, allergens, dislikes & time), with Back/Next and a URL for every step. Earlier answers narrow later ones: picking Vegan grays out the allergens it already guarantees (dairy, eggs, fish, shellfish) instead of asking you to redundantly re-pick them. An editable review screen shows everything before you search.
+3. **Get ranked recipes** — hybrid SQL + vector retrieval, fused and hard-filtered for diet/allergen/time, ranked by pantry match with a plain-English "why." Ranking also gently favors recipes similar to ones you've saved, cooked, or liked — a lightweight personalization term applied strictly after every safety filter, so it can reorder but never surface something unsafe. If strict filters match nothing, it **relaxes the soft ones and shows the closest matches** rather than a dead end.
+4. **Curate the results** — save a recipe for later, add it straight to a meal plan, or dismiss one you're not interested in (it drops out of the list and teaches future rankings to favor it less).
+5. **Open a recipe** — an enriched method (prep state + cooking cues), serving-size scaling, a cook-along ingredient checklist, per-serving nutrition, provenance/attribution, and a quick "Made this" / like.
+6. **Adapt it** — swap any ingredient (curated + LLM-suggested alternatives, or free-text), or remove one and let the assistant omit it or substitute the best alternative — with the steps, allergens, diet labels, and nutrition all re-derived.
+7. **Shop the gap** — a shopping list of what you're missing, either for one recipe or consolidated across an entire meal plan.
 
 ## Features
 
 **Discovery & ranking**
+- A guided, one-filter-per-page flow (pantry → cuisine → meal → diet → allergens → dislikes/time → review → results) — every step is a real URL, Back/Forward work, and answers persist across a refresh.
+- **Cross-step awareness:** a diet choice grays out (and won't let you redundantly re-add) allergens it already guarantees excluded — e.g. Vegan implies dairy/eggs/fish/shellfish, Vegetarian implies fish/shellfish, Gluten-free implies gluten. Grounded in the same rule the backend uses to derive those labels, not a guess.
 - Pantry-based hybrid retrieval (deterministic SQL ingredient match **+** pgvector semantic search, fused with Reciprocal Rank Fusion).
 - Hard filters (diet, allergens, time, cuisine, meal type, nutrition thresholds) applied post-fusion so a semantically-similar but non-compliant recipe can never leak in.
 - Weighted ranking with a human-readable `why`; disliked ingredients demoted, not excluded.
+- **Learned personalization:** a per-user taste vector (mean embedding of recipes you've saved/cooked/liked, minus a fraction of ones you've dismissed) nudges ranking toward your taste. Applied strictly *after* every hard filter, so it can only reorder the already-safe set — it can be disabled outright, and it's A/B-gated per session (a `control` arm never personalizes, so the effect can actually be measured).
 - **Graceful fallbacks:** `substitution_first` (reachable by swapping something you have), `shopping_assisted` (closest + what to buy), and `relaxed` (soft filters set aside when nothing matches — diet/allergen never relaxed).
 - Free-text pantry parsing ("half a bag of spinach and a couple eggs") via a fast LLM pass, merged into retrieval.
 
@@ -45,6 +49,12 @@ It's a full-stack, working application built to demonstrate **production-oriente
 - **Cook-along checklist:** tick ingredients off as you use them (strikethrough, per-line, session-only).
 - Post-swap/removal nutrition and allergen deltas, flagged when estimated.
 
+**Saving, planning & feedback**
+- **Save** any recipe (from a result card or its detail page) into a Saved list you can return to.
+- **Meal plans:** group recipes under a named plan with a free-text label per item ("Mon dinner"), and pull one **consolidated shopping list across the whole plan** — the pantry is excluded automatically.
+- **Feedback loop:** mark a recipe "Made this" or like it from its detail page; **dismiss** a result you're not interested in directly from the results list — it disappears from that view and feeds the personalization signal above (there's deliberately no separate dislike control on the recipe page; dismiss is the one place a negative signal comes from).
+- The append-only interaction log behind all of this also powers avoid-repeat recommendations and the recency-aware agent prompt.
+
 **Personalization & safety**
 - Per-user pantry, saved filter defaults, dislikes, and recency-aware avoid-repeats.
 - Diet / allergen / nutrition are **derived from canonical ingredient properties**, never hand-tagged, with a keyword safety backstop so an unmatched meat/fish/egg line can't mislabel a dish vegan.
@@ -53,15 +63,22 @@ It's a full-stack, working application built to demonstrate **production-oriente
 **Agentic layers**
 - A single-agent tool-calling loop (`/v1/agent/recommend`) with a **deterministic validator + repair loop** and a hard fallback to a constraint-clean plan.
 - A multi-agent **LangGraph** orchestrator (`/v1/orchestrate/plan`) — pantry analyst → recipe planner → safety/nutrition → shopping → supervisor, with session checkpointing.
-- The tool registry is also exposed over **MCP** (stdio) for use from MCP clients.
+- A **7-tool registry** (search, allergen check, substitutions, nutrition, shopping list, pantry read, meal-plan write) shared by both agent engines and exposed over **MCP** (stdio) for any MCP client.
+
+**Analytics & observability**
+- Lightweight event capture (results shown, recipe opened, cooked, saved, dismissed) tagged with a persisted per-browser session id — fire-and-forget, never blocks the UI.
+- Deterministic session-level A/B bucketing (a `ranking_ab` experiment: `control` vs `personalized`) with a per-variant summary endpoint, so personalization's effect is measurable, not just assumed.
+- An admin-gated metrics rollup over telemetry that's already being logged — request latency (p50/p95), degraded/repair rates, constraint-violation counts, token usage, and cache hit-rate — read-only, fail-closed behind a token, no new data model.
 
 ## How It Works
 
 ```text
 ┌────────────────────────────────────────────────────────────────┐
 │                    Frontend  (Next.js / React)                  │
-│   pantry · filters · recipe detail · swap & remove · checklist  │
-│   · serving scaling · Google sign-in                            │
+│   guided paged flow (pantry→filters→review→results) · recipe    │
+│   detail · swap & remove · checklist · serving scaling ·        │
+│   saved · meal plans · feedback (made this/like/dismiss) ·      │
+│   Google sign-in                                                │
 └───────────────────────────────┬────────────────────────────────┘
                                  │  JSON request
                                  │  (X-User-Key dev · Bearer JWT prod)
@@ -72,7 +89,9 @@ It's a full-stack, working application built to demonstrate **production-oriente
 └───────────────────────────────┬────────────────────────────────┘
                                  ▼
 ┌────────────────────────────────────────────────────────────────┐
-│  Recommend endpoint  ·  Redis cache (key: pantry+filters+mode) │
+│  Recommend endpoint  ·  Redis cache (key: pantry+filters+mode  │
+│  +user+variant; skipped entirely for personalized responses,   │
+│  which are inherently per-user and feedback-driven)            │
 └──────────────┬──────────────────────────────────┬──────────────┘
           hit  │                                   │  miss
                ▼                                   ▼
@@ -93,6 +112,9 @@ It's a full-stack, working application built to demonstrate **production-oriente
                                 ┌───────────────────────────────────┐
                                 │   Ranking  +  "why"               │
                                 │   dislikes demoted (soft) ·       │
+                                │   personalization term (taste     │
+                                │   vector from saved/cooked/liked, │
+                                │   A/B-gated, safety-fenced) ·     │
                                 │   relax soft filters if empty ·   │
                                 │   fallback mode → normal /        │
                                 │   substitution_first /            │
@@ -130,14 +152,14 @@ It's a full-stack, working application built to demonstrate **production-oriente
                                  ▼
 ┌────────────────────────────────────────────────────────────────┐
 │                    Logging & Evaluation                        │
-│   generation_events · agent_traces · cache metrics ·           │
-│   offline eval harnesses (retrieval hit@k / MRR ·              │
-│   agent pass-rate / cost)                                      │
-│   [ online analytics / A-B — planned: see ROADMAP.md ]         │
+│   generation_events · agent_traces · online events (shown/     │
+│   opened/cooked/saved/dismissed) + A/B summary · cache metrics  │
+│   · offline eval harnesses (retrieval hit@k / MRR · agent       │
+│   pass-rate / cost) · admin metrics rollup (GET /v1/admin/…)   │
 └────────────────────────────────────────────────────────────────┘
 ```
 
-Basic recommendations run the deterministic spine (retrieval → filter → rank → fallback) with **no LLM in the hot path**; the LLM Adapter + Validator/Safety Net sit on the paths that do use a model — free-text pantry parsing, recipe enrichment, swap/remove adaptation, and the agent/orchestrator endpoints.
+Basic recommendations run the deterministic spine (retrieval → filter → rank → fallback) with **no LLM in the hot path**; the LLM Adapter + Validator/Safety Net sit on the paths that do use a model — free-text pantry parsing, recipe enrichment, swap/remove adaptation, and the agent/orchestrator endpoints. Personalization is also LLM-free — a cosine similarity over existing recipe embeddings, cached in Redis per user.
 
 Everything the LLM produces is **re-validated deterministically** against the database (recipe exists, allergens, diet, time), and every generation is logged (`generation_events`, `agent_traces`).
 
@@ -145,7 +167,7 @@ Everything the LLM produces is **re-validated deterministically** against the da
 
 - **Hybrid RAG** grounded entirely in the internal corpus — no hallucinated recipes; the model shortlists, adapts, and explains, it doesn't invent.
 - **Structured outputs** via Anthropic's typed `messages.parse(output_format=…)` with Pydantic schemas; kept small deliberately (a lesson learned: large/nested schemas blow the constrained-decoding grammar budget).
-- **Tool/function calling** for deterministic checks (search, allergens, substitutions, nutrition, shopping list) — the LLM selects tools, code does the work.
+- **Tool/function calling** for deterministic checks (search, allergens, substitutions, nutrition, shopping list, pantry read, meal-plan write — 7 tools) — the LLM selects tools, code does the work.
 - **Validation & repair loop** — violations are fed back to the model (capped), then a deterministic constraint-clean plan is the hard floor (`degraded=true`).
 - **Fail-open everywhere** — with no API key or on an LLM error, every path degrades to the deterministic result and still returns 200.
 - **Cost/latency control** — Redis cache on the fast path; `haiku` for cheap parsing, `sonnet` for reasoning; the LangGraph engine measured ~4.8× cheaper / ~2.7× faster than the raw loop for the same correctness.
@@ -155,9 +177,9 @@ Everything the LLM produces is **re-validated deterministically** against the da
 
 **Frontend** — Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · shadcn/Radix · TanStack Query 5 · Auth.js (NextAuth v5, Google OAuth) · next-themes
 
-**Backend** — FastAPI · SQLAlchemy 2 · PostgreSQL + pgvector · Redis · Alembic (10 migrations) · Python 3.12
+**Backend** — FastAPI · SQLAlchemy 2 · PostgreSQL + pgvector · Redis · Alembic (12 migrations) · Python 3.12
 
-**AI/ML** — Anthropic Claude (Sonnet + Haiku behind a thin adapter) · sentence-transformers (MiniLM, 384-dim, HNSW cosine) · LangGraph + langchain-anthropic · MCP (stdio server)
+**AI/ML** — Anthropic Claude (Sonnet + Haiku behind a thin adapter) · sentence-transformers (MiniLM, 384-dim, HNSW cosine) · numpy (personalization cosine similarity, metrics percentiles) · LangGraph + langchain-anthropic · MCP (stdio server)
 
 **Dev/Ops** — Docker Compose (db · redis · backend) · Pytest · GitHub Actions CI (backend pytest + frontend lint/build) · Black/isort/Flake8/ESLint
 
@@ -172,9 +194,15 @@ Base: `http://localhost:8000`. All app routes are under `/v1`. Auth is an `X-Use
 | `GET /v1/ingredients?q=` | Ingredient autocomplete (canonical + aliases + generics) |
 | `GET /v1/cuisines` | Cuisine taxonomy with live per-node counts |
 | `GET /v1/pantry` · `PUT /v1/pantry` | Per-user pantry (staples, alias resolution) |
+| `POST /v1/pantry/parse` | Free-text pantry → recognized ingredients (LLM parse; doesn't mutate the pantry) |
 | `GET /v1/profile/{key}` · `PUT /v1/profile/{key}` | Saved diet/allergen/dislikes/cuisine defaults |
-| `POST /v1/feedback` | Record an interaction (recipe_id, action) |
-| `POST /v1/recommendations` | Hybrid retrieval + ranking + fallback modes |
+| `POST /v1/feedback` | Record an interaction (recipe_id, action — cooked/uncooked/liked/disliked/unrated) |
+| `GET /v1/feedback/{key}` | Derived per-recipe feedback state (made / rating) |
+| `GET /v1/saved` · `POST /v1/saved` · `DELETE /v1/saved/{id}` | Bookmark a recipe (idempotent add) |
+| `GET /v1/plans` · `POST /v1/plans` · `GET /v1/plans/{id}` · `DELETE /v1/plans/{id}` | Meal plans |
+| `POST /v1/plans/{id}/items` · `DELETE /v1/plans/{id}/items/{recipe_id}` | Add/remove a recipe in a plan |
+| `GET /v1/plans/{id}/shopping-list` | Combined shopping list across a plan's recipes, pantry excluded |
+| `POST /v1/recommendations` | Hybrid retrieval + ranking + fallback modes (+ personalization, A/B variant) |
 | `POST /v1/shopping-list` | Aggregate missing ingredients across recipes |
 | `POST /v1/substitutions` | Curated + LLM substitution suggestions for an ingredient |
 | `GET /v1/recipes/{id}` | Recipe detail (prefers enriched steps/measures) |
@@ -184,6 +212,9 @@ Base: `http://localhost:8000`. All app routes are under `/v1`. Auth is an `X-Use
 | `POST /v1/orchestrate/plan` | LangGraph multi-agent plan (session-checkpointed) |
 | `GET /v1/traces/{session_id}` | Orchestrator run traces |
 | `GET /v1/metrics/cache` | Recommendation cache hit/miss metrics |
+| `POST /v1/events` | Log an analytics event (session-scoped, fire-and-forget) |
+| `GET /v1/experiments/{name}/summary` | Per-variant event counts for an A/B experiment |
+| `GET /v1/admin/metrics` | Admin-gated observability rollup (latency, degraded/repair rates, tokens, cache, events) |
 
 ## Data & Ingestion
 
@@ -208,7 +239,7 @@ python scripts/embed_recipes.py
 cd frontend && npm install && npm run dev   # http://localhost:3000
 ```
 
-Config is via environment variables (`.env` for the backend, `frontend/.env.local` for the web app) — `AUTH_MODE` (`disabled` | `jwt`), `AUTH_SHARED_SECRET`, `CORS_ORIGINS`, `ANTHROPIC_API_KEY`, and the Google OAuth client for sign-in. The large scraped corpora and the alias-backfill scripts run manually (see `backend/scripts/`).
+Config is via environment variables (`.env` for the backend, `frontend/.env.local` for the web app) — `AUTH_MODE` (`disabled` | `jwt`), `AUTH_SHARED_SECRET`, `CORS_ORIGINS`, `ANTHROPIC_API_KEY`, and the Google OAuth client for sign-in. Optional: `PERSONALIZATION_ENABLED` (default on), `EXPERIMENT_VARIANTS` (default `control,personalized`), and `ADMIN_TOKEN` to unlock `GET /v1/admin/metrics` (unset = the route stays locked). The large scraped corpora and the alias-backfill scripts run manually (see `backend/scripts/`).
 
 ## Testing & CI
 
@@ -221,37 +252,27 @@ Config is via environment variables (`.env` for the backend, `frontend/.env.loca
 ```text
 backend/
   app/
-    api/            # FastAPI routers (recommendations, recipes, pantry, agent, orchestrate, …)
-    agent/          # tool registry, single-agent loop, prompts
+    api/            # FastAPI routers (recommendations, recipes, pantry, saved, plans, events, admin, agent, orchestrate, …)
+    agent/          # tool registry (7 tools), single-agent loop, prompts
     orchestrator/   # LangGraph graph + nodes
-    services/       # retrieval, ranking, modify, enrich, derivation, ingredients, fallback
+    services/       # retrieval, ranking, personalization, modify, enrich, derivation, ingredients,
+                     #   fallback, saved, plans, events, experiments, metrics, cache
     llm/            # Anthropic adapter
     models/ · schemas/ · core/ · evals/ · tests/
-  alembic/          # migrations (0001–0010)
+  alembic/          # migrations (0001–0012)
   scripts/          # seed, embed, ingestion pipeline, canonicalization backfill
   seed_data/        # ingredients.json (canonical vocab), recipes.json, substitutions.json
 frontend/
-  app/              # App Router pages (/ landing, /app, /recipes/[id], /login)
-  components/       # filters, pantry, recipe, results, landing, ui
-  lib/ · types/     # api client, hooks, query keys
+  app/              # App Router pages: / landing, /app pantry, /app/filters/[step], /app/results,
+                     #   /app/saved, /app/plans(/[id]), /recipes/[id], /login
+  components/       # filters (steps/), pantry, recipe, results, landing, ui
+  lib/              # api client, hooks, query keys, flow/ (paged-flow context + steps), track.ts
 docker-compose.yml · README.md · ROADMAP.md
 ```
 
-## Roadmap — Upcoming Features
+## Project Status
 
-The core product (pantry → ranked, safe recipes → adapt → shop) is complete. The following are the planned next capabilities — what each should look like from the user's side. The implementation approach for each is drafted in **[ROADMAP.md](ROADMAP.md)**.
-
-1. **Ratings & feedback loop (UI).** On a recipe: a "Made this," a thumbs up/down, and a "Save." On a result card: quick save/dismiss. These capture the signals the backend already has a home for (`interaction_history`), turning the one-way "recommended" log into a real loop. *Looks like:* small, unobtrusive controls on the recipe header and result cards, with a lightweight toast confirmation and a "Saved / Cooked" state that persists per user.
-
-2. **Saved recipes & meal planning.** A "Saved" area the user can return to, and the ability to add recipes to a simple **meal plan** (e.g. a few dinners this week) whose combined shopping list is one tap away. *Looks like:* a saved/favorites list on `/app`, a "Add to plan" action, a `/plan` view with day slots, and a consolidated shopping list across the plan.
-
-3. **Learned personalization.** Beyond explicit prefs, gently bias ranking from behavior — recipes similar to ones you saved/cooked rank higher; ones you dismissed sink. *Looks like:* no new UI, just better ordering over time, with a small "Because you liked …" explanation string, kept honest and overridable.
-
-4. **Online analytics & A/B.** A minimal experimentation layer: assign a ranking/prompt variant per session, log outcome events (view, open, cook, save, time-to-answer), and compare variants. *Looks like:* invisible to users; a backend events table + a summary endpoint, and offline/online metric parity with the existing eval harnesses.
-
-5. **Observability surface.** A small internal dashboard (or metrics endpoint set) for request latency, LLM cost/usage, failure/degraded rates, and constraint-violation counts — built on the data already logged in `generation_events` / `agent_traces`. *Looks like:* an admin-only `/metrics`-style page or Grafana-friendly JSON.
-
-6. **Completing the MCP tool surface.** Add `check_inventory` (pantry as a first-class agent tool) and `save_meal_plan` (persist a plan) so an MCP client or the agent can read the pantry and write a plan, closing the loop between discovery and action.
+The product described above — pantry → guided flow → ranked, safe recipes → save/plan/adapt → shop, plus personalization, online analytics, and an observability endpoint — is fully implemented and tested. **[ROADMAP.md](ROADMAP.md)** keeps the implementation notes for how each capability was built (useful context for extending them), but nothing from it is currently outstanding. There's no active roadmap queued right now.
 
 ## License
 

@@ -1,6 +1,8 @@
 # NourishAI — Implementation Roadmap
 
-Draft plans for the upcoming features described in the [README](README.md#roadmap--upcoming-features). Each is scoped to the *existing* architecture — most reuse tables, endpoints, and components already in place. Ordered by impact-to-effort.
+**Status: all phases below are shipped.** This file is kept as the implementation-notes record of how each capability was built — useful context if you're extending one of them — not a queue of upcoming work. See the README's [Features](README.md#features) and [API](README.md#api) sections for the current, user-facing description of what exists today.
+
+Each phase was scoped to the *existing* architecture — most reuse tables, endpoints, and components already in place. Originally ordered by impact-to-effort; built in the order: UX redesign → Phase 1 (feedback) → Phase 2 (saved/plans) → Phase 6 (MCP tools) → Phase 3 (personalization) → Phase 4 (analytics/A-B) → Phase 5 (observability).
 
 **Conventions used throughout:** derive don't hand-tag; deterministic-first with LLM fail-open; keep user edits ephemeral unless persistence is the feature; per-user identity via `X-User-Key` (dev) / verified bearer (`jwt`); DB-backed tests discover rows dynamically; commit per slice with a live demo.
 
