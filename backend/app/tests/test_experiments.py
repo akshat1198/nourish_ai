@@ -2,11 +2,10 @@
 import uuid
 
 from fastapi.testclient import TestClient
-from sqlalchemy import select
 
 from app.core.config import settings
 from app.main import app
-from app.models import Recipe, SavedRecipe
+from app.models import SavedRecipe
 from app.services.experiments import assign_variant
 from app.tests.conftest import requires_db
 
@@ -60,24 +59,19 @@ def test_recommend_returns_no_variant_without_session_id():
 
 
 @requires_db
-def test_control_variant_disables_personalization_even_with_saved_signal(session):
+def test_control_variant_disables_personalization_even_with_saved_signal(session, embedded_recipes):
     """Regression: taste_scores(..., vec=None) used to fall back to computing
     the user's REAL taste vector, silently undoing the control gate (`tvec`
     being None for "control" was indistinguishable from "cold start" at that
     call site). A user with strong saved signal on `control` must see zero
     trace of personalization."""
     uk = "experiments-control-gate-regression"
-    paneer = session.execute(
-        select(Recipe).where(
-            Recipe.title.ilike("%paneer%"), Recipe.embedding.isnot(None)
-        )
-    ).scalars().first()
-    assert paneer is not None
+    saved = embedded_recipes[0]
 
     session.query(SavedRecipe).filter_by(user_key=uk).delete()
     session.commit()
     try:
-        session.add(SavedRecipe(user_key=uk, recipe_id=paneer.id))
+        session.add(SavedRecipe(user_key=uk, recipe_id=saved.id))
         session.commit()
 
         control_sid = next(

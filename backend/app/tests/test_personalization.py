@@ -5,9 +5,7 @@ baseline (unpersonalized) behaviour. The safety guarantee (taste only
 reorders an already-filtered set) is exercised at the ranking layer here
 and verified end-to-end live in Chrome.
 """
-from sqlalchemy import select
-
-from app.models import Recipe, SavedRecipe
+from app.models import SavedRecipe
 from app.schemas.recommend import RecipeCandidate
 from app.services.personalization import taste_scores, taste_vector
 from app.services.ranking import rank
@@ -49,36 +47,28 @@ def test_cold_start_taste_vector_is_none(session):
 
 
 @requires_db
-def test_taste_vector_and_scores_after_saving_a_recipe(session):
+def test_taste_vector_and_scores_after_saving_a_recipe(session, embedded_recipes):
     uk = "personalization-saved-paneer"
-    paneer = session.execute(
-        select(Recipe).where(
-            Recipe.title.ilike("%paneer%"), Recipe.embedding.isnot(None)
-        )
-    ).scalars().first()
-    assert paneer is not None, "expected at least one embedded paneer recipe"
-
-    other = session.execute(
-        select(Recipe.id).where(Recipe.id != paneer.id, Recipe.embedding.isnot(None)).limit(3)
-    ).scalars().all()
+    saved, *other_rows = embedded_recipes
+    other = [r.id for r in other_rows]
 
     session.query(SavedRecipe).filter_by(user_key=uk).delete()
     session.commit()
     try:
-        session.add(SavedRecipe(user_key=uk, recipe_id=paneer.id))
+        session.add(SavedRecipe(user_key=uk, recipe_id=saved.id))
         session.commit()
 
         vec = taste_vector(session, uk)
         assert vec is not None
         assert len(vec) == 384  # embedder dim
 
-        ids = [paneer.id] + other
+        ids = [saved.id] + other
         scores = taste_scores(session, uk, ids, vec)
         assert scores  # non-empty
-        assert paneer.id in scores
+        assert saved.id in scores
         # the saved recipe should score at (or extremely near) the ceiling —
         # its own embedding is the (sole) input to the taste vector.
-        assert scores[paneer.id] >= max(scores.values()) - 1e-6
+        assert scores[saved.id] >= max(scores.values()) - 1e-6
     finally:
         session.query(SavedRecipe).filter_by(user_key=uk).delete()
         session.commit()
@@ -120,7 +110,7 @@ def test_recommend_endpoint_cold_start_unaffected(session):
 
 
 @requires_db
-def test_personalized_responses_are_never_cached(session):
+def test_personalized_responses_are_never_cached(session, embedded_recipes):
     """Regression: a personalized user re-issuing the IDENTICAL request right
     after a feedback write (e.g. dismissing a recipe) must get a freshly
     computed response, not a stale one from the response cache. The response
@@ -132,17 +122,12 @@ def test_personalized_responses_are_never_cached(session):
 
     c = TestClient(app)
     uk = "personalization-cache-bypass-regression"
-    paneer = session.execute(
-        select(Recipe).where(
-            Recipe.title.ilike("%paneer%"), Recipe.embedding.isnot(None)
-        )
-    ).scalars().first()
-    assert paneer is not None
+    saved = embedded_recipes[0]
 
     session.query(SavedRecipe).filter_by(user_key=uk).delete()
     session.commit()
     try:
-        session.add(SavedRecipe(user_key=uk, recipe_id=paneer.id))
+        session.add(SavedRecipe(user_key=uk, recipe_id=saved.id))
         session.commit()
 
         req = {"pantry": ["paneer", "onion", "garlic"], "limit": 10}
