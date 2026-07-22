@@ -31,7 +31,7 @@ psql:
 redis:
 	@docker exec -it pantryplate-redis redis-cli
 
-# MCP server (Stage 4.1) — runs on the project venv; DB must be up (make up).
+# MCP server — runs on the project venv; DB must be up (make up).
 mcp:
 	@cd backend && ../.venv/bin/python -m app.mcp_server
 

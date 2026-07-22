@@ -135,7 +135,7 @@
   }
 }
 
-/* --- Motion + depth (Stage 5.2 redesign) --------------------------------- */
+/* --- Motion + depth --------------------------------- */
 html {
   scroll-behavior: smooth;
 }

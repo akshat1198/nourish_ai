@@ -81,10 +81,10 @@ PLAN.md
 tasks/
 .DS_Store
 
-# Raw ingestion source data (Stage 6) — large, licensed, never committed.
+# Raw ingestion source data — large, licensed, never committed.
 # Archana's Kitchen is scraped: personal/family use only, keep attribution.
 archana_*.csv
 
-# Stage 6 derived analysis output (regenerable from the CSV)
+# Derived analysis output (regenerable from the CSV)
 backend/seed_data/unmatched_cores.json
 backend/seed_data/ingredients_enriched.json
