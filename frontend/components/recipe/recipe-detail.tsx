@@ -119,7 +119,7 @@ export function RecipeDetailView({ id }: { id: number }) {
   return (
     <Shell>
       <RecipeHeader recipe={recipe} />
-      <RecipeActions recipeId={recipe.id} />
+      <RecipeActions recipe={recipe} />
 
       {modified && (
         <ModifiedBanner modified={modified} onReset={() => setModified(null)} />

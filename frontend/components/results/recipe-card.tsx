@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Clock3, Trophy } from "lucide-react";
 import { IngredientToken } from "@/components/ingredient-token";
 import { MatchMeter } from "@/components/match-meter";
+import { SaveButton } from "@/components/recipe/save-button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cuisineLabel, titleCase } from "@/lib/filter-options";
@@ -49,7 +50,19 @@ export function RecipeCard({
         >
           {recipe.title}
         </Link>
-        {cuisine && <Badge variant="primary">{cuisine}</Badge>}
+        <div className="flex shrink-0 items-center gap-2">
+          {cuisine && <Badge variant="primary">{cuisine}</Badge>}
+          <SaveButton
+            variant="icon"
+            summary={{
+              id: recipe.id,
+              title: recipe.title,
+              time_minutes: recipe.time_minutes,
+              cuisine: recipe.cuisine,
+              region: recipe.region,
+            }}
+          />
+        </div>
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">

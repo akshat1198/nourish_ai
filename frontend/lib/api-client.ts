@@ -12,12 +12,16 @@ import type {
   PantryResponse,
   ModifyRequest,
   ModifyResponse,
+  Plan,
+  PlanListOut,
   Profile,
   ProfileUpdate,
   RecipeDetail,
   RecipeEnrichment,
   RecommendRequest,
   RecommendResponse,
+  SavedListOut,
+  ShoppingListResponse,
   SubstitutionsResponse,
 } from "@/types/api";
 
@@ -90,4 +94,42 @@ export const api = {
         action,
       }),
     }),
+
+  // Saved recipes (Stage 10)
+  getSaved: () => apiFetch<SavedListOut>("/v1/saved"),
+
+  addSaved: (recipeId: number) =>
+    apiFetch<SavedListOut>("/v1/saved", {
+      method: "POST",
+      body: JSON.stringify({ recipe_id: recipeId }),
+    }),
+
+  removeSaved: (recipeId: number) =>
+    apiFetch<SavedListOut>(`/v1/saved/${recipeId}`, { method: "DELETE" }),
+
+  // Meal plans (Stage 10)
+  getPlans: () => apiFetch<PlanListOut>("/v1/plans"),
+
+  getPlan: (id: number) => apiFetch<Plan>(`/v1/plans/${id}`),
+
+  createPlan: (name: string) =>
+    apiFetch<Plan>("/v1/plans", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    }),
+
+  deletePlan: (id: number) =>
+    apiFetch<{ ok: boolean }>(`/v1/plans/${id}`, { method: "DELETE" }),
+
+  addPlanItem: (planId: number, recipeId: number, slot?: string | null) =>
+    apiFetch<Plan>(`/v1/plans/${planId}/items`, {
+      method: "POST",
+      body: JSON.stringify({ recipe_id: recipeId, slot: slot ?? null }),
+    }),
+
+  removePlanItem: (planId: number, recipeId: number) =>
+    apiFetch<Plan>(`/v1/plans/${planId}/items/${recipeId}`, { method: "DELETE" }),
+
+  getPlanShoppingList: (planId: number) =>
+    apiFetch<ShoppingListResponse>(`/v1/plans/${planId}/shopping-list`),
 };

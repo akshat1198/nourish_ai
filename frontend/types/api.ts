@@ -217,6 +217,56 @@ export interface CuisineCount {
   children?: CuisineCount[];
 }
 
+// Saved recipes & meal plans (Stage 10). Compact card shape shared by both.
+export interface RecipeSummary {
+  id: number;
+  title: string;
+  time_minutes?: number | null;
+  cuisine?: string | null;
+  region?: string | null;
+  image_url?: string | null;
+}
+
+export interface SavedListOut {
+  recipes: RecipeSummary[];
+}
+
+export interface PlanItem {
+  recipe: RecipeSummary;
+  slot?: string | null;
+}
+
+export interface Plan {
+  id: number;
+  name: string;
+  created_at: string;
+  items: PlanItem[];
+}
+
+export interface PlanSummary {
+  id: number;
+  name: string;
+  item_count: number;
+  created_at: string;
+}
+
+export interface PlanListOut {
+  plans: PlanSummary[];
+}
+
+export interface ShoppingItem {
+  name: string;
+  unit?: string | null;
+  total_qty?: number | null;
+  needed_for: string[];
+}
+
+export interface ShoppingListResponse {
+  items: ShoppingItem[];
+  unmatched_pantry: string[];
+  missing_recipe_ids: number[];
+}
+
 export interface HealthResponse {
   status: string;
   db: boolean;

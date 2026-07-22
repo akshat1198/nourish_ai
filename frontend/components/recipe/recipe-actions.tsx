@@ -1,20 +1,32 @@
 "use client";
 
 import { Check, CookingPot, ThumbsDown, ThumbsUp } from "lucide-react";
+import { SaveButton } from "@/components/recipe/save-button";
 import { useFeedback } from "@/lib/hooks/use-feedback";
 import { useRecipeFeedback } from "@/lib/hooks/use-user-feedback";
 import { cn } from "@/lib/utils";
+import type { RecipeDetail, RecipeSummary } from "@/types/api";
 
-// Feedback bar under the recipe header: "Made this" toggle + thumbs up/down.
-// State is derived server-side (append-only log); the optimistic fill is the
-// confirmation. A rating click on the active thumb clears it (posts "unrated").
-export function RecipeActions({ recipeId }: { recipeId: number }) {
+// Action bar under the recipe header: Save + "Made this" toggle + thumbs.
+// Feedback state is derived server-side (append-only log); the optimistic fill
+// is the confirmation. A rating click on the active thumb clears it ("unrated").
+export function RecipeActions({ recipe }: { recipe: RecipeDetail }) {
+  const recipeId = recipe.id;
   const { made, rating } = useRecipeFeedback(recipeId);
   const feedback = useFeedback(recipeId);
   const send = feedback.mutate;
+  const summary: RecipeSummary = {
+    id: recipe.id,
+    title: recipe.title,
+    time_minutes: recipe.time_minutes,
+    cuisine: recipe.cuisine,
+    region: recipe.region,
+    image_url: recipe.image_url,
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      <SaveButton summary={summary} />
       <ActionButton
         active={made}
         onClick={() => send(made ? "uncooked" : "cooked")}
