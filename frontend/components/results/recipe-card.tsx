@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { Clock3, Trophy } from "lucide-react";
+import { Clock3, Trophy, X } from "lucide-react";
 import { IngredientToken } from "@/components/ingredient-token";
 import { MatchMeter } from "@/components/match-meter";
 import { SaveButton } from "@/components/recipe/save-button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cuisineLabel, titleCase } from "@/lib/filter-options";
+import { useFeedback } from "@/lib/hooks/use-feedback";
+import { track } from "@/lib/track";
 import { cn } from "@/lib/utils";
 import type { RankedRecipe } from "@/types/api";
 
@@ -16,10 +18,22 @@ function num(n: number | undefined) {
 export function RecipeCard({
   recipe,
   top = false,
+  onDismiss,
 }: {
   recipe: RankedRecipe;
   top?: boolean;
+  /** Called after a successful dismiss so the parent can drop it from view. */
+  onDismiss?: (recipeId: number) => void;
 }) {
+  const feedback = useFeedback(recipe.id);
+  const dismiss = () =>
+    feedback.mutate("disliked", {
+      onSuccess: () => {
+        track("dismissed", { recipe_id: recipe.id });
+        onDismiss?.(recipe.id);
+      },
+    });
+
   const have = recipe.matched_ingredients.length;
   const total = have + recipe.missing_ingredients.length;
   const cuisine = recipe.region
@@ -62,6 +76,15 @@ export function RecipeCard({
               region: recipe.region,
             }}
           />
+          <button
+            type="button"
+            onClick={dismiss}
+            disabled={feedback.isPending}
+            aria-label="Not interested — remove from these results"
+            className="grid size-9 shrink-0 touch-manipulation place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X className="size-4" />
+          </button>
         </div>
       </div>
 

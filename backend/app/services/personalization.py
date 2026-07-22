@@ -71,6 +71,20 @@ def _taste_cache_key(user_key: str) -> str:
     return f"taste:{user_key}:{settings.RANKING_VERSION}"
 
 
+def invalidate_taste_cache(user_key: str) -> None:
+    """Bust the cached taste vector so the next recommend recomputes fresh.
+
+    Any feedback write (cooked/liked/disliked/etc.) can change this user's
+    positive or negative recipe set — without this, a dismiss (or a like)
+    could take up to TASTE_CACHE_TTL to visibly affect ranking. Best-effort,
+    same as the rest of this module: Redis down is a no-op, never raises.
+    """
+    try:
+        redis_client.delete(_taste_cache_key(user_key))
+    except Exception:
+        pass
+
+
 def taste_vector(session: Session, user_key: str) -> Optional[list[float]]:
     """The user's taste vector, cached in Redis. None on cold start (no
     positive signal with a usable embedding) — callers must treat that as

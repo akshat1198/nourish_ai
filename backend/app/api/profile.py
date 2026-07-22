@@ -13,6 +13,7 @@ from app.schemas.profile import (
     ProfileOut,
     RecipeFeedback,
 )
+from app.services.personalization import invalidate_taste_cache
 from app.services.profile import (
     feedback_state,
     load_profile,
@@ -76,6 +77,10 @@ def feedback(
     if session.get(Recipe, body.recipe_id) is None:
         raise HTTPException(404, "recipe not found")
     record_interaction(session, body.user_key, body.recipe_id, body.action)
+    # Any feedback write can change this user's taste vector inputs (Stage 12)
+    # — bust the cache so the next recommend reflects it immediately rather
+    # than waiting out TASTE_CACHE_TTL.
+    invalidate_taste_cache(body.user_key)
     return {"ok": True}
 
 

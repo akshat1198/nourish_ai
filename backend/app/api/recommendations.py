@@ -80,10 +80,18 @@ def recommend(
             "variant": variant,
         }
     )
-    cached = get_cached(key)
-    if cached is not None:
-        response.headers["X-Cache"] = "hit"
-        return RecommendResponse(**cached)
+    # Personalized responses are never cached: any feedback write (e.g.
+    # dismissing a recipe) must be reflected on the very next identical
+    # request, and the response cache's TTL (minutes) would otherwise silently
+    # serve a pre-feedback result — the `user` key component alone only stops
+    # CROSS-user collisions, not this same-user staleness. Cold-start/control
+    # users are unaffected by any feedback (tscores is always {} for them), so
+    # their shared cache entry stays exactly as before.
+    if tvec is None:
+        cached = get_cached(key)
+        if cached is not None:
+            response.headers["X-Cache"] = "hit"
+            return RecommendResponse(**cached)
 
     # LLM-parse free-text pantry (fail-open) and merge into the ingredient list.
     parsed = parse_pantry_text(req.pantry_text) if req.pantry_text else []
@@ -189,6 +197,7 @@ def recommend(
         unmatched_pantry=resolved.unmatched,
         variant=variant,
     )
-    set_cached(key, payload.model_dump())
-    response.headers["X-Cache"] = "miss"
+    if tvec is None:
+        set_cached(key, payload.model_dump())
+    response.headers["X-Cache"] = "miss" if tvec is None else "skip-personalized"
     return payload

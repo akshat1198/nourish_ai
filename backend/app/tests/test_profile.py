@@ -144,6 +144,37 @@ def test_feedback_state_derives_made_and_rating(session):
     assert n == 5
 
 
+@requires_db
+def test_feedback_write_invalidates_taste_cache(session):
+    """A dismiss/like/etc. must bust the cached taste vector (Stage 12) so
+    the next recommend reflects it immediately rather than waiting out
+    TASTE_CACHE_TTL — otherwise a dismiss could feel like it did nothing."""
+    from app.cache import redis_client
+    from app.services.personalization import _taste_cache_key
+
+    tgp = session.execute(
+        select(Recipe).where(Recipe.title == "Tomato Garlic Pasta")
+    ).scalar_one()
+    uk = "tester-taste-cache-invalidate"
+    key = _taste_cache_key(uk)
+    session.query(InteractionHistory).filter_by(user_key=uk).delete()
+    session.commit()
+    try:
+        redis_client.set(key, '{"fake": "stale-cached-vector"}', ex=600)
+        assert redis_client.get(key) is not None  # sanity: cache was populated
+
+        resp = client.post(
+            "/v1/feedback",
+            json={"user_key": uk, "recipe_id": tgp.id, "action": "disliked"},
+        )
+        assert resp.status_code == 200
+        assert redis_client.get(key) is None  # busted by the write
+    finally:
+        session.query(InteractionHistory).filter_by(user_key=uk).delete()
+        session.commit()
+        redis_client.delete(key)
+
+
 def test_user_prompt_includes_dislikes_and_recency():
     from app.agent.loop import _build_user_prompt
 

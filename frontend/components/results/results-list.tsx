@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ModeBanner } from "@/components/results/mode-banner";
 import { RecipeCard } from "@/components/results/recipe-card";
 import { Reveal } from "@/components/reveal";
@@ -13,11 +13,16 @@ import type { RecommendRequest } from "@/types/api";
 
 export function ResultsList({ request }: { request: RecommendRequest | null }) {
   const { data, isLoading, isError, refetch } = useRecommendations(request);
+  // Dismissed cards drop out of THIS view only (not a persisted "hidden"
+  // list) — the negative signal itself is recorded server-side by the card's
+  // feedback call; refreshing/re-running the search brings a fresh list.
+  const [dismissedIds, setDismissedIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (!data) return;
     setLastVariant(data.variant); // Stage 13.2: tag subsequent events with this variant
     track("results_shown", { count: data.results.length, mode: data.mode });
+    setDismissedIds(new Set()); // a fresh result set starts with nothing dismissed
   }, [data]);
 
   if (request === null) return null;
@@ -47,6 +52,9 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
 
   if (!data) return null;
 
+  const visibleResults = data.results.filter((r) => !dismissedIds.has(r.id));
+  const allDismissed = data.results.length > 0 && visibleResults.length === 0;
+
   return (
     <div className="space-y-4">
       <div className="flex items-baseline justify-between">
@@ -54,7 +62,7 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
           <h2 className="font-display text-2xl font-semibold tracking-tight">
             Recipes for you
           </h2>
-          {data.results.length > 0 && (
+          {visibleResults.length > 0 && (
             <p className="mt-0.5 text-sm text-muted-foreground">
               Ranked by best match — start from the top.
             </p>
@@ -65,7 +73,7 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
           role="status"
           aria-live="polite"
         >
-          {data.results.length} found
+          {visibleResults.length} found
         </span>
       </div>
 
@@ -77,7 +85,12 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
         </p>
       )}
 
-      {data.results.length === 0 ? (
+      {allDismissed ? (
+        <Card className="border-dashed bg-transparent p-8 text-center text-sm text-muted-foreground">
+          You&apos;ve dismissed every match for these filters. Try refining
+          them for a different set.
+        </Card>
+      ) : visibleResults.length === 0 ? (
         <Card className="border-dashed bg-transparent p-8 text-center text-sm text-muted-foreground">
           No recipes matched those filters yet.
           {data.explanation
@@ -86,12 +99,18 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
         </Card>
       ) : (
         <div className="space-y-4">
-          {data.results.map((r, i) => (
+          {visibleResults.map((r, i) => (
             <Reveal key={r.id} delay={Math.min(i, 6) * 60}>
-              <RecipeCard recipe={r} top={i === 0} />
+              <RecipeCard
+                recipe={r}
+                top={i === 0}
+                onDismiss={(id) =>
+                  setDismissedIds((prev) => new Set(prev).add(id))
+                }
+              />
             </Reveal>
           ))}
-          {data.results.length < 10 && (
+          {visibleResults.length < 10 && (
             <p className="pt-1 text-center text-sm text-muted-foreground">
               That&apos;s every match for these filters. For more to choose from,
               pick a broader cuisine or add a few more pantry ingredients.

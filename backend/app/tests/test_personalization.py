@@ -117,3 +117,43 @@ def test_recommend_endpoint_cold_start_unaffected(session):
     assert resp.status_code == 200
     body = resp.json()
     assert body["mode"] in {"normal", "relaxed", "substitution_first", "shopping_assisted"}
+
+
+@requires_db
+def test_personalized_responses_are_never_cached(session):
+    """Regression: a personalized user re-issuing the IDENTICAL request right
+    after a feedback write (e.g. dismissing a recipe) must get a freshly
+    computed response, not a stale one from the response cache. The response
+    cache's `user` key component only prevents CROSS-user collisions — it does
+    nothing for this same-user, same-request staleness, which the taste-vector
+    cache invalidation alone doesn't fix either (they're two different caches)."""
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    c = TestClient(app)
+    uk = "personalization-cache-bypass-regression"
+    paneer = session.execute(
+        select(Recipe).where(
+            Recipe.title.ilike("%paneer%"), Recipe.embedding.isnot(None)
+        )
+    ).scalars().first()
+    assert paneer is not None
+
+    session.query(SavedRecipe).filter_by(user_key=uk).delete()
+    session.commit()
+    try:
+        session.add(SavedRecipe(user_key=uk, recipe_id=paneer.id))
+        session.commit()
+
+        req = {"pantry": ["paneer", "onion", "garlic"], "limit": 10}
+        r1 = c.post("/v1/recommendations", json=req, headers={"X-User-Key": uk})
+        assert r1.headers["x-cache"] == "skip-personalized"
+
+        r2 = c.post("/v1/recommendations", json=req, headers={"X-User-Key": uk})
+        assert r2.headers["x-cache"] == "skip-personalized", (
+            "a personalized user's identical request was served from cache — "
+            "a feedback write between two such requests would silently be ignored"
+        )
+    finally:
+        session.query(SavedRecipe).filter_by(user_key=uk).delete()
+        session.commit()
