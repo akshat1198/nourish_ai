@@ -3,6 +3,8 @@ import { getUserKey } from "@/lib/auth-token";
 import type {
   ConfigResponse,
   CuisineCount,
+  FeedbackAction,
+  FeedbackState,
   HealthResponse,
   IngredientSuggestion,
   PantryParseResponse,
@@ -74,5 +76,18 @@ export const api = {
     apiFetch<ModifyResponse>(`/v1/recipes/${id}/modify`, {
       method: "POST",
       body: JSON.stringify(body),
+    }),
+
+  getFeedback: () =>
+    apiFetch<FeedbackState>(`/v1/feedback/${encodeURIComponent(getUserKey())}`),
+
+  sendFeedback: (recipeId: number, action: FeedbackAction) =>
+    apiFetch<{ ok: boolean }>("/v1/feedback", {
+      method: "POST",
+      body: JSON.stringify({
+        user_key: getUserKey(),
+        recipe_id: recipeId,
+        action,
+      }),
     }),
 };

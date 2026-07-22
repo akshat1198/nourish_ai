@@ -190,6 +190,26 @@ export interface Profile {
 
 export type ProfileUpdate = Omit<Profile, "user_key">;
 
+// Feedback loop (Stage 9). The backend log is append-only; these are the
+// toggle events. Derived state comes back via GET /v1/feedback/{user_key}.
+export type FeedbackAction =
+  | "cooked"
+  | "uncooked"
+  | "liked"
+  | "disliked"
+  | "unrated";
+
+export interface RecipeFeedback {
+  made: boolean;
+  rating: "liked" | "disliked" | null;
+}
+
+export interface FeedbackState {
+  user_key: string;
+  // keyed by recipe_id (string in JSON); only non-default recipes present
+  recipes: Record<string, RecipeFeedback>;
+}
+
 export interface CuisineCount {
   id: string;
   label: string;

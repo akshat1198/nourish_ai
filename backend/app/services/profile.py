@@ -60,6 +60,38 @@ def recent_recommended(session: Session, user_key: str) -> list[dict]:
     return out
 
 
+def feedback_state(session: Session, user_key: str) -> dict[int, dict]:
+    """Derive current per-recipe feedback from the append-only log.
+
+    Latest-wins per dimension: cooked/uncooked → `made`; liked/disliked/unrated
+    → `rating`. "recommended" carries no user opinion, so it's ignored here.
+    Only recipes with non-default state are returned.
+    """
+    rows = session.execute(
+        select(InteractionHistory.recipe_id, InteractionHistory.action)
+        .where(InteractionHistory.user_key == user_key)
+        .order_by(InteractionHistory.created_at.asc(), InteractionHistory.id.asc())
+    ).all()
+
+    state: dict[int, dict] = {}
+    for recipe_id, action in rows:
+        cur = state.setdefault(recipe_id, {"made": False, "rating": None})
+        if action == "cooked":
+            cur["made"] = True
+        elif action == "uncooked":
+            cur["made"] = False
+        elif action in ("liked", "disliked"):
+            cur["rating"] = action
+        elif action == "unrated":
+            cur["rating"] = None
+
+    return {
+        rid: s
+        for rid, s in state.items()
+        if s["made"] or s["rating"] is not None
+    }
+
+
 def record_interaction(session: Session, user_key: str, recipe_id: int, action: str) -> None:
     session.add(
         InteractionHistory(user_key=user_key, recipe_id=recipe_id, action=action)

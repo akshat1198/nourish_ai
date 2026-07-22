@@ -19,6 +19,7 @@ export const queryKeys = {
   config: ["config"] as const,
   pantry: ["pantry"] as const,
   profile: ["profile"] as const,
+  feedback: ["feedback"] as const,
   ingredients: (q: string) => ["ingredients", q] as const,
   cuisines: ["cuisines"] as const,
   recipe: (id: number) => ["recipe", id] as const,

@@ -17,7 +17,29 @@ class ProfileOut(ProfileIn):
     user_key: str
 
 
+# The interaction log is append-only. "cooked"/"uncooked" and
+# "liked"/"disliked"/"unrated" are paired toggle events so current UI state can
+# be derived latest-wins without mutating history. "recommended" is written by
+# the recommend endpoint. ("saved" → Stage 10; "dismissed" → Stage 12.)
+FeedbackAction = Literal[
+    "recommended", "cooked", "uncooked", "liked", "disliked", "unrated"
+]
+
+
 class FeedbackIn(BaseModel):
     user_key: str
     recipe_id: int
-    action: Literal["recommended", "cooked", "skipped"]
+    action: FeedbackAction
+
+
+class RecipeFeedback(BaseModel):
+    """Current, derived state for one recipe (latest-wins per dimension)."""
+
+    made: bool = False
+    rating: Optional[Literal["liked", "disliked"]] = None
+
+
+class FeedbackStateOut(BaseModel):
+    user_key: str
+    # keyed by recipe_id; only recipes with non-default state are included
+    recipes: dict[int, RecipeFeedback] = Field(default_factory=dict)

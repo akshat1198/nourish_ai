@@ -7,6 +7,7 @@ import { AttributionFooter } from "@/components/recipe/attribution-footer";
 import { IngredientsPanel } from "@/components/recipe/ingredients-panel";
 import { ModifiedBanner } from "@/components/recipe/modified-banner";
 import { NutritionPanel } from "@/components/recipe/nutrition-panel";
+import { RecipeActions } from "@/components/recipe/recipe-actions";
 import { RecipeHeader } from "@/components/recipe/recipe-header";
 import { MethodSkeleton, StepsList } from "@/components/recipe/steps-list";
 import { Reveal } from "@/components/reveal";
@@ -118,6 +119,7 @@ export function RecipeDetailView({ id }: { id: number }) {
   return (
     <Shell>
       <RecipeHeader recipe={recipe} />
+      <RecipeActions recipeId={recipe.id} />
 
       {modified && (
         <ModifiedBanner modified={modified} onReset={() => setModified(null)} />

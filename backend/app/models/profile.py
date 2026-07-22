@@ -34,7 +34,8 @@ class InteractionHistory(Base):
     recipe_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("recipes.id", ondelete="CASCADE")
     )
-    action: Mapped[str] = mapped_column(Text)  # recommended | cooked | skipped
+    # append-only log; recommended | cooked | uncooked | liked | disliked | unrated
+    action: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), index=True
     )

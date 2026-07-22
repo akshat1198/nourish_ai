@@ -99,6 +99,51 @@ def test_feedback_unknown_recipe_404():
     assert resp.status_code == 404
 
 
+def test_feedback_unknown_action_422():
+    resp = client.post(
+        "/v1/feedback", json={"user_key": "x", "recipe_id": 1, "action": "banana"}
+    )
+    assert resp.status_code == 422
+
+
+@requires_db
+def test_feedback_state_derives_made_and_rating(session):
+    tgp = session.execute(
+        select(Recipe).where(Recipe.title == "Tomato Garlic Pasta")
+    ).scalar_one()
+    uk = "tester-fb-state"
+    session.query(InteractionHistory).filter_by(user_key=uk).delete()
+    session.commit()
+
+    def post(action):
+        assert (
+            client.post(
+                "/v1/feedback",
+                json={"user_key": uk, "recipe_id": tgp.id, "action": action},
+            ).status_code
+            == 200
+        )
+
+    def state():
+        return client.get(f"/v1/feedback/{uk}").json()["recipes"]
+
+    # latest-wins per dimension; append-only log underneath.
+    post("cooked")
+    assert state()[str(tgp.id)] == {"made": True, "rating": None}
+    post("liked")
+    assert state()[str(tgp.id)] == {"made": True, "rating": "liked"}
+    post("disliked")  # rating flips
+    assert state()[str(tgp.id)]["rating"] == "disliked"
+    post("uncooked")  # made toggles off
+    assert state()[str(tgp.id)]["made"] is False
+    post("unrated")  # rating cleared → recipe drops out (all-default)
+    assert str(tgp.id) not in state()
+
+    # the log kept every event (append-only), not just the final state
+    n = session.query(InteractionHistory).filter_by(user_key=uk).count()
+    assert n == 5
+
+
 def test_user_prompt_includes_dislikes_and_recency():
     from app.agent.loop import _build_user_prompt
 

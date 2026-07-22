@@ -6,8 +6,19 @@ from app.api.auth import get_current_user_key
 from app.api.deps import get_session
 from app.core.config import settings
 from app.models import Recipe
-from app.schemas.profile import FeedbackIn, ProfileIn, ProfileOut
-from app.services.profile import load_profile, record_interaction, upsert_profile
+from app.schemas.profile import (
+    FeedbackIn,
+    FeedbackStateOut,
+    ProfileIn,
+    ProfileOut,
+    RecipeFeedback,
+)
+from app.services.profile import (
+    feedback_state,
+    load_profile,
+    record_interaction,
+    upsert_profile,
+)
 
 router = APIRouter(prefix="/v1", tags=["profile"])
 
@@ -66,3 +77,18 @@ def feedback(
         raise HTTPException(404, "recipe not found")
     record_interaction(session, body.user_key, body.recipe_id, body.action)
     return {"ok": True}
+
+
+@router.get("/feedback/{user_key}", response_model=FeedbackStateOut)
+def get_feedback(
+    user_key: str,
+    session: Session = Depends(get_session),
+    token_key: str = Depends(get_current_user_key),
+):
+    """Derived current feedback (made / rating) per recipe this user touched."""
+    _enforce_owner(user_key, token_key)
+    state = feedback_state(session, user_key)
+    return FeedbackStateOut(
+        user_key=user_key,
+        recipes={rid: RecipeFeedback(**s) for rid, s in state.items()},
+    )
