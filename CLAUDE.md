@@ -52,3 +52,4 @@ Recommend flow: SQL ingredient-match + pgvector KNN candidates → RRF fusion �
 - No emoji in code, comments, or CLI output. No "AI-generated" tells in comments — no "Stage N" / "WS-N" / ticket-ID scaffolding (`RETR-05`, `AGENT-12`, etc.) referencing internal build phases; write comments as a human engineer would, explaining the why for the current code, not the history of how it got built.
 - Commit messages: no attribution trailer, explain why not what, created fresh (not amended) per commit.
 - Comment only on non-obvious WHY (hidden constraint, workaround, invariant) — not on WHAT the code does.
+- Watch the CI run kickoff after the commit and ensure it builds successfully. Fix any issues that arise.
