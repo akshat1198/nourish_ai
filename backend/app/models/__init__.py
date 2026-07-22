@@ -4,6 +4,7 @@ from app.models.ingredient import Ingredient
 from app.models.pantry import PantryItem
 from app.models.profile import InteractionHistory, UserProfile
 from app.models.recipe import Recipe, RecipeIngredient
+from app.models.saved import MealPlan, MealPlanItem, SavedRecipe
 from app.models.substitution import Substitution
 from app.models.trace import AgentTrace
 
@@ -13,9 +14,12 @@ __all__ = [
     "GenerationEvent",
     "Ingredient",
     "InteractionHistory",
+    "MealPlan",
+    "MealPlanItem",
     "PantryItem",
     "Recipe",
     "RecipeIngredient",
+    "SavedRecipe",
     "Substitution",
     "UserProfile",
 ]

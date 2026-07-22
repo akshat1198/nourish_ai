@@ -8,9 +8,11 @@ from app.api.health import router as health_router
 from app.api.ingredients import router as ingredients_router
 from app.api.orchestrate import router as orchestrate_router
 from app.api.pantry import router as pantry_router
+from app.api.plans import router as plans_router
 from app.api.profile import router as profile_router
 from app.api.recipes import router as recipes_router
 from app.api.recommendations import router as recommendations_router
+from app.api.saved import router as saved_router
 from app.api.shopping_list import router as shopping_router
 from app.api.substitutions import router as substitutions_router
 from app.api.traces import router as traces_router
@@ -46,6 +48,8 @@ app.include_router(ingredients_router)
 app.include_router(cuisines_router)
 app.include_router(pantry_router)
 app.include_router(config_router)
+app.include_router(saved_router)
+app.include_router(plans_router)
 
 
 # Root endpoint
