@@ -1,4 +1,4 @@
-"""Adversarial eval wiring (Stage 4.4) — no API.
+"""Adversarial eval wiring — no API.
 
 Guards the plumbing that lets the adversarial suite drive the repair loop:
 the suite loads, every case carries a disliked ingredient, and _req threads

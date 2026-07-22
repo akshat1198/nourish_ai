@@ -1,4 +1,4 @@
-"""Agent endpoint (Stage 3.2-3.4): POST /v1/agent/recommend."""
+"""Agent endpoint: POST /v1/agent/recommend."""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/v1", tags=["agent"])
 
 
 def _apply_profile(session: Session, req: AgentRequest) -> None:
-    """Fill unset constraints from the user's saved profile (AGENT-01).
+    """Fill unset constraints from the user's saved profile.
 
     Explicit request values win; the profile only fills what wasn't given.
     disliked_ingredients and cuisine_prefs always merge in from the profile.
@@ -50,7 +50,7 @@ def agent_recommend(req: AgentRequest, session: Session = Depends(get_session)):
 
     result = run_agent(session, req, client=client, recent_recipe_ids=recent)
 
-    # Record what we recommended so future runs can avoid repeats (AGENT-02).
+    # Record what we recommended so future runs can avoid repeats.
     if req.user_key and result.plan and result.plan.recipes:
         record_recommendations(
             session, req.user_key, [r.recipe_id for r in result.plan.recipes]

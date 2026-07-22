@@ -1,4 +1,4 @@
-"""Auth dependency (Stage 5).
+"""Auth dependency.
 
 `AUTH_MODE=disabled` (default): identity comes from an `X-User-Key` header,
 falling back to `"dev-user"`. Keeps the whole test suite + curl workflow open,
@@ -42,7 +42,7 @@ def get_current_user_key(request: Request) -> str:
 
 
 def require_admin(request: Request) -> None:
-    """Gate for the Stage-14 observability endpoints. Fail-closed: an unset
+    """Gate for the admin observability endpoints. Fail-closed: an unset
     ADMIN_TOKEN locks the route regardless of what header a caller sends."""
     token = settings.ADMIN_TOKEN
     if not token or request.headers.get("X-Admin-Token") != token:

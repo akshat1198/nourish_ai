@@ -1,4 +1,4 @@
-"""Trace read schemas (Stage 4.4, AGENT-05)."""
+"""Trace read schemas."""
 from __future__ import annotations
 
 from datetime import datetime

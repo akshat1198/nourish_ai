@@ -147,7 +147,7 @@ def main() -> None:
     # Sanity: aliases must point at a real existing canonical.
     bad = [r.core for r in results if r.decision == "alias" and (r.alias_of or "").lower() not in existing_set]
     if bad:
-        print(f"⚠ {len(bad)} aliases point at unknown canonical (first 5): {bad[:5]}")
+        print(f"WARNING: {len(bad)} aliases point at unknown canonical (first 5): {bad[:5]}")
     print(f"wrote {len(results)} entries -> {out}")
 
 

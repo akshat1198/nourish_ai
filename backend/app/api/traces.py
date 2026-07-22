@@ -1,4 +1,4 @@
-"""Trace endpoint (Stage 4.4, AGENT-05): GET /v1/traces/{session_id}.
+"""Trace endpoint: GET /v1/traces/{session_id}.
 
 Reads the append-only agent_traces trail for a session — every node/step, its
 tokens and latency — for both engines. Pure observability; append-only rows,

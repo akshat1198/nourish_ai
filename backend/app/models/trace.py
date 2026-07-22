@@ -8,10 +8,10 @@ from app.models.base import Base
 
 
 class AgentTrace(Base):
-    """One row per node/step of an agent run (AGENT-05).
+    """One row per node/step of an agent run.
 
     The single append-only observability trail written by BOTH engines — the
-    Stage-3 single-agent loop (`engine="single"`) and the Stage-4 LangGraph
+    single-agent loop (`engine="single"`) and the LangGraph
     orchestrator (`engine="graph"`) — so the traces endpoint and the comparative
     eval read one uniform shape regardless of which engine produced the run.
     """

@@ -1,4 +1,4 @@
-"""Ingredient autocomplete (Stage 5): GET /v1/ingredients?q=
+"""Ingredient autocomplete: GET /v1/ingredients?q=
 
 Prefix/substring match over the canonical vocabulary (~99 rows) and their
 aliases, using the same `normalize` spine as pantry resolution so what the UI

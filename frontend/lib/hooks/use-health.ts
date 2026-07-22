@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 
-// Proves the API client + CORS wiring end to end (Stage 5.2 shell).
+// Proves the API client + CORS wiring end to end.
 export function useHealth() {
   return useQuery({
     queryKey: queryKeys.health,

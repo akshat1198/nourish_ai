@@ -4,7 +4,7 @@ Revision ID: 0010
 Revises: 0009
 Create Date: 2026-07-20
 
-The lazy enrichment pass (WS6, on first view) also fills in a sensible measure
+The lazy enrichment pass (on first view) also fills in a sensible measure
 for ingredients the source left blank (many spices). The enriched ingredient
 list is cached here alongside steps_rich; the detail endpoint prefers it when
 present. Additive + nullable, so un-enriched rows and CI are unaffected.

@@ -1,4 +1,4 @@
-"""Response schema for the recipe detail endpoint (Stage 7.1).
+"""Response schema for the recipe detail endpoint.
 
 Surfaces the recipe fields that `RankedRecipe` drops for the list view — steps,
 servings, the display ingredient list, provenance, and the honesty flag on
@@ -42,10 +42,10 @@ class RecipeDetail(BaseModel):
     nutrition_estimated: bool = False
     ingredients: list[RecipeIngredientLine] = Field(default_factory=list)
     steps: list[str] = Field(default_factory=list)
-    # WS6: whether the method has been LLM-enriched yet. When False, the client
+    # Whether the method has been LLM-enriched yet. When False, the client
     # triggers a one-time enrichment (and shows a skeleton meanwhile).
     steps_enriched: bool = False
-    # Provenance (Stage 6): seed rows have neither url nor attribution.
+    # Provenance: seed rows have neither url nor attribution.
     source: str
     source_url: Optional[str] = None
     attribution: Optional[str] = None
@@ -54,7 +54,7 @@ class RecipeDetail(BaseModel):
 
 
 class RecipeEnrichment(BaseModel):
-    """Result of the lazy first-view enrichment (WS6): the richer method and the
+    """Result of the lazy first-view enrichment: the richer method and the
     ingredient list with blank measures filled in. `enriched` is False when the
     assistant was unavailable (nothing stored — the client keeps the originals)."""
 
@@ -64,7 +64,7 @@ class RecipeEnrichment(BaseModel):
 
 
 # --------------------------------------------------------------------------- #
-# Substitution-aware modification (Stage 7.3)
+# Substitution-aware modification
 # --------------------------------------------------------------------------- #
 class ModifyRequest(BaseModel):
     # "swap" needs to_ingredient; "remove" adapts the recipe without from_ingredient.

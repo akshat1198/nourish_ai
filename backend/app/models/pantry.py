@@ -7,7 +7,7 @@ from app.models.base import Base
 
 
 class PantryItem(Base):
-    """A user's on-hand ingredient. `user_key` is the authed identity (Stage 5)."""
+    """A user's on-hand ingredient. `user_key` is the authed identity."""
 
     __tablename__ = "pantry_items"
 
@@ -16,7 +16,7 @@ class PantryItem(Base):
     ingredient_id: Mapped[int] = mapped_column(
         ForeignKey("ingredients.id", ondelete="CASCADE")
     )
-    # A staple is "always in my pantry" (Stage 5); regular items are transient.
+    # A staple is "always in my pantry"; regular items are transient.
     is_staple: Mapped[bool] = mapped_column(Boolean, default=False)
     qty: Mapped[float] = mapped_column(Numeric(8, 2), nullable=True)
     unit: Mapped[str] = mapped_column(Text, nullable=True)

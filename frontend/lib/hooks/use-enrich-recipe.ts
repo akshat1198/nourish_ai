@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 
-// WS6: kicks off the one-time enrichment when a recipe is opened un-enriched.
+// Kicks off the one-time enrichment when a recipe is opened un-enriched.
 // The endpoint is idempotent + cached server-side, so this runs at most once per
 // recipe globally; the result is cached here for the session too.
 export function useEnrichRecipe(id: number, enabled: boolean) {

@@ -1,4 +1,4 @@
-"""Admin observability endpoint (Stage 14). Read-only; gated by require_admin."""
+"""Admin observability endpoint. Read-only; gated by require_admin."""
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 

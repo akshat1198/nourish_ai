@@ -1,4 +1,4 @@
-"""Recipe detail endpoint (Stage 7.1) — full render of our own stored data.
+"""Recipe detail endpoint — full render of our own stored data.
 
 Public like /recommendations (recipes are shared corpus data, nothing
 user-scoped). No Redis / no cache headers: an immutable single-row PK read is
@@ -56,7 +56,7 @@ def get_recipe(
         raise HTTPException(404, "recipe not found")
 
     cat = _category_map(recipe, session)
-    # Prefer the enriched ingredient list (filled measures) once it exists (WS6).
+    # Prefer the enriched ingredient list (filled measures) once it exists.
     ingredient_items = recipe.ingredients_rich or recipe.ingredients or []
     lines = [
         RecipeIngredientLine(
@@ -84,7 +84,7 @@ def get_recipe(
         nutrition=recipe.nutrition or {},
         nutrition_estimated=recipe.nutrition_estimated,
         ingredients=lines,
-        # Prefer the LLM-enriched method when it's been generated (WS6).
+        # Prefer the LLM-enriched method when it's been generated.
         steps=recipe.steps_rich or recipe.steps or [],
         steps_enriched=recipe.steps_rich is not None,
         source=recipe.source,
@@ -100,7 +100,7 @@ def post_enrich_recipe(
     recipe_id: int, session: Session = Depends(get_session)
 ) -> RecipeEnrichment:
     """Lazily enrich the method + fill blank measures on first view, then cache
-    (WS6). Idempotent: returns the cache instantly once enriched."""
+    the result. Idempotent: returns the cache instantly once enriched."""
     return enrich_recipe(session, recipe_id)
 
 

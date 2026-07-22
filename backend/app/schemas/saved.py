@@ -1,4 +1,4 @@
-"""Saved recipes + meal plan schemas (Stage 10)."""
+"""Saved recipes + meal plan schemas."""
 from __future__ import annotations
 
 from datetime import datetime

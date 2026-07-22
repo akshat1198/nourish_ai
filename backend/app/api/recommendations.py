@@ -1,4 +1,4 @@
-"""Recommendations endpoint (API-01) — SQL and hybrid retrieval."""
+"""Recommendations endpoint — SQL and hybrid retrieval."""
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
@@ -53,7 +53,7 @@ def recommend(
     if bad:
         raise HTTPException(422, f"unknown cuisine id(s): {', '.join(bad)}")
 
-    # Stage 13.2: deterministic A/B bucket from the client's persisted session
+    # Deterministic A/B bucket from the client's persisted session
     # id. No session id (e.g. a bare API caller) -> no experiment, no gating.
     variant = (
         assign_variant(req.session_id, settings.EXPERIMENT_NAME)
@@ -61,11 +61,11 @@ def recommend(
         else None
     )
 
-    # Stage 12: a taste vector only needs (session, user_key) — no pantry
+    # A taste vector only needs (session, user_key) — no pantry
     # resolution required — so compute it before the cache check. Personalized
     # results must not collide across users or with the shared cold-start
     # cache entry, so `user` only enters the key when this user IS personalized.
-    # Stage 13.2: the "control" variant never personalizes, regardless of the
+    # The "control" variant never personalizes, regardless of the
     # feature flag — that's the whole point of an A/B control arm.
     tvec = (
         taste_vector(session, user_key)
@@ -125,7 +125,7 @@ def recommend(
             disliked = disliked_recipe_ids(
                 session, [c.id for c in candidates], req.disliked_ingredients
             )
-            # Stage 12/13.2: personalization score per candidate. `tvec is None`
+            # Personalization score per candidate. `tvec is None`
             # can mean either cold-start OR a deliberate "off" (disabled /
             # control variant) — skip the call entirely rather than pass tvec
             # through, since taste_scores(..., vec=None) treats None as "look

@@ -1,6 +1,6 @@
-"""MCP server (Stage 4.1, INT-02) — the tool registry over stdio.
+"""MCP server — the tool registry over stdio.
 
-Auto-exposes the SAME five tools the Stage-3 agent uses (app.agent.tools.TOOLS)
+Auto-exposes the SAME five tools the agent uses (app.agent.tools.TOOLS)
 to any MCP client (Claude Desktop, the MCP inspector). This is an EDGE ADAPTER:
 internal callers keep calling the plain Python functions; nothing is rerouted
 through MCP. stdio transport only, no auth (local dev tool).

@@ -1,4 +1,4 @@
-"""Stage 7.1 — GET /v1/recipes/{id} detail endpoint.
+"""GET /v1/recipes/{id} detail endpoint.
 
 DB-backed. Looks the seed recipe up by title so it never hard-codes an id
 (CI seeds only the 144-recipe baseline, where ids aren't stable).

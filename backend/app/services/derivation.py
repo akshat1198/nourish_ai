@@ -1,6 +1,6 @@
 """Diet / allergen / nutrition derivation from canonical ingredient properties.
 
-Extracted from the ingestion pipeline (Stage 7.3a) so the modify endpoint and
+Extracted from the ingestion pipeline so the modify endpoint and
 the importers share ONE implementation — a swap must re-validate diet/allergen
 exactly the way ingestion first derived them, or the two would drift.
 

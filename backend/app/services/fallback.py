@@ -1,4 +1,4 @@
-"""Low-confidence fallback (RETR-05).
+"""Low-confidence fallback.
 
 When the best recipe barely uses the pantry, an empty-ish list is a bad answer.
 Instead we switch modes:

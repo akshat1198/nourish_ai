@@ -2,8 +2,8 @@
 
 Every backend surface that produces or consumes allergen tokens imports from
 here — derivation (ingest pipeline), the enrichment prompt, the merge cleaner,
-request normalization, and tests — so the tokens can't drift the way the
-pre-Stage-6 "egg" (seed) vs "eggs" (filter) mismatch did. The frontend keeps its
+request normalization, and tests — so the tokens can't drift the way an
+"egg" (seed) vs "eggs" (filter) mismatch once did. The frontend keeps its
 own copy in `lib/filter-options.ts` (Python can't import TS); a test asserts the
 two lists stay identical.
 

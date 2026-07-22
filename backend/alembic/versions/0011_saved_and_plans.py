@@ -1,4 +1,4 @@
-"""saved recipes + meal plans (Stage 10)
+"""saved recipes + meal plans
 
 Revision ID: 0011
 Revises: 0010

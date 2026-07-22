@@ -1,4 +1,4 @@
-"""Substitutions endpoint (API-02) — curated table swaps + LLM suggestions (WS4).
+"""Substitutions endpoint — curated table swaps + LLM suggestions.
 
 The curated `substitutions` table is small and high-confidence; the LLM fills in
 the long tail (greek yogurt → dahi, sunflower → avocado oil, …). Curated swaps

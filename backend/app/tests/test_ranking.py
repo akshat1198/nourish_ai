@@ -1,4 +1,4 @@
-"""Ranking tests (RETR-03) — pure, no DB required."""
+"""Ranking tests — pure, no DB required."""
 from app.schemas.recommend import RecipeCandidate
 from app.services.ranking import annotate, rank
 

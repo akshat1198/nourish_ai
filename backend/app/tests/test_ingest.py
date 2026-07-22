@@ -1,4 +1,4 @@
-"""Unit tests for the Stage 6 ingestion foundation (no DB, no LLM, no network)."""
+"""Unit tests for the ingestion foundation (no DB, no LLM, no network)."""
 import json
 from pathlib import Path
 

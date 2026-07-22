@@ -1,4 +1,4 @@
-"""Deterministic validator tests (LLM-04) — DB-backed, no LLM."""
+"""Deterministic validator tests — DB-backed, no LLM."""
 from sqlalchemy import select
 
 from app.agent.validator import validate_plan

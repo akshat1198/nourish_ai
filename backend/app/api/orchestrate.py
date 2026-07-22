@@ -1,4 +1,4 @@
-"""Orchestrator endpoint (Stage 4.2-4.3): POST /v1/orchestrate/plan.
+"""Orchestrator endpoint: POST /v1/orchestrate/plan.
 
 Runs the LangGraph supervisor graph. With a session_id, the run is checkpointed
 by thread_id so a follow-up turn continues without resending the pantry.
@@ -55,7 +55,7 @@ def orchestrate(req: AgentRequest, session: Session = Depends(get_session)):
     if req.user_key and plan.recipes:
         record_recommendations(session, req.user_key, [r.recipe_id for r in plan.recipes])
 
-    # Persist this run's trail (AGENT-05). A final summary row carries the run's
+    # Persist this run's trail. A final summary row carries the run's
     # total tokens/latency so the traces endpoint has the headline numbers.
     trace = list(final.get("trace", []))
     trace.append({

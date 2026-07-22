@@ -10,7 +10,7 @@ cuisine top-levels mirror app/core/cuisines.py: asian, indian, italian, mexican,
 mediterranean, middle-eastern, american. region is a free-text slug — the 6
 questionnaire regions use their exact taxonomy child ids (north_indian,
 south_indian, gujarati, punjabi, marathi, bengali); everything else stores a
-clean slug that a top-level "indian" pick still matches (Stage 6.4 may promote
+clean slug that a top-level "indian" pick still matches (a later pass may promote
 high-count regions into the picker).
 """
 from __future__ import annotations
@@ -140,7 +140,7 @@ def map_course(raw: str) -> list[str]:
 
 # ---------------------------------------------------------------------------
 # Diet -> SEED diet_labels. This is only a seed: allergen/diet derivation from
-# matched ingredients (Stage 1's derive()) refines it. Kept conservative so a
+# matched ingredients (see derive()) refines it. Kept conservative so a
 # mislabelled source row can't assert vegan/vegetarian the ingredients deny.
 # ---------------------------------------------------------------------------
 _DIET_MAP: dict[str, list[str]] = {

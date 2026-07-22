@@ -1,4 +1,4 @@
-"""Online analytics event tests (Stage 13). DB-backed; append-only, cleaned up."""
+"""Online analytics event tests. DB-backed; append-only, cleaned up."""
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 

@@ -1,4 +1,4 @@
-"""Shared graph state (Stage 4.2)."""
+"""Shared graph state."""
 from __future__ import annotations
 
 from typing import TypedDict
@@ -15,4 +15,4 @@ class PlanState(TypedDict, total=False):
     summary: str  # supervisor's synthesis
     degraded: bool  # violations survived the repair budget
     repair_count: int
-    trace: list  # ordered node events (AGENT-05 groundwork)
+    trace: list  # ordered node events (groundwork for trace reads)

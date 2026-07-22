@@ -1,4 +1,4 @@
-"""Profile + feedback schemas (AGENT-01/02, API-05)."""
+"""Profile + feedback schemas."""
 from __future__ import annotations
 
 from typing import Literal, Optional
@@ -20,7 +20,7 @@ class ProfileOut(ProfileIn):
 # The interaction log is append-only. "cooked"/"uncooked" and
 # "liked"/"disliked"/"unrated" are paired toggle events so current UI state can
 # be derived latest-wins without mutating history. "recommended" is written by
-# the recommend endpoint. ("saved" → Stage 10; "dismissed" → Stage 12.)
+# the recommend endpoint. ("saved" and "dismissed" are written elsewhere.)
 FeedbackAction = Literal[
     "recommended", "cooked", "uncooked", "liked", "disliked", "unrated"
 ]

@@ -1,4 +1,4 @@
-"""Deterministic A/B variant assignment (Stage 13.2).
+"""Deterministic A/B variant assignment.
 
 Same (experiment, session_id) always resolves to the same variant — no state
 to store. Uses hashlib (stable across processes), NOT Python's built-in

@@ -30,7 +30,7 @@ export interface RecommendRequest {
   nutrition_goals: NutritionGoal[];
   max_time_minutes?: number | null;
   limit: number;
-  session_id?: string | null; // Stage 13: persisted per-browser id for A/B bucketing
+  session_id?: string | null; // persisted per-browser id for A/B bucketing
 }
 
 export interface SubstitutionSuggestion {
@@ -64,7 +64,7 @@ export interface RecommendResponse {
   mode: RecommendMode;
   explanation: string | null;
   unmatched_pantry: string[];
-  variant: string | null; // Stage 13: A/B variant this response was generated under
+  variant: string | null; // A/B variant this response was generated under
 }
 
 export interface RecipeIngredientLine {
@@ -91,7 +91,7 @@ export interface RecipeDetail {
   nutrition_estimated: boolean;
   ingredients: RecipeIngredientLine[];
   steps: string[];
-  steps_enriched: boolean; // WS6: whether the method is already LLM-enriched
+  steps_enriched: boolean; // whether the method is already LLM-enriched
   source: string;
   source_url: string | null;
   attribution: string | null;
@@ -99,7 +99,7 @@ export interface RecipeDetail {
   license_note: string | null;
 }
 
-// WS6: POST /recipes/{id}/enrich — richer method + filled-in measures.
+// POST /recipes/{id}/enrich — richer method + filled-in measures.
 export interface RecipeEnrichment {
   steps: string[];
   ingredients: RecipeIngredientLine[];
@@ -192,7 +192,7 @@ export interface Profile {
 
 export type ProfileUpdate = Omit<Profile, "user_key">;
 
-// Feedback loop (Stage 9). The backend log is append-only; these are the
+// Feedback loop. The backend log is append-only; these are the
 // toggle events. Derived state comes back via GET /v1/feedback/{user_key}.
 export type FeedbackAction =
   | "cooked"
@@ -219,7 +219,7 @@ export interface CuisineCount {
   children?: CuisineCount[];
 }
 
-// Saved recipes & meal plans (Stage 10). Compact card shape shared by both.
+// Saved recipes & meal plans. Compact card shape shared by both.
 export interface RecipeSummary {
   id: number;
   title: string;
@@ -269,7 +269,7 @@ export interface ShoppingListResponse {
   missing_recipe_ids: number[];
 }
 
-// Online analytics (Stage 13). Fire-and-forget; the backend never blocks a
+// Online analytics. Fire-and-forget; the backend never blocks a
 // request on this and neither does the client.
 export interface EventIn {
   name: string;

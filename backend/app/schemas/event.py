@@ -1,4 +1,4 @@
-"""Online analytics event schemas (Stage 13)."""
+"""Online analytics event schemas."""
 from __future__ import annotations
 
 from typing import Optional

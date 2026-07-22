@@ -1,4 +1,4 @@
-"""Shopping list composition (API-03).
+"""Shopping list composition.
 
 Given chosen recipes and the user's pantry, aggregate every ingredient the
 recipes need but the pantry lacks. Quantities are summed per (ingredient,

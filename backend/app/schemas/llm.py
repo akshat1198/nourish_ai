@@ -1,4 +1,4 @@
-"""Schemas for LLM structured output (LLM-02)."""
+"""Schemas for LLM structured output."""
 from __future__ import annotations
 
 from typing import Optional
@@ -39,7 +39,7 @@ class ModifiedSteps(BaseModel):
 
 
 # --------------------------------------------------------------------------- #
-# Substitution suggestions + free-text adaptation (WS4)
+# Substitution suggestions + free-text adaptation
 # --------------------------------------------------------------------------- #
 class SuggestedSwap(BaseModel):
     use: str = Field(..., description="The substitute ingredient name")
@@ -51,7 +51,7 @@ class SuggestedSwap(BaseModel):
 
 
 class SuggestedSwaps(BaseModel):
-    """LLM-proposed alternatives for one ingredient (WS4), realistic and common."""
+    """LLM-proposed alternatives for one ingredient, realistic and common."""
 
     substitutes: list[SuggestedSwap] = Field(default_factory=list)
 
@@ -64,7 +64,7 @@ class MacroDelta(BaseModel):
 
 
 class FreeSwapAdaptation(BaseModel):
-    """Adapt a recipe for a swap to an ingredient outside our vocabulary (WS4).
+    """Adapt a recipe for a swap to an ingredient outside our vocabulary.
 
     Everything here is the model's best estimate — the caller flags the result
     as approximate."""
@@ -95,7 +95,7 @@ class FreeSwapAdaptation(BaseModel):
 
 
 class EnrichedRecipe(BaseModel):
-    """Clearer method + filled-in measures for one recipe (WS6). Both fields are
+    """Clearer method + filled-in measures for one recipe. Both fields are
     plain string lists on purpose — nested/optional schemas blow the
     structured-output grammar budget (see RemovalPlan)."""
 
@@ -110,7 +110,7 @@ class EnrichedRecipe(BaseModel):
 
 
 class RemovalPlan(BaseModel):
-    """The creative part of removing an ingredient (WS5). Deliberately SMALL — a
+    """The creative part of removing an ingredient. Deliberately SMALL — a
     larger schema blows the structured-output grammar budget ("Grammar
     compilation timed out"). Allergens, diet, and nutrition are re-derived
     deterministically in code, not by the model."""

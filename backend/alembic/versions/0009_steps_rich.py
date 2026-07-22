@@ -1,4 +1,4 @@
-"""recipe steps_rich: LLM-enriched method (WS6)
+"""recipe steps_rich: LLM-enriched method
 
 Revision ID: 0009
 Revises: 0008

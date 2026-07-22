@@ -1,4 +1,4 @@
-"""Online analytics endpoints (Stage 13)."""
+"""Online analytics endpoints."""
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 

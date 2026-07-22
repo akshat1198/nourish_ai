@@ -1,4 +1,4 @@
-"""Backfill recipes.embedding from search_text (Stage 2.1).
+"""Backfill recipes.embedding from search_text.
 
 Idempotent: pass --all to re-embed everything, otherwise only rows with a
 null embedding are processed. Run after `alembic upgrade head`.

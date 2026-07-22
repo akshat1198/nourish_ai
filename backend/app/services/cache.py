@@ -1,4 +1,4 @@
-"""Recommendation response cache (RETR-04).
+"""Recommendation response cache.
 
 Keyed on a canonical hash of the request (order-independent pantry/allergens)
 plus RANKING_VERSION, so a weight change transparently invalidates the cache.
@@ -36,11 +36,11 @@ def recommend_key(payload: dict) -> str:
         "max_time_minutes": payload.get("max_time_minutes"),
         "limit": payload.get("limit"),
         "mode": payload.get("mode", "hybrid"),
-        # Stage 12: personalized results must not collide across users. None
+        # Personalized results must not collide across users. None
         # for every unpersonalized request (cold-start users, or the feature
         # disabled) so the shared cache is preserved when there's no taste term.
         "user": payload.get("user"),
-        # Stage 13: the A/B variant changes results (control never
+        # The A/B variant changes results (control never
         # personalizes) so it must fork the cache too; None with no session_id.
         "variant": payload.get("variant"),
     }

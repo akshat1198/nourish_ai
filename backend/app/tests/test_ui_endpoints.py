@@ -1,4 +1,4 @@
-"""Stage 5 UI endpoint tests — pantry CRUD, ingredient autocomplete, new filters.
+"""UI endpoint tests — pantry CRUD, ingredient autocomplete, new filters.
 
 DB-backed (require the seeded corpus + migration 0007 applied). Auth stays in
 disabled mode (default), so identity is the X-User-Key header.
@@ -201,7 +201,7 @@ def test_recommendations_rejects_unknown_cuisine():
 
 
 # --------------------------------------------------------------------------- #
-# Cuisines (Stage 6.4)
+# Cuisines
 # --------------------------------------------------------------------------- #
 @requires_db
 def test_cuisines_tree_with_counts():

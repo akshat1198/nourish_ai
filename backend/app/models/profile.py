@@ -8,7 +8,7 @@ from app.models.base import Base
 
 
 class UserProfile(Base):
-    """Per-user preferences (AGENT-01). `user_key` is an opaque client key."""
+    """Per-user preferences. `user_key` is an opaque client key."""
 
     __tablename__ = "user_profiles"
 
@@ -25,7 +25,7 @@ class UserProfile(Base):
 
 
 class InteractionHistory(Base):
-    """Recency memory (AGENT-02): what was recommended / cooked / skipped, when."""
+    """Recency memory: what was recommended / cooked / skipped, when."""
 
     __tablename__ = "interaction_history"
 

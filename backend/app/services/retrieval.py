@@ -1,4 +1,4 @@
-"""Retrieval: deterministic SQL (RETR-01) and hybrid SQL+vector (RETR-02).
+"""Retrieval: deterministic SQL and hybrid SQL+vector.
 
 Matching always runs against the recipe_ingredients join table, never the
 JSONB display copy. The hybrid path fuses an ingredient-match ranking with a
@@ -106,7 +106,7 @@ def _passes_filters(
 
 
 # --------------------------------------------------------------------------- #
-# SQL path (RETR-01)
+# SQL path
 # --------------------------------------------------------------------------- #
 def fetch_candidates(
     session: Session,
@@ -152,7 +152,7 @@ def fetch_candidates(
 
 
 # --------------------------------------------------------------------------- #
-# Hybrid path (RETR-02)
+# Hybrid path
 # --------------------------------------------------------------------------- #
 def _sql_ranked_ids(session: Session, pantry_set: set[int], limit: int) -> list[int]:
     """SQL arm: recipe ids ranked by ingredient match, no hard filters."""

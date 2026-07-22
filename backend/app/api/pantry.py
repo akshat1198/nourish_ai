@@ -1,4 +1,4 @@
-"""Persistent pantry endpoints (Stage 5): GET/PUT /v1/pantry.
+"""Persistent pantry endpoints: GET/PUT /v1/pantry.
 
 Keyed by the authed identity (`get_current_user_key`): in disabled mode that's
 the `X-User-Key` header; in jwt mode it's `google:{sub}` from the verified token.

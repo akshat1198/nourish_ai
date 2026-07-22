@@ -1,4 +1,4 @@
-"""Free-text pantry parsing (LLM-02 call site).
+"""Free-text pantry parsing.
 
 Turns "half a bag of spinach, a couple eggs, some cheddar" into
 ["spinach", "eggs", "cheddar"] using the fast model. Fail-open: if the LLM is

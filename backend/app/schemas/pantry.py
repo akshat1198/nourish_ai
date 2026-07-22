@@ -1,4 +1,4 @@
-"""Persistent pantry schemas (Stage 5)."""
+"""Persistent pantry schemas."""
 from __future__ import annotations
 
 from pydantic import BaseModel, Field

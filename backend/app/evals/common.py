@@ -14,7 +14,7 @@ EVAL_DIR = Path(__file__).resolve().parent.parent.parent / "seed_data" / "eval"
 QUERIES_PATH = EVAL_DIR / "queries.jsonl"
 QUERIES_ADVERSARIAL_PATH = EVAL_DIR / "queries_adversarial.jsonl"
 QUERIES_FUZZY_PATH = EVAL_DIR / "fuzzy_queries.jsonl"
-QUERIES_REGIONAL_PATH = EVAL_DIR / "queries_regional.jsonl"  # Stage 6.3 regional-Indian
+QUERIES_REGIONAL_PATH = EVAL_DIR / "queries_regional.jsonl"  # regional-Indian
 
 # Named suites the agent eval can run (--suite).
 SUITES = {"gold": QUERIES_PATH, "adversarial": QUERIES_ADVERSARIAL_PATH}
@@ -28,11 +28,11 @@ class EvalCase:
     exclude_allergens: list[str]
     max_time_minutes: int | None
     relevant_titles: list[str]
-    # Adversarial fields (Stage 4.4): retrieval can't hard-filter a disliked
+    # Adversarial fields: retrieval can't hard-filter a disliked
     # ingredient, but the validator flags it — so these drive the repair loop.
     disliked_ingredients: list[str] = field(default_factory=list)
     question: str | None = None
-    # Stage 6.3: regional-cuisine + meal-type gold cases exercise those filters.
+    # Regional-cuisine + meal-type gold cases exercise those filters.
     cuisines: list[str] = field(default_factory=list)
     meal_type: str | None = None
 

@@ -97,7 +97,7 @@ export const api = {
       }),
     }),
 
-  // Saved recipes (Stage 10)
+  // Saved recipes
   getSaved: () => apiFetch<SavedListOut>("/v1/saved"),
 
   addSaved: (recipeId: number) =>
@@ -109,7 +109,7 @@ export const api = {
   removeSaved: (recipeId: number) =>
     apiFetch<SavedListOut>(`/v1/saved/${recipeId}`, { method: "DELETE" }),
 
-  // Meal plans (Stage 10)
+  // Meal plans
   getPlans: () => apiFetch<PlanListOut>("/v1/plans"),
 
   getPlan: (id: number) => apiFetch<Plan>(`/v1/plans/${id}`),
@@ -135,7 +135,7 @@ export const api = {
   getPlanShoppingList: (planId: number) =>
     apiFetch<ShoppingListResponse>(`/v1/plans/${planId}/shopping-list`),
 
-  // Online analytics (Stage 13)
+  // Online analytics
   track: (body: EventIn) =>
     apiFetch<{ ok: boolean }>("/v1/events", {
       method: "POST",

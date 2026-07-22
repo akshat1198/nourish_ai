@@ -1,4 +1,4 @@
-"""Agent loop mechanics (Stage 3.2) — scripted fake client, no API/DB calls.
+"""Agent loop mechanics — scripted fake client, no API/DB calls.
 
 call_tool is monkeypatched so these test the LOOP (dispatch, single-message
 parallel results, stop-reason handling, iteration cap) — not the tools.
@@ -152,7 +152,7 @@ def test_tool_error_becomes_is_error_result(monkeypatch):
 
 
 # --------------------------------------------------------------------------- #
-# Validation + repair (LLM-04/05)
+# Validation + repair
 # --------------------------------------------------------------------------- #
 def _bad_plan():
     return MealPlanResponse(

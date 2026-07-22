@@ -1,4 +1,4 @@
-"""Low-confidence fallback tests (RETR-05)."""
+"""Low-confidence fallback tests."""
 from app.schemas.recommend import RankedRecipe
 from app.services.fallback import apply_fallback, substitution_suggestions
 from app.services.ingredients import resolve_pantry

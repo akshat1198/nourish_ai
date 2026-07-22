@@ -1,4 +1,4 @@
-"""Substitution-aware recipe modification (Stage 7.3).
+"""Substitution-aware recipe modification.
 
 Deterministic core: apply a table-grounded ingredient swap (ratio-scaled
 quantities) and re-derive diet/allergen on the post-swap canonical set via the
@@ -528,7 +528,7 @@ def modify_recipe(
         )
 
     # Deterministic path: both canonical, source in the recipe. Prefer a curated
-    # ratio when we have one; otherwise 1:1 (WS4: any canonical target is valid).
+    # ratio when we have one; otherwise 1:1 (any canonical target is valid).
     sub = session.execute(
         select(Substitution).where(
             Substitution.ingredient_id == from_canon.id,

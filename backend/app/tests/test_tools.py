@@ -1,4 +1,4 @@
-"""Tool registry tests (LLM-03; check_inventory/save_meal_plan added Stage 11).
+"""Tool registry tests (check_inventory/save_meal_plan included).
 
 The deterministic tools are exercised directly against the DB. search_recipes
 is gated behind RUN_EMBEDDER_TESTS=1 because it loads the embedding model.

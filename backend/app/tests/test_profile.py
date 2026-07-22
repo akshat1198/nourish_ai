@@ -1,4 +1,4 @@
-"""Profile/memory tests (AGENT-01/02, LLM-06)."""
+"""Profile/memory tests."""
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
@@ -146,7 +146,7 @@ def test_feedback_state_derives_made_and_rating(session):
 
 @requires_db
 def test_feedback_write_invalidates_taste_cache(session):
-    """A dismiss/like/etc. must bust the cached taste vector (Stage 12) so
+    """A dismiss/like/etc. must bust the cached taste vector so
     the next recommend reflects it immediately rather than waiting out
     TASTE_CACHE_TTL — otherwise a dismiss could feel like it did nothing."""
     from app.cache import redis_client

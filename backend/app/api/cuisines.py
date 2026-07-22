@@ -1,4 +1,4 @@
-"""GET /v1/cuisines (Stage 6.4) — the authored taxonomy + live per-node counts.
+"""GET /v1/cuisines — the authored taxonomy + live per-node counts.
 
 The frontend swaps its static taxonomy for this so the questionnaire can grey
 out zero-count nodes and drill into regions that actually have recipes. One

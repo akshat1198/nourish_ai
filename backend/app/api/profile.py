@@ -1,4 +1,4 @@
-"""Profile + feedback endpoints (AGENT-01/02, API-05)."""
+"""Profile + feedback endpoints."""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -77,7 +77,7 @@ def feedback(
     if session.get(Recipe, body.recipe_id) is None:
         raise HTTPException(404, "recipe not found")
     record_interaction(session, body.user_key, body.recipe_id, body.action)
-    # Any feedback write can change this user's taste vector inputs (Stage 12)
+    # Any feedback write can change this user's taste vector inputs
     # — bust the cache so the next recommend reflects it immediately rather
     # than waiting out TASTE_CACHE_TTL.
     invalidate_taste_cache(body.user_key)

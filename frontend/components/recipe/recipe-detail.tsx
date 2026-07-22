@@ -47,7 +47,7 @@ export function RecipeDetailView({ id }: { id: number }) {
   // Applied ingredient swap (null = original). One active swap at a time.
   const [modified, setModified] = useState<ModifyResponse | null>(null);
   const modify = useModifyRecipe(id);
-  // WS6: on first view of an un-enriched recipe, kick off the one-time
+  // On first view of an un-enriched recipe, kick off the one-time
   // enrichment (cached server-side). The Method shows a skeleton meanwhile.
   const { data: enrichment, isLoading: enriching } = useEnrichRecipe(
     id,

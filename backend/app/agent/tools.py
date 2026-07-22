@@ -1,12 +1,12 @@
-"""Deterministic tool registry (LLM-03).
+"""Deterministic tool registry.
 
-Five typed tools the Stage-3 agent can call. Each is a plain function of
+Five typed tools the agent can call. Each is a plain function of
 (session, input_dict) returning JSON-serializable output — NO tool calls the
 LLM (that would defeat the point). The same registry is:
 
-  * dispatched by the raw agent loop (Stage 3.2),
+  * dispatched by the raw agent loop,
   * called directly in tests,
-  * exposed over MCP (Stage 4.1),
+  * exposed over MCP,
 
 so there is exactly one implementation of each capability. `anthropic_tools()`
 renders the registry into the tool-definition list the Messages API expects
@@ -95,7 +95,7 @@ def _check_allergens(session: Session, inp: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- #
-# find_substitutions  (also POST /v1/substitutions — API-02)
+# find_substitutions  (also POST /v1/substitutions)
 # --------------------------------------------------------------------------- #
 def _find_substitutions(session: Session, inp: dict) -> dict:
     name = inp["ingredient"]
@@ -153,7 +153,7 @@ def _build_shopping_list_tool(session: Session, inp: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- #
-# check_inventory  (Stage 11 — reads the persistent pantry, Stage 5)
+# check_inventory  (reads the persistent pantry)
 # --------------------------------------------------------------------------- #
 def _check_inventory(session: Session, inp: dict) -> dict:
     user_key = inp["user_key"]
@@ -168,7 +168,7 @@ def _check_inventory(session: Session, inp: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- #
-# save_meal_plan  (Stage 11 — writes into Stage 10's meal_plans)
+# save_meal_plan  (writes into meal_plans)
 # --------------------------------------------------------------------------- #
 def _save_meal_plan(session: Session, inp: dict) -> dict:
     user_key = inp["user_key"]

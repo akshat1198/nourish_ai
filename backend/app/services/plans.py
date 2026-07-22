@@ -1,4 +1,4 @@
-"""Meal-plan persistence + combined shopping list (Stage 10).
+"""Meal-plan persistence + combined shopping list.
 
 Owner-scoped: every mutating/reading helper takes `user_key` and returns None /
 False when the plan isn't the caller's, so the API can 404 without leaking that

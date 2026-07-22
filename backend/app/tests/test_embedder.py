@@ -2,7 +2,7 @@
 
 Loading the model takes ~20s, so this is gated behind RUN_EMBEDDER_TESTS=1
 to keep the default suite fast. The embedder is also exercised live by
-scripts/embed_recipes.py and the Stage 2 hybrid eval.
+scripts/embed_recipes.py and the hybrid eval.
 """
 import os
 

@@ -1,4 +1,4 @@
-"""Learned personalization (Stage 12).
+"""Learned personalization.
 
 A per-user "taste vector" — the mean embedding of recipes the user has
 saved/cooked/liked, minus a fraction of ones they've disliked — used to gently
@@ -8,7 +8,7 @@ after `_passes_filters`, so personalization can only reorder the safe set, never
 surface a diet/allergen violation.
 
 Degrades to a no-op ({} / None) on: cold start (no positive signal), Redis
-down, or an all-NULL-embedding candidate set — identical to pre-Stage-12
+down, or an all-NULL-embedding candidate set — identical to unpersonalized
 behaviour in every one of those cases.
 """
 from __future__ import annotations
@@ -26,7 +26,7 @@ from app.models import InteractionHistory, Recipe, SavedRecipe
 
 
 def positive_recipe_ids(session: Session, user_key: str) -> set[int]:
-    """Saved recipes UNION cooked/liked recipes (Stage 9/10 signals)."""
+    """Saved recipes UNION cooked/liked recipes."""
     saved = session.execute(
         select(SavedRecipe.recipe_id).where(SavedRecipe.user_key == user_key)
     ).scalars()
@@ -40,7 +40,7 @@ def positive_recipe_ids(session: Session, user_key: str) -> set[int]:
 
 
 def negative_recipe_ids(session: Session, user_key: str) -> set[int]:
-    """Disliked recipes (Stage 9 signal)."""
+    """Disliked recipes."""
     disliked = session.execute(
         select(InteractionHistory.recipe_id).where(
             InteractionHistory.user_key == user_key,

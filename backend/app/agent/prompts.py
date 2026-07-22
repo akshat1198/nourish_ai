@@ -1,4 +1,4 @@
-"""Versioned prompts (LLM-06).
+"""Versioned prompts.
 
 System prompts live here keyed by version so they can be A/B'd and so every run
 records which prompt produced it (logged to generation_events.prompt_version).

@@ -1,4 +1,4 @@
-"""Recipe ranking (RETR-03).
+"""Recipe ranking.
 
 Turns raw match stats from retrieval into a scored, explained ordering.
 
@@ -45,7 +45,7 @@ def _score(
     # Soft demotion: sink disliked recipes beneath clean ones without removing them.
     if disliked_ids and candidate.id in disliked_ids:
         score -= settings.RANK_W_DISLIKE
-    # Personalization (Stage 12): applied here, on an already hard-filtered
+    # Personalization: applied here, on an already hard-filtered
     # candidate — this can only reorder the safe set, never surface a
     # diet/allergen violation. Small weight; 0.0 contribution if no signal.
     if taste_scores:
@@ -100,8 +100,9 @@ def rank(
 
     `disliked_ids` (recipe ids containing a disliked ingredient) get a soft
     penalty so they sink to the bottom but remain — picked only if nothing clean
-    fits. `taste_scores` (Stage 12) adds a small personalization term to the
-    score. Both omitted => behaviour is identical to before Stage 9/12.
+    fits. `taste_scores` adds a small personalization term to the
+    score. Both omitted => behaviour is identical to before these signals
+    existed.
     """
     ranked = [_to_ranked(c, disliked_ids, taste_scores) for c in candidates]
     ranked.sort(key=lambda r: r.score, reverse=True)
@@ -117,7 +118,7 @@ def annotate(
 ) -> list[RankedRecipe]:
     """Score + explain but PRESERVE incoming order (hybrid path keeps RRF order).
 
-    `score` is the ingredient-fit (+ taste, Stage 12) score for display/
+    `score` is the ingredient-fit (+ taste) score for display/
     explanation; ordering is the caller's (fusion) relevance order, not
     re-sorted by score. When `disliked_ids` is given, disliked recipes are
     stably moved to the bottom (RRF order preserved within the clean group and

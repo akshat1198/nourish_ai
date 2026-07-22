@@ -1,7 +1,7 @@
-"""Shared agent tracing (Stage 4.4, AGENT-05).
+"""Shared agent tracing.
 
-One append-only trail — `agent_traces` — written by BOTH the Stage-3 single-agent
-loop and the Stage-4 LangGraph orchestrator, so GET /v1/traces/{session_id} and
+One append-only trail — `agent_traces` — written by BOTH the single-agent
+loop and the LangGraph orchestrator, so GET /v1/traces/{session_id} and
 the comparative eval read one uniform shape regardless of engine.
 
 `persist_trace` is best-effort and keyed by session_id: with no session_id

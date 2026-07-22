@@ -1,4 +1,4 @@
-"""Shopping-list aggregation (API-03) and cache-key (RETR-04) tests."""
+"""Shopping-list aggregation and cache-key tests."""
 from app.services.cache import recommend_key
 from app.services.shopping import build_shopping_list
 from app.tests.conftest import requires_db

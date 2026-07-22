@@ -1,4 +1,4 @@
-"""Observability aggregation (Stage 14). Read-only rollups over telemetry
+"""Observability aggregation. Read-only rollups over telemetry
 that's already being logged (`generation_events`, `agent_traces`, `events`,
 Redis cache counters) — no new data model, just a view over what exists.
 """

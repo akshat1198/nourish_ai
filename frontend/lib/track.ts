@@ -2,8 +2,8 @@
 
 import { api } from "@/lib/api-client";
 
-// Stage 13: a per-browser session id, persisted so events (and, from Stage
-// 13.2, A/B variant assignment) stay stable across page loads/tabs.
+// A per-browser session id, persisted so events (and A/B variant assignment)
+// stay stable across page loads/tabs.
 const SESSION_KEY = "nourish:session";
 let cachedSessionId: string | null = null;
 
@@ -23,8 +23,8 @@ export function getSessionId(): string {
   }
 }
 
-// The most recent A/B variant this session was assigned (Stage 13.2 sets this
-// after each recommend response). Tags subsequent events so they can be
+// The most recent A/B variant this session was assigned (set after each
+// recommend response). Tags subsequent events so they can be
 // grouped by variant even though the event itself doesn't know about ranking.
 let lastVariant: string | null = null;
 

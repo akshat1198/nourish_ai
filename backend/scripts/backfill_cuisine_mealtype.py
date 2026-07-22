@@ -1,12 +1,12 @@
-"""Backfill recipes.cuisine / region / meal_types for the seed corpus (Stage 5).
+"""Backfill recipes.cuisine / region / meal_types for the seed corpus.
 
 Cuisine + region are derived deterministically from the existing cuisine tags
 (the seed already tags italian/thai/chinese/... on every recipe). meal_types are
 derived from a keyword heuristic over title + tags — good enough for the 144-recipe
-seed demo; the Stage-6 ingest pipeline classifies the real corpus with the LLM.
+seed demo; the later ingest pipeline classifies the real corpus with the LLM.
 
 Idempotent: re-running recomputes from tags. Regional Indian (gujarati/punjabi/…)
-is left NULL — the seed has no regional info; that's what Stage 6 adds.
+is left NULL — the seed has no regional info; that's what the later ingest pipeline adds.
 
 Run:  python -m scripts.backfill_cuisine_mealtype          # writes + prints summary
       python -m scripts.backfill_cuisine_mealtype --dry    # print only, no writes

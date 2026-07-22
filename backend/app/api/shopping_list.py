@@ -1,4 +1,4 @@
-"""Shopping list endpoint (API-03) + cache metrics (RETR-04)."""
+"""Shopping list endpoint + cache metrics."""
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 

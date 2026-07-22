@@ -1,16 +1,16 @@
-"""Agent eval — constraint pass-rate + single-vs-graph comparison (Stage 3.5 + 4.4).
+"""Agent eval — constraint pass-rate + single-vs-graph comparison.
 
 Replays the gold cases through an engine and reports:
   * constraint pass-rate  — plan validator-clean on the FIRST attempt (no repair)
   * repair / degraded rate — needed a repair turn / fell back deterministically
   * mean tool calls (single only), p50 latency, tokens, estimated $ cost
 
-Two engines, same cases (AGENT-05 / INT-04):
-  --engine single  the Stage-3 raw tool-calling loop (default)
-  --engine graph   the Stage-4 LangGraph supervisor
+Two engines, same cases:
+  --engine single  the raw tool-calling loop (default)
+  --engine graph   the LangGraph supervisor
   --engine both    run each and print a side-by-side comparison
 
-⚠️ This hits the real Anthropic API and spends tokens. It is capped at 30 cases
+WARNING: this hits the real Anthropic API and spends tokens. It is capped at 30 cases
 and requires --yes for more than 3 (so a full run is always deliberate); `both`
 runs every case through BOTH engines, so it spends ~2x. Do a small run first
 (default 2) to project the full cost.

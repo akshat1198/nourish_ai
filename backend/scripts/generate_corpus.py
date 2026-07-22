@@ -3,7 +3,7 @@
 Recipes are composed deterministically from dish templates x protein/veg variants.
 Diet labels, allergens, and nutrition are DERIVED from canonical ingredient
 properties — never hand-tagged — so labels are consistent by construction
-(the Stage-3 validator and eval harness rely on this).
+(the validator and eval harness rely on this).
 
 Run:  python scripts/generate_corpus.py   (from backend/)
 Output is committed to backend/seed_data/ so the corpus is reviewable and stable.

@@ -1,4 +1,4 @@
-"""Deterministic plan validator (LLM-04).
+"""Deterministic plan validator.
 
 Fail-closed safety net: re-checks the agent's plan against the DATABASE, never
 against the model's claims (a model that says "dairy-free" is exactly the failure

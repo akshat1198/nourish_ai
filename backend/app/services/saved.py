@@ -1,4 +1,4 @@
-"""Saved-recipe persistence (Stage 10). Per-user bookmarks."""
+"""Saved-recipe persistence. Per-user bookmarks."""
 from __future__ import annotations
 
 from sqlalchemy import delete, select

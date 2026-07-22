@@ -1,4 +1,4 @@
-"""Cuisine taxonomy (Stage 5) — the backend mirror of frontend `lib/cuisines.ts`.
+"""Cuisine taxonomy — the backend mirror of frontend `lib/cuisines.ts`.
 
 Two-level ids: a top-level `"indian"` or a child `"indian/gujarati"`. The
 frontend sends these ids in `RecommendRequest.cuisines`; a recipe carries a
@@ -13,7 +13,7 @@ from typing import Optional
 
 CUISINE_TAXONOMY: dict[str, list[str]] = {
     "asian": ["chinese", "thai", "japanese", "filipino", "korean", "vietnamese"],
-    # Indian regions expanded in Stage 6 once the real corpus populated them
+    # Indian regions expanded once the real corpus populated them
     # (each of these has 80+ recipes). The importer already stores these slugs.
     "indian": ["north_indian", "south_indian", "punjabi", "gujarati", "marathi",
                "bengali", "kerala", "tamil_nadu", "karnataka", "rajasthani",

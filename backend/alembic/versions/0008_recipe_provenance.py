@@ -4,7 +4,7 @@ Revision ID: 0008
 Revises: 0007
 Create Date: 2026-07-14
 
-Stage 6.1 — own-the-data ingestion needs to record where each recipe came from
+Own-the-data ingestion needs to record where each recipe came from
 and how it may be used. `source` defaults to 'seed' so the existing 144 curated
 rows are tagged automatically. A PARTIAL unique index on (source, source_url)
 guards against re-importing the same URL from the same source, while allowing

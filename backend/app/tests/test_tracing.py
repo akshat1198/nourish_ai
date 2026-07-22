@@ -1,4 +1,4 @@
-"""Tracing tests (Stage 4.4, AGENT-05) — no API or DB.
+"""Tracing tests — no API or DB.
 
 persist_trace's reshaping is exercised with a fake session; the single-agent
 loop's trail is captured by monkeypatching persist_trace; the traces endpoint

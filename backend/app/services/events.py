@@ -1,6 +1,6 @@
-"""Online analytics: event capture + per-variant experiment summary (Stage 13).
+"""Online analytics: event capture + per-variant experiment summary.
 
-There's a single active experiment at a time (Stage 13.2's EXPERIMENT_NAME), so
+There's a single active experiment at a time (the EXPERIMENT_NAME setting), so
 events don't carry an experiment column — `experiment_summary` aggregates over
 every event carrying a non-null `variant` and echoes the requested name back
 for labeling. Simplest correct thing per the current one-experiment model.

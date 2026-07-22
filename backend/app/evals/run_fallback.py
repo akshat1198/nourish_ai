@@ -1,4 +1,4 @@
-"""Fallback-trigger eval (RETR-05).
+"""Fallback-trigger eval.
 
 Runs sparse / awkward pantries through retrieve -> rank -> apply_fallback and
 reports how often (and into which mode) the low-confidence fallback fires.

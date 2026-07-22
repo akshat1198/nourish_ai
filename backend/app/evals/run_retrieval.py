@@ -1,4 +1,4 @@
-"""Retrieval eval harness (Stage 1.5 + 2.2).
+"""Retrieval eval harness.
 
 Runs the recommendation pipeline over a gold set and reports hit@5, hit@10,
 MRR and hard-constraint violations. Supports the SQL path, the hybrid
@@ -7,11 +7,11 @@ MRR and hard-constraint violations. Supports the SQL path, the hybrid
 The SQL and hybrid paths both enforce diet/allergen/time, so
 constraint_violations MUST be 0 — a nonzero value is a retrieval bug.
 
-Baselines — 144-recipe seed corpus (Stage 1-5, RANKING_VERSION=v1):
+Baselines — 144-recipe seed corpus (RANKING_VERSION=v1):
     structured (queries.jsonl):       sql & hybrid  hit@5=1.0   violations=0
     fuzzy (fuzzy_queries.jsonl):      sql 0.25  ->  hybrid 1.0  violations=0
 
-Re-baseline — 7,580-recipe corpus (Stage 6.3: +708 themealdb +6,728 archanas):
+Re-baseline — 7,580-recipe corpus (+708 themealdb +6,728 archanas):
     structured (queries.jsonl):       sql 1.0    hybrid 1.0   (holds at 52x scale)
     regional (queries_regional.jsonl):sql 0.875  hybrid 1.0   (hybrid finds the
                                       regional dish SQL drops, e.g. Kerala avial)
@@ -105,7 +105,7 @@ def run(mode: str, cases_path: Path, verbose: bool = False) -> Metrics:
                 )
 
             if verbose:
-                hit = "✓" if relevant_ids & set(ranked_ids[:5]) else "✗"
+                hit = "hit " if relevant_ids & set(ranked_ids[:5]) else "miss"
                 top = ranked[0].title if ranked else "(none)"
                 print(f"  [{mode:6}] {hit} {case.name:40} top: {top}")
 

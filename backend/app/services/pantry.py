@@ -1,4 +1,4 @@
-"""Persistent pantry (Stage 5).
+"""Persistent pantry.
 
 Rows keyed by the authed `user_key`. PUT replaces the whole set (simplest
 correct protocol for a small per-user list). Names resolve through the same

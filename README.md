@@ -267,12 +267,12 @@ frontend/
                      #   /app/saved, /app/plans(/[id]), /recipes/[id], /login
   components/       # filters (steps/), pantry, recipe, results, landing, ui
   lib/              # api client, hooks, query keys, flow/ (paged-flow context + steps), track.ts
-docker-compose.yml · README.md · ROADMAP.md
+docker-compose.yml · README.md
 ```
 
 ## Project Status
 
-The product described above — pantry → guided flow → ranked, safe recipes → save/plan/adapt → shop, plus personalization, online analytics, and an observability endpoint — is fully implemented and tested. **[ROADMAP.md](ROADMAP.md)** keeps the implementation notes for how each capability was built (useful context for extending them), but nothing from it is currently outstanding. There's no active roadmap queued right now.
+The product described above — pantry → guided flow → ranked, safe recipes → save/plan/adapt → shop, plus personalization, online analytics, and an observability endpoint — is fully implemented and tested. There's no active roadmap queued right now.
 
 ## License
 

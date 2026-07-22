@@ -7,7 +7,7 @@ from app.models.base import Base
 
 
 class SavedRecipe(Base):
-    """A recipe a user bookmarked (Stage 10). Unique per (user, recipe)."""
+    """A recipe a user bookmarked. Unique per (user, recipe)."""
 
     __tablename__ = "saved_recipes"
     __table_args__ = (UniqueConstraint("user_key", "recipe_id", name="uq_saved_user_recipe"),)
@@ -23,7 +23,7 @@ class SavedRecipe(Base):
 
 
 class MealPlan(Base):
-    """A named collection of recipes to cook (Stage 10)."""
+    """A named collection of recipes to cook."""
 
     __tablename__ = "meal_plans"
 

@@ -1,4 +1,4 @@
-"""Meal-plan endpoint tests (Stage 10). DB-backed; discover ids dynamically."""
+"""Meal-plan endpoint tests. DB-backed; discover ids dynamically."""
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 

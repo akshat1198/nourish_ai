@@ -1,4 +1,4 @@
-"""Raw Anthropic tool-calling loop + validation/repair (Stage 3.2 + 3.3).
+"""Raw Anthropic tool-calling loop + validation/repair.
 
 A hand-written `while stop_reason == "tool_use"` loop, deliberately NOT the SDK
 tool-runner (which hides exactly the mechanics this stage exists to teach):
@@ -9,7 +9,7 @@ schema-validated final answer.
 After the model produces a plan, a DETERMINISTIC validator (validator.py) checks
 it against the DB. On a violation the loop feeds the violations back for up to
 REPAIR_MAX_ATTEMPTS repair turns; if still invalid it returns a deterministic
-Stage-1 plan with degraded=true. Every run is logged to generation_events.
+fallback plan with degraded=true. Every run is logged to generation_events.
 """
 from __future__ import annotations
 
@@ -167,7 +167,7 @@ def run_agent(
     tool_calls = 0
     iterations = 0
     usage = {"in": 0, "out": 0}
-    trace: list[dict] = []  # AGENT-05: the single-engine trail (mirrors the graph's)
+    trace: list[dict] = []  # the single-engine trail (mirrors the graph's)
 
     def ms() -> int:
         return int((time.perf_counter() - t0) * 1000)
@@ -245,7 +245,7 @@ def run_agent(
     else:
         return degraded_no_plan("tool_use", "hit iteration cap")
 
-    # --- structure + validate + repair (LLM-04/05) -------------------------- #
+    # --- structure + validate + repair -------------------------- #
     messages.append({"role": "user", "content": FINAL_INSTRUCTION})
     plan, uin, uout = _parse_plan(client, system, messages)
     usage["in"] += uin

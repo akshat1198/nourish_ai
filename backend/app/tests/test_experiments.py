@@ -1,4 +1,4 @@
-"""Deterministic A/B assignment tests (Stage 13.2)."""
+"""Deterministic A/B assignment tests."""
 import uuid
 
 from fastapi.testclient import TestClient

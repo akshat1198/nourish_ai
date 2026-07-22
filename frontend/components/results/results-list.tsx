@@ -20,7 +20,7 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
 
   useEffect(() => {
     if (!data) return;
-    setLastVariant(data.variant); // Stage 13.2: tag subsequent events with this variant
+    setLastVariant(data.variant); // tag subsequent events with this variant
     track("results_shown", { count: data.results.length, mode: data.mode });
     setDismissedIds(new Set()); // a fresh result set starts with nothing dismissed
   }, [data]);

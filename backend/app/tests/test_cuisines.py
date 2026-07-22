@@ -1,4 +1,4 @@
-"""Cuisine taxonomy matching (Stage 5) — pure, no DB."""
+"""Cuisine taxonomy matching — pure, no DB."""
 from app.core.cuisines import VALID_CUISINE_IDS, cuisine_matches, parse_cuisine_id
 
 

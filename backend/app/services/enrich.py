@@ -1,4 +1,4 @@
-"""Lazy recipe enrichment (WS6): rewrite terse steps + fill blank measures.
+"""Lazy recipe enrichment: rewrite terse steps + fill blank measures.
 
 Runs on first view and caches to recipes.steps_rich / ingredients_rich, so it's
 computed once per recipe (globally shared, never per-user, never re-run). Fails

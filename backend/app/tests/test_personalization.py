@@ -1,9 +1,9 @@
-"""Personalization tests (Stage 12).
+"""Personalization tests.
 
-Cold-start / disabled paths must degrade to {}/None identically to
-pre-Stage-12 behaviour. The safety guarantee (taste only reorders an
-already-filtered set) is exercised at the ranking layer here and verified
-end-to-end live in Chrome per the blueprint's Verify checklist.
+Cold-start / disabled paths must degrade to {}/None identically to the
+baseline (unpersonalized) behaviour. The safety guarantee (taste only
+reorders an already-filtered set) is exercised at the ranking layer here
+and verified end-to-end live in Chrome.
 """
 from sqlalchemy import select
 

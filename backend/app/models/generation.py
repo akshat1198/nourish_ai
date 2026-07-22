@@ -8,7 +8,7 @@ from app.models.base import Base
 
 
 class GenerationEvent(Base):
-    """One row per agent run — the audit + eval trail (LLM-04/05, AGENT-03)."""
+    """One row per agent run — the audit + eval trail."""
 
     __tablename__ = "generation_events"
 

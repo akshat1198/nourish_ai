@@ -1,4 +1,4 @@
-"""LangGraph supervisor graph (Stage 4.2, INT-04).
+"""LangGraph supervisor graph.
 
 Supervisor + 4 specialist nodes over the typed PlanState, hand-built as a
 StateGraph (not the prebuilt create_supervisor — the point is to learn the
@@ -6,7 +6,7 @@ state/edges/repair-loop mechanics). Two nodes are DELIBERATELY code, not LLMs:
 
     pantry_analyst      LLM (haiku)  — parse free-text pantry -> ingredient names
     recipe_planner      LLM (sonnet) — pick recipes from tool-fetched candidates
-    safety_nutritionist CODE         — the Stage-3 validator + nutrition (no LLM)
+    safety_nutritionist CODE         — the validator + nutrition (no LLM)
     shopping_planner    CODE         — build_shopping_list (no LLM)
     supervisor          LLM (sonnet) — synthesize the final summary
 
@@ -54,7 +54,7 @@ def _trace(state: PlanState, event: dict) -> list:
 # --------------------------------------------------------------------------- #
 def _chat(max_tokens: int) -> ChatAnthropic:
     """ChatAnthropic with a bounded timeout + retry budget so a stalled request
-    fails fast instead of hanging the graph forever (the raw Stage-3 client sets
+    fails fast instead of hanging the graph forever (the raw client sets
     the same timeout via the anthropic SDK; langchain defaults to None = infinite)."""
     return ChatAnthropic(
         model=settings.LLM_MODEL_MAIN,
@@ -82,7 +82,7 @@ def _plan_llm(
     if violations:
         bad = ", ".join(str(v.get("recipe_id")) for v in violations if v.get("recipe_id"))
         context = f"\nA previous pick violated constraints — do NOT choose recipe_ids: {bad}."
-    elif prior_recipes:  # a refinement on a continued session (Stage 4.3)
+    elif prior_recipes:  # a refinement on a continued session
         titles = ", ".join(r["title"] for r in prior_recipes)
         context = (
             f"\nThe user was previously recommended: {titles}. They now say: "
@@ -119,7 +119,7 @@ def node_pantry_analyst(state: PlanState) -> dict:
         parsed = parse_pantry_text(req.pantry_text) if req.pantry_text else []
         pantry = req.pantry + parsed
     else:
-        # Refinement turn: no pantry resent — keep the checkpointed one (AGENT-04).
+        # Refinement turn: no pantry resent — keep the checkpointed one.
         pantry = state.get("pantry", [])
     return {
         "pantry": pantry,

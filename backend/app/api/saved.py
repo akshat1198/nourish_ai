@@ -1,4 +1,4 @@
-"""Saved-recipe endpoints (Stage 10). Owner-scoped by the authed user_key."""
+"""Saved-recipe endpoints. Owner-scoped by the authed user_key."""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 

@@ -1,4 +1,4 @@
-"""Stage 7.3b — POST /v1/recipes/{id}/modify deterministic core.
+"""POST /v1/recipes/{id}/modify deterministic core.
 
 DB-backed. Uses seed recipes + seed substitutions (both in the CI baseline);
 looks the recipe up by title so it never hard-codes an id.
@@ -81,7 +81,7 @@ def test_modify_unknown_ingredient_422(session):
 
 @requires_db
 def test_modify_arbitrary_canonical_swap_ok(session):
-    # WS4: any canonical target is allowed now (not just table rows). tomato->rice
+    # Any canonical target is allowed now (not just table rows). tomato->rice
     # has no curated row, so it defaults to 1:1 and is NOT flagged approximate.
     r = client.post(
         f"/v1/recipes/{_pasta_id(session)}/modify",
@@ -191,7 +191,7 @@ def test_modify_llm_disabled_warns(session):
     assert any("isn't configured" in w for w in body["warnings"])
 
 
-# --- WS4: free-text (out-of-vocabulary) swaps + LLM suggestions ------------ #
+# --- Free-text (out-of-vocabulary) swaps + LLM suggestions ------------ #
 @requires_db
 def test_modify_freetext_swap_needs_llm(session):
     # _llm_off: a target we don't know can't be adapted without the assistant.
@@ -235,7 +235,7 @@ def test_modify_freetext_swap_llm_estimates(session, monkeypatch):
     assert any("approximate" in w.lower() for w in body["warnings"])
 
 
-# --- WS5: remove-ingredient adaptation ------------------------------------- #
+# --- Remove-ingredient adaptation ------------------------------------- #
 @requires_db
 def test_modify_remove_needs_llm(session):
     # _llm_off: can't adapt a removal without the assistant.
@@ -305,7 +305,7 @@ def test_modify_remove_substitute_freetext(session, monkeypatch):
     assert body["approximate"] is True
 
 
-# --- WS6: lazy enrichment on view + cache ---------------------------------- #
+# --- Lazy enrichment on view + cache ---------------------------------- #
 @requires_db
 def test_enrich_caches_and_flags(session, monkeypatch):
     from app.schemas.llm import EnrichedRecipe

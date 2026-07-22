@@ -21,17 +21,17 @@ class Recipe(Base):
     # Matching NEVER runs on this — it runs on recipe_ingredients.
     ingredients: Mapped[list] = mapped_column(JSONB)
     steps: Mapped[list[str]] = mapped_column(ARRAY(Text))
-    # LLM-enriched method (WS6): prep state + cooking cues. Nullable; the detail
+    # LLM-enriched method: prep state + cooking cues. Nullable; the detail
     # endpoint prefers it when present, else falls back to `steps`.
     steps_rich: Mapped[Optional[list[str]]] = mapped_column(ARRAY(Text), nullable=True)
-    # Enriched ingredient lines (WS6): same list with a measure filled in for the
+    # Enriched ingredient lines: same list with a measure filled in for the
     # source's blank ones. Preferred when present. Both are set together on the
     # first-view enrichment, so steps_rich != None implies this is set too.
     ingredients_rich: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
     tags: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     diet_labels: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     allergens: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
-    # Normalized cuisine taxonomy (Stage 5): cuisine="indian", region="gujarati";
+    # Normalized cuisine taxonomy: cuisine="indian", region="gujarati";
     # region is NULL when the source has no sub-cuisine. meal_types ⊆
     # {breakfast,lunch,dinner,snack,dessert}.
     cuisine: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -41,13 +41,13 @@ class Recipe(Base):
     servings: Mapped[int] = mapped_column(Integer, default=2)
     # {calories, protein_g, carbs_g, fat_g} per serving
     nutrition: Mapped[dict] = mapped_column(JSONB, default=dict)
-    # title + ingredient names + tags; FTS now, embedding input in Stage 2
+    # title + ingredient names + tags; FTS now, embedding input later
     search_text: Mapped[str] = mapped_column(Text)
-    # Dense embedding of search_text (Stage 2.1); null until backfilled.
+    # Dense embedding of search_text; null until backfilled.
     embedding: Mapped[Optional[list[float]]] = mapped_column(
         Vector(EMBED_DIM), nullable=True
     )
-    # Provenance (Stage 6): where the recipe came from + how it may be used.
+    # Provenance: where the recipe came from + how it may be used.
     # source ∈ {seed, themealdb, archanas}; the 144 curated rows are
     # "seed". source_url/attribution/image_url/license_note come from ingestion.
     source: Mapped[str] = mapped_column(Text, default="seed", server_default="seed")

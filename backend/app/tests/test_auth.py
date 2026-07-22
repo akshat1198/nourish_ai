@@ -1,4 +1,4 @@
-"""Auth dependency tests (Stage 5) — no DB, no Google.
+"""Auth dependency tests — no DB, no Google.
 
 Exercises both AUTH_MODE branches by calling the dependency directly with a
 minimal request stub and an inline-minted PyJWT token.

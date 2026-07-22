@@ -25,7 +25,7 @@ app = FastAPI(
     title="NourishAI API", description="Smart Recipe Recommender API", version="0.1.0"
 )
 
-# CORS for the Next.js frontend (Stage 5). Bearer tokens, not cookies, so
+# CORS for the Next.js frontend. Bearer tokens, not cookies, so
 # allow_credentials stays False and the token header is explicitly allowed.
 app.add_middleware(
     CORSMiddleware,

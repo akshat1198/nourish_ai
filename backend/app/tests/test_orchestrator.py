@@ -1,4 +1,4 @@
-"""LangGraph orchestrator tests (Stage 4.2) — compiled graph, no API or DB.
+"""LangGraph orchestrator tests — compiled graph, no API or DB.
 
 The three LLM helpers, call_tool, validate_plan, and SessionLocal are all
 monkeypatched so this exercises graph routing (especially the repair edge).
@@ -92,7 +92,7 @@ def test_repairs_exhausted_marks_degraded(stub_graph, monkeypatch):
 
 
 # --------------------------------------------------------------------------- #
-# Checkpointing / multi-turn (Stage 4.3)
+# Checkpointing / multi-turn
 # --------------------------------------------------------------------------- #
 def test_checkpoint_preserves_pantry_and_passes_prior_on_refinement(stub_graph, monkeypatch):
     from langgraph.checkpoint.memory import MemorySaver

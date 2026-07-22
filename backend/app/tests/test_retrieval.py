@@ -1,4 +1,4 @@
-"""Retrieval + ingredient-normalization tests (RETR-01)."""
+"""Retrieval + ingredient-normalization tests."""
 from app.services.ingredients import normalize, resolve_pantry
 from app.services.retrieval import fetch_candidates
 from app.tests.conftest import requires_db

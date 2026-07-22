@@ -1,4 +1,4 @@
-"""Meal-plan endpoints (Stage 10). Owner-scoped; non-owner access → 404."""
+"""Meal-plan endpoints. Owner-scoped; non-owner access → 404."""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 

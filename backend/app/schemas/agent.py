@@ -1,4 +1,4 @@
-"""Agent request/response schemas (Stage 3.2)."""
+"""Agent request/response schemas."""
 from __future__ import annotations
 
 from typing import Optional

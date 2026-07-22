@@ -1,7 +1,7 @@
 // Typed fetch wrapper. Talks directly to the CORS-enabled FastAPI backend.
 //
-// Stage 5.2-5.4: dev identity via the X-User-Key header (backend AUTH_MODE=disabled).
-// Stage 5.5 swaps in an Authorization: Bearer token from the Auth.js session.
+// Dev identity via the X-User-Key header (backend AUTH_MODE=disabled).
+// Swaps in an Authorization: Bearer token from the Auth.js session once signed in.
 
 import { getAuthToken, getUserKey } from "@/lib/auth-token";
 

@@ -1,11 +1,11 @@
-"""events: online analytics + A/B capture (Stage 13)
+"""events: online analytics + A/B capture
 
 Revision ID: 0012
 Revises: 0011
 Create Date: 2026-07-22
 
-Additive, append-only event log. `variant` is null until Stage 13.2 wires
-deterministic A/B assignment; `recipe_id` is null for events that aren't
+Additive, append-only event log. `variant` is null until deterministic A/B
+assignment wires it in; `recipe_id` is null for events that aren't
 recipe-scoped (e.g. results_shown). CI seeds only the 144 baseline, so DB
 tests discover recipe ids dynamically — this table starts empty.
 """

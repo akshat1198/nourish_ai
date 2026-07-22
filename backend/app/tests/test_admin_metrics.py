@@ -1,4 +1,4 @@
-"""Admin observability endpoint tests (Stage 14). DB-backed; append-only
+"""Admin observability endpoint tests. DB-backed; append-only
 tables, cleaned up via a distinct marker in each row so nothing else's
 historical data pollutes the assertions."""
 from fastapi.testclient import TestClient

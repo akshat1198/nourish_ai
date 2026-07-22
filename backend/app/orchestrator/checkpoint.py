@@ -1,4 +1,4 @@
-"""Graph checkpointer (Stage 4.3, AGENT-04).
+"""Graph checkpointer.
 
 Keyed by thread_id (= session_id), a checkpointer persists PlanState between
 graph invocations, so a refinement turn continues the thread without resending

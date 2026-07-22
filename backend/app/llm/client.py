@@ -1,4 +1,4 @@
-"""Thin Anthropic (Claude) adapter (LLM-01).
+"""Thin Anthropic (Claude) adapter.
 
 One seam for every LLM call in the app: model IDs and timeout come from config,
 errors are normalized to `LLMError`, and structured output is schema-validated

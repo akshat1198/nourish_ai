@@ -1,4 +1,4 @@
-# NourishAI MCP server (Stage 4.1)
+# NourishAI MCP server
 
 Exposes the same five agent tools (`search_recipes`, `check_allergens`,
 `find_substitutions`, `estimate_nutrition`, `build_shopping_list`) to any MCP

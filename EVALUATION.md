@@ -9,7 +9,7 @@ Both engines answer the same question — *"given this pantry and these
 constraints, recommend safe, relevant recipes"* — over the **same tools and the
 same database**. Only the orchestration differs:
 
-| | **Single agent** (Stage 3) | **Multi-agent graph** (Stage 4) |
+| | **Single agent** | **Multi-agent graph** |
 |---|---|---|
 | Mechanic | Raw Anthropic tool-calling loop (`while stop_reason == "tool_use"`) | LangGraph supervisor + specialist nodes |
 | Who chooses tools | The LLM, open-ended, over multiple turns | A fixed pipeline: pantry → planner → safety → shopping → summary |
@@ -46,7 +46,7 @@ plus optional hard constraints and a set of known-relevant recipes:
 **Why these are good cases:** they are hand-vetted (each has a known-correct
 target recipe), they exercise every hard constraint the product promises
 (diet / allergen / time), and they cover the ingredient-matching edge cases that
-break naïve retrieval. They were first built for the Stage-1/2 **retrieval** eval
+break naïve retrieval. They were first built for the **retrieval** eval
 (hit@5 / hit@10 / MRR) and reused here so the agent comparison rides on a
 retrieval layer whose quality was already measured separately.
 
@@ -116,7 +116,7 @@ deliberate).
 |---|---|---|
 | **Constraint pass-rate** | % of cases producing a **validator-clean plan on the first attempt** (no repair, no fallback) | A deterministic Python validator re-queries the DB per plan (see §5). "Pass" = zero violations before any repair turn. |
 | **Repair-success rate** | Of runs that needed a repair turn, how many ended clean | Loop/graph flag a run as repaired; validator re-checks the corrected plan. |
-| **Degraded rate** | % that fell back to the deterministic Stage-1 plan | Set when repairs are exhausted or structured output can't be produced. |
+| **Degraded rate** | % that fell back to the deterministic default plan | Set when repairs are exhausted or structured output can't be produced. |
 | **Mean tool calls** | Avg tool invocations per case (single engine only) | Counted in the loop; the graph's tool use is fixed by its topology. |
 | **p50 latency** | Median wall-clock seconds per case | `time.perf_counter()` around each case; median over 30. |
 | **Tokens in / out** | Summed prompt + completion tokens across the run | Single: from the Anthropic SDK `usage` on every call. Graph: aggregated via langchain's `get_usage_metadata_callback` across all model calls in a run. |
@@ -187,7 +187,7 @@ observations worth their own line:
 - The **timeout fix showed up live**: one case's structuring call stalled, failed
   fast at 20 s, and *degraded safely* instead of hanging the run.
 
-## 6c. Retrieval re-baseline at corpus scale (Stage 6.3)
+## 6c. Retrieval re-baseline at corpus scale
 
 The corpus grew **52×**: 144 seed → **7,580 recipes** (+708 TheMealDB, +6,728
 Archana's Kitchen with regional Indian cuisine). All 7,580 embedded (MiniLM-L6,

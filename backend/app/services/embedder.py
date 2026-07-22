@@ -1,4 +1,4 @@
-"""Text embedding behind a swappable interface (Stage 2.1).
+"""Text embedding behind a swappable interface.
 
 The `Embedder` Protocol is the seam Risk 1 relies on: if the sentence-
 transformers + torch stack proves too heavy for the image, swap in a

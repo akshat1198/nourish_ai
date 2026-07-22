@@ -1,7 +1,7 @@
-"""Profile + recency-memory persistence (AGENT-01/02).
+"""Profile + recency-memory persistence.
 
 SQL recency only — no embeddings, no cross-session summaries (that's a
-deliberate Stage-3 fence).
+deliberate scope fence).
 """
 from __future__ import annotations
 

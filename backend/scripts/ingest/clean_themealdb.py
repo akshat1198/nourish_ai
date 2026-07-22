@@ -3,7 +3,7 @@ TheMealDB recipes.
 
 The 6.2c import kept TheMealDB's standalone "STEP 1/2/3" delimiter lines as
 their own steps and set `description` to the "step 1" marker. This surfaced on
-the Stage 7.1 detail page. Reuses the (now idempotent) `clean_steps` parser, so
+the recipe detail page. Reuses the (now idempotent) `clean_steps` parser, so
 re-running the importer would produce the same result — this just avoids a full
 708-recipe re-fetch. Safe to re-run: embeddings are built from `search_text`
 (title + ingredients + tags), never steps, so no re-embed is needed.

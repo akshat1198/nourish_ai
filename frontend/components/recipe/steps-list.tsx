@@ -2,7 +2,7 @@ import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-// WS6: shown while a recipe's method is being enriched on first view — a few
+// Shown while a recipe's method is being enriched on first view — a few
 // numbered step rows shimmer in, so the page feels like it's coming to life.
 export function MethodSkeleton({ count = 6 }: { count?: number }) {
   const rows = Math.min(Math.max(count, 4), 9);

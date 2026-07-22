@@ -9,8 +9,8 @@ from app.models.base import Base
 
 
 class Event(Base):
-    """Online analytics event (Stage 13). Append-only; `variant` populated once
-    a session is A/B-bucketed (Stage 13.2); `recipe_id` null for non-recipe
+    """Online analytics event. Append-only; `variant` populated once
+    a session is A/B-bucketed; `recipe_id` null for non-recipe
     events (e.g. results_shown)."""
 
     __tablename__ = "events"
