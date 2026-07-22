@@ -1,4 +1,5 @@
 import type { FilterAnswers } from "@/lib/filter-options";
+import { getSessionId } from "@/lib/track";
 import type { PantryItem, RecommendRequest } from "@/types/api";
 
 // Compose the questionnaire answers + the current pantry into a RecommendRequest.
@@ -18,5 +19,6 @@ export function buildRequest(
     diet: answers.diet,
     max_time_minutes: answers.max_time_minutes,
     limit: 15, // surface a comfortable set (≥10 when the corpus allows)
+    session_id: getSessionId(), // Stage 13: A/B bucketing
   };
 }

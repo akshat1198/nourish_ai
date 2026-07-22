@@ -30,6 +30,7 @@ export interface RecommendRequest {
   nutrition_goals: NutritionGoal[];
   max_time_minutes?: number | null;
   limit: number;
+  session_id?: string | null; // Stage 13: persisted per-browser id for A/B bucketing
 }
 
 export interface SubstitutionSuggestion {
@@ -63,6 +64,7 @@ export interface RecommendResponse {
   mode: RecommendMode;
   explanation: string | null;
   unmatched_pantry: string[];
+  variant: string | null; // Stage 13: A/B variant this response was generated under
 }
 
 export interface RecipeIngredientLine {

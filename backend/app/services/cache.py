@@ -40,6 +40,9 @@ def recommend_key(payload: dict) -> str:
         # for every unpersonalized request (cold-start users, or the feature
         # disabled) so the shared cache is preserved when there's no taste term.
         "user": payload.get("user"),
+        # Stage 13: the A/B variant changes results (control never
+        # personalizes) so it must fork the cache too; None with no session_id.
+        "variant": payload.get("variant"),
     }
     blob = json.dumps(canonical, sort_keys=True, separators=(",", ":"))
     digest = hashlib.sha256(blob.encode()).hexdigest()

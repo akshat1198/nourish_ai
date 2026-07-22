@@ -36,6 +36,9 @@ class RecommendRequest(BaseModel):
     )
     max_time_minutes: Optional[int] = Field(None, ge=0)
     limit: int = Field(10, ge=1, le=50)
+    session_id: Optional[str] = Field(
+        None, description="Stage 13: persisted per-browser session id, used for A/B bucketing"
+    )
 
     @field_validator("exclude_allergens")
     @classmethod
@@ -96,4 +99,7 @@ class RecommendResponse(BaseModel):
     explanation: Optional[str] = None
     unmatched_pantry: list[str] = Field(
         default_factory=list, description="Pantry names that resolved to no ingredient"
+    )
+    variant: Optional[str] = Field(
+        None, description="Stage 13: A/B variant this response was generated under, if session_id was supplied"
     )

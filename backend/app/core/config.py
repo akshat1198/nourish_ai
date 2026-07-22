@@ -36,6 +36,15 @@ class Settings(BaseSettings):
     TASTE_NEG_WEIGHT: float = 0.5
     TASTE_CACHE_TTL: int = 600
 
+    # Online A/B (Stage 13.2). "control" never personalizes (Stage-12 gate);
+    # any other variant follows PERSONALIZATION_ENABLED as usual.
+    EXPERIMENT_NAME: str = "ranking_ab"
+    EXPERIMENT_VARIANTS: str = "control,personalized"
+
+    @property
+    def experiment_variants_list(self) -> list[str]:
+        return [v.strip() for v in self.EXPERIMENT_VARIANTS.split(",") if v.strip()]
+
     # Recommendation cache (RETR-04)
     CACHE_TTL_SECONDS: int = 300
 

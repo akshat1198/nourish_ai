@@ -11,6 +11,7 @@ from app.core.cuisines import VALID_CUISINE_IDS
 from app.schemas.recommend import RankedRecipe, RecommendRequest, RecommendResponse
 from app.services.cache import get_cached, recommend_key, set_cached
 from app.services.embedder import get_embedder
+from app.services.experiments import assign_variant
 from app.services.fallback import apply_fallback
 from app.services.ingredients import disliked_recipe_ids, resolve_pantry
 from app.services.pantry_text import parse_pantry_text
@@ -52,13 +53,32 @@ def recommend(
     if bad:
         raise HTTPException(422, f"unknown cuisine id(s): {', '.join(bad)}")
 
+    # Stage 13.2: deterministic A/B bucket from the client's persisted session
+    # id. No session id (e.g. a bare API caller) -> no experiment, no gating.
+    variant = (
+        assign_variant(req.session_id, settings.EXPERIMENT_NAME)
+        if req.session_id
+        else None
+    )
+
     # Stage 12: a taste vector only needs (session, user_key) — no pantry
     # resolution required — so compute it before the cache check. Personalized
     # results must not collide across users or with the shared cold-start
     # cache entry, so `user` only enters the key when this user IS personalized.
-    tvec = taste_vector(session, user_key) if settings.PERSONALIZATION_ENABLED else None
+    # Stage 13.2: the "control" variant never personalizes, regardless of the
+    # feature flag — that's the whole point of an A/B control arm.
+    tvec = (
+        taste_vector(session, user_key)
+        if settings.PERSONALIZATION_ENABLED and variant != "control"
+        else None
+    )
     key = recommend_key(
-        {**req.model_dump(), "mode": mode, "user": user_key if tvec is not None else None}
+        {
+            **req.model_dump(),
+            "mode": mode,
+            "user": user_key if tvec is not None else None,
+            "variant": variant,
+        }
     )
     cached = get_cached(key)
     if cached is not None:
@@ -97,9 +117,16 @@ def recommend(
             disliked = disliked_recipe_ids(
                 session, [c.id for c in candidates], req.disliked_ingredients
             )
-            # Stage 12: personalization score per candidate — {} when the user
-            # is cold-start or the feature is off; annotate() no-ops on {}.
-            tscores = taste_scores(session, user_key, [c.id for c in candidates], tvec)
+            # Stage 12/13.2: personalization score per candidate. `tvec is None`
+            # can mean either cold-start OR a deliberate "off" (disabled /
+            # control variant) — skip the call entirely rather than pass tvec
+            # through, since taste_scores(..., vec=None) treats None as "look
+            # it up yourself" and would silently re-personalize a control user.
+            tscores = (
+                taste_scores(session, user_key, [c.id for c in candidates], tvec)
+                if tvec is not None
+                else {}
+            )
             # Rank the full pool; apply_fallback trims to req.limit (it may need
             # the wider pool to find swap-eligible recipes).
             pool = annotate(
@@ -116,7 +143,11 @@ def recommend(
             disliked = disliked_recipe_ids(
                 session, [c.id for c in candidates], req.disliked_ingredients
             )
-            tscores = taste_scores(session, user_key, [c.id for c in candidates], tvec)
+            tscores = (
+                taste_scores(session, user_key, [c.id for c in candidates], tvec)
+                if tvec is not None
+                else {}
+            )
             pool = rank(
                 candidates, limit=CANDIDATE_POOL, disliked_ids=disliked,
                 taste_scores=tscores,
@@ -156,6 +187,7 @@ def recommend(
         mode=fb_mode,
         explanation=explanation,
         unmatched_pantry=resolved.unmatched,
+        variant=variant,
     )
     set_cached(key, payload.model_dump())
     response.headers["X-Cache"] = "miss"
