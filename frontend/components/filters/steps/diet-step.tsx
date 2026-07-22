@@ -1,17 +1,30 @@
 "use client";
 
 import { OptionPill } from "@/components/filters/option-pill";
-import { DIETS, NUTRITION_GOALS } from "@/lib/filter-options";
+import { DIETS, NUTRITION_GOALS, dietImpliedAllergens } from "@/lib/filter-options";
 import { useFilterFlow } from "@/lib/flow/filter-flow-context";
 import { useConfig } from "@/lib/hooks/use-config";
 import type { NutritionGoal } from "@/types/api";
 
 export function DietStep() {
-  const { answers, patch, setAnswers } = useFilterFlow();
+  const { answers, setAnswers } = useFilterFlow();
   // Nutrition-goal cutoffs from the backend (so "low-fat" isn't a mystery).
   const { data: config } = useConfig();
   const goalHint = (value: string) =>
     config?.nutrition_goals.find((n) => n.value === value)?.hint;
+
+  // Changing diet can make a manually-picked allergen redundant (e.g. Vegan
+  // already excludes dairy) — drop it so Review doesn't show a duplicate chip.
+  // Done here (not in the Avoid step) so it applies even if the user jumps
+  // straight to Review without visiting Avoid.
+  const setDiet = (next: string | null) => {
+    const implied = dietImpliedAllergens(next);
+    setAnswers((a) => ({
+      ...a,
+      diet: next,
+      exclude_allergens: a.exclude_allergens.filter((x) => !implied.includes(x)),
+    }));
+  };
 
   const toggleGoal = (value: NutritionGoal) =>
     setAnswers((a) => ({
@@ -26,19 +39,14 @@ export function DietStep() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Diet</p>
         <div className="flex flex-wrap gap-2">
-          <OptionPill
-            selected={answers.diet === null}
-            onClick={() => patch({ diet: null })}
-          >
+          <OptionPill selected={answers.diet === null} onClick={() => setDiet(null)}>
             No preference
           </OptionPill>
           {DIETS.map((d) => (
             <OptionPill
               key={d.value}
               selected={answers.diet === d.value}
-              onClick={() =>
-                patch({ diet: answers.diet === d.value ? null : d.value })
-              }
+              onClick={() => setDiet(answers.diet === d.value ? null : d.value)}
             >
               {d.label}
             </OptionPill>

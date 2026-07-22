@@ -86,6 +86,27 @@ const CUISINE_LABELS: Record<string, string> = {
   american: "American",
 };
 
+// Allergens a diet choice already guarantees excluded, per the backend's own
+// derivation truth (app/services/derivation.py::classify_and_derive): "vegan"
+// requires every matched ingredient to be vegan-flagged, which the non-vegan
+// keyword backstop ties to dairy/eggs/fish/shellfish; "vegetarian" (non-vegan)
+// only zeroes out on meat/fish/shellfish keywords, so dairy/eggs still apply;
+// "gluten_free" trivially implies no gluten. Used to grey out and explain
+// redundant allergen picks in the Avoid step, not to change what's sent to
+// the backend (diet and exclude_allergens stay independent AND filters there).
+export function dietImpliedAllergens(diet: string | null): string[] {
+  switch (diet) {
+    case "vegan":
+      return ["dairy", "eggs", "fish", "shellfish"];
+    case "vegetarian":
+      return ["fish", "shellfish"];
+    case "gluten_free":
+      return ["gluten"];
+    default:
+      return [];
+  }
+}
+
 export function cuisineLabel(id: string): string {
   return CUISINE_LABELS[id] ?? id;
 }
