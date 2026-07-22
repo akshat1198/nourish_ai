@@ -17,6 +17,7 @@ import { ApiError } from "@/lib/api";
 import { useEnrichRecipe } from "@/lib/hooks/use-enrich-recipe";
 import { useModifyRecipe } from "@/lib/hooks/use-modify-recipe";
 import { useRecipe } from "@/lib/hooks/use-recipe";
+import { track } from "@/lib/track";
 import type { ModifyResponse } from "@/types/api";
 
 function BackLink() {
@@ -56,6 +57,12 @@ export function RecipeDetailView({ id }: { id: number }) {
     setServingsOverride(null);
     setModified(null);
   }, [id]);
+
+  useEffect(() => {
+    if (recipe?.id) track("recipe_opened", { recipe_id: recipe.id });
+    // Fire once per recipe id, not on every refetch of the same recipe.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipe?.id]);
 
   const applySwap = (from: string, to: string) =>
     modify.mutate(

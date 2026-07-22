@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
+import { track } from "@/lib/track";
 import type { FeedbackAction, FeedbackState, RecipeFeedback } from "@/types/api";
 
 const DEFAULT: RecipeFeedback = { made: false, rating: null };
@@ -49,6 +50,9 @@ export function useFeedback(recipeId: number) {
     },
     onError: (_e, _action, ctx) => {
       if (ctx?.prev) qc.setQueryData(queryKeys.feedback, ctx.prev);
+    },
+    onSuccess: (_data, action) => {
+      if (action === "cooked") track("cooked", { recipe_id: recipeId });
     },
     onSettled: () => qc.invalidateQueries({ queryKey: queryKeys.feedback }),
   });

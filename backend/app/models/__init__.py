@@ -1,4 +1,5 @@
 from app.models.base import Base
+from app.models.event import Event
 from app.models.generation import GenerationEvent
 from app.models.ingredient import Ingredient
 from app.models.pantry import PantryItem
@@ -11,6 +12,7 @@ from app.models.trace import AgentTrace
 __all__ = [
     "AgentTrace",
     "Base",
+    "Event",
     "GenerationEvent",
     "Ingredient",
     "InteractionHistory",

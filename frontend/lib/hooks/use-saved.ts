@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
+import { track } from "@/lib/track";
 import type { RecipeSummary, SavedListOut } from "@/types/api";
 
 export function useSaved() {
@@ -42,7 +43,10 @@ export function useToggleSave(summary: RecipeSummary) {
     onError: (_e, _v, ctx) => {
       if (ctx?.prev) qc.setQueryData(queryKeys.saved, ctx.prev);
     },
-    onSuccess: (data) => qc.setQueryData(queryKeys.saved, data),
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.saved, data);
+      if (!saved) track("saved", { recipe_id: summary.id });
+    },
   });
 
   return { saved, toggle: mutation.mutate, pending: mutation.isPending };

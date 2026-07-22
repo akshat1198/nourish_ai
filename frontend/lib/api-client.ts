@@ -3,6 +3,8 @@ import { getUserKey } from "@/lib/auth-token";
 import type {
   ConfigResponse,
   CuisineCount,
+  EventIn,
+  ExperimentSummary,
   FeedbackAction,
   FeedbackState,
   HealthResponse,
@@ -132,4 +134,14 @@ export const api = {
 
   getPlanShoppingList: (planId: number) =>
     apiFetch<ShoppingListResponse>(`/v1/plans/${planId}/shopping-list`),
+
+  // Online analytics (Stage 13)
+  track: (body: EventIn) =>
+    apiFetch<{ ok: boolean }>("/v1/events", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  getExperimentSummary: (name: string) =>
+    apiFetch<ExperimentSummary>(`/v1/experiments/${encodeURIComponent(name)}/summary`),
 };

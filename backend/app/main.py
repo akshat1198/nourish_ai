@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.agent import router as agent_router
 from app.api.config import router as config_router
 from app.api.cuisines import router as cuisines_router
+from app.api.events import router as events_router
 from app.api.health import router as health_router
 from app.api.ingredients import router as ingredients_router
 from app.api.orchestrate import router as orchestrate_router
@@ -50,6 +51,7 @@ app.include_router(pantry_router)
 app.include_router(config_router)
 app.include_router(saved_router)
 app.include_router(plans_router)
+app.include_router(events_router)
 
 
 # Root endpoint

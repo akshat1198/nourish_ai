@@ -267,6 +267,28 @@ export interface ShoppingListResponse {
   missing_recipe_ids: number[];
 }
 
+// Online analytics (Stage 13). Fire-and-forget; the backend never blocks a
+// request on this and neither does the client.
+export interface EventIn {
+  name: string;
+  session_id?: string | null;
+  recipe_id?: number | null;
+  variant?: string | null;
+  props?: Record<string, unknown>;
+}
+
+export interface VariantStat {
+  variant: string;
+  count: number;
+  by_name: Record<string, number>;
+}
+
+export interface ExperimentSummary {
+  experiment: string;
+  total: number;
+  variants: VariantStat[];
+}
+
 export interface HealthResponse {
   status: string;
   db: boolean;

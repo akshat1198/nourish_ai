@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { ModeBanner } from "@/components/results/mode-banner";
 import { RecipeCard } from "@/components/results/recipe-card";
 import { Reveal } from "@/components/reveal";
@@ -7,10 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRecommendations } from "@/lib/hooks/use-recommendations";
+import { track } from "@/lib/track";
 import type { RecommendRequest } from "@/types/api";
 
 export function ResultsList({ request }: { request: RecommendRequest | null }) {
   const { data, isLoading, isError, refetch } = useRecommendations(request);
+
+  useEffect(() => {
+    if (data) track("results_shown", { count: data.results.length, mode: data.mode });
+  }, [data]);
 
   if (request === null) return null;
 
