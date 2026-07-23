@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: nourishai-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Neon Postgres pooled connection string, postgresql+psycopg2:// scheme.
+      - key: DATABASE_URL
+        sync: false
+      # Upstash Redis, rediss:// (TLS) scheme.
+      - key: REDIS_URL
+        sync: false
+      # Optional: LLM features fail open (degrade gracefully) without this.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Gates GET /v1/admin/metrics; unset = locked.
+      - key: ADMIN_TOKEN
+        sync: false
+      # Comma-separated browser origins allowed by CORS -- set to the deployed
+      # Vercel URL once known.
+      - key: CORS_ORIGINS
+        sync: false
+      # Must match the frontend's AUTH_SHARED_SECRET exactly -- verifies the
+      # HS256 bearer token minted by Auth.js after Google sign-in.
+      - key: AUTH_SHARED_SECRET
+        sync: false
+      - key: AUTH_MODE
+        value: jwt
+      - key: CHECKPOINT_BACKEND
+        value: postgres
