@@ -250,7 +250,7 @@ The app splits across four managed services, all free-tier and all wired via env
 |---|---|---|
 | Frontend | [Vercel](https://vercel.com) | Native Next.js support, auto-deploys on push, no idle spin-down on the free Hobby tier |
 | Backend | [Render](https://render.com) | Docker-native web service, builds `backend/Dockerfile` as-is, auto-deploys on push |
-| Postgres + pgvector | [Neon](https://neon.tech) | Serverless Postgres with native `pgvector`; free tier doesn't expire (Render's own free Postgres is deleted after 30 days) |
+| Postgres + pgvector | [Supabase](https://supabase.com) | Managed Postgres, `pgvector` is a one-click Extensions toggle; free tier pauses (not deletes) after ~1 week idle, vs. Render's own free Postgres which is deleted outright after 30 days |
 | Redis | [Upstash](https://upstash.com) | Serverless Redis, free tier persists indefinitely, TLS (`rediss://`) |
 
 A Render [Blueprint](https://render.com/docs/blueprint-spec) (`render.yaml` at the repo root) defines the backend service — use Render's "New > Blueprint", point it at this repo, and it picks up build/health-check config automatically; you'll be prompted for the secrets below.
@@ -259,7 +259,7 @@ A Render [Blueprint](https://render.com/docs/blueprint-spec) (`render.yaml` at t
 
 | Var | Value |
 |---|---|
-| `DATABASE_URL` | Neon pooled connection string (`postgresql+psycopg2://...`) |
+| `DATABASE_URL` | Supabase pooled ("Transaction" mode, port 6543) connection string (`postgresql+psycopg2://...`) |
 | `REDIS_URL` | Upstash connection string (`rediss://...`) |
 | `CORS_ORIGINS` | the deployed Vercel URL |
 | `ANTHROPIC_API_KEY` | optional — LLM features fail open without it |
@@ -278,7 +278,7 @@ A Render [Blueprint](https://render.com/docs/blueprint-spec) (`render.yaml` at t
 | `AUTH_SHARED_SECRET` | same value as Render's |
 | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | from a Google Cloud Console OAuth 2.0 Client ID (Web application), with the deployed Vercel URL as the authorized origin and `<vercel-url>/api/auth/callback/google` as the authorized redirect URI |
 
-**One-time DB bootstrap** (against the Neon connection string, same scripts as local dev):
+**One-time DB bootstrap** (against the Supabase connection string, same scripts as local dev):
 
 ```bash
 alembic upgrade head
@@ -286,7 +286,7 @@ python scripts/seed.py
 python scripts/embed_recipes.py   # optional: backfills embeddings for hybrid retrieval + personalization
 ```
 
-Deploy order matters a little: stand up Render and Neon/Upstash first, deploy Vercel once (to learn its assigned URL), create the Google OAuth client against that URL, then set the remaining Vercel env vars and redeploy, and finally update Render's `CORS_ORIGINS` to match.
+Deploy order matters a little: stand up Render and Supabase/Upstash first, deploy Vercel once (to learn its assigned URL), create the Google OAuth client against that URL, then set the remaining Vercel env vars and redeploy, and finally update Render's `CORS_ORIGINS` to match.
 
 ## Testing & CI
 

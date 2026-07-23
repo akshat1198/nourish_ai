@@ -7,7 +7,8 @@ services:
     plan: free
     healthCheckPath: /health
     envVars:
-      # Neon Postgres pooled connection string, postgresql+psycopg2:// scheme.
+      # Supabase Postgres pooled ("Transaction" mode, port 6543) connection
+      # string, postgresql+psycopg2:// scheme.
       - key: DATABASE_URL
         sync: false
       # Upstash Redis, rediss:// (TLS) scheme.
