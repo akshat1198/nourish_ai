@@ -7,8 +7,11 @@ services:
     plan: free
     healthCheckPath: /health
     envVars:
-      # Supabase Postgres pooled ("Transaction" mode, port 6543) connection
-      # string, postgresql+psycopg2:// scheme.
+      # Supabase Postgres DIRECT connection string (port 5432), not the
+      # pgbouncer transaction pooler on 6543 -- the backend is one persistent
+      # process (not serverless) and the LangGraph checkpointer opens its own
+      # psycopg3 pool on top of this, which doesn't play well stacked on
+      # pgbouncer transaction-mode pooling. postgresql+psycopg2:// scheme.
       - key: DATABASE_URL
         sync: false
       # Upstash Redis, rediss:// (TLS) scheme.
