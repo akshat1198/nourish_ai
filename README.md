@@ -259,7 +259,7 @@ A Render [Blueprint](https://render.com/docs/blueprint-spec) (`render.yaml` at t
 
 | Var | Value |
 |---|---|
-| `DATABASE_URL` | Supabase **direct** connection string, port 5432 (`postgresql+psycopg2://...`) — not the 6543 pgbouncer pooler, which conflicts with the LangGraph checkpointer's own psycopg3 pool |
+| `DATABASE_URL` | Supabase **Session pooler** connection string, port 5432 via `aws-0-<region>.pooler.supabase.com` (`postgresql+psycopg2://postgres.<project-ref>:...`) — **not** "Direct connection" (IPv6-only on Supabase's free tier; fails from Render's IPv4-only egress) and **not** the Transaction pooler on 6543 (conflicts with the LangGraph checkpointer's own psycopg3 pool) |
 | `REDIS_URL` | Upstash connection string (`rediss://...`) |
 | `CORS_ORIGINS` | the deployed Vercel URL |
 | `ANTHROPIC_API_KEY` | optional — LLM features fail open without it |
