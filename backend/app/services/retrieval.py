@@ -10,16 +10,17 @@ from __future__ import annotations
 
 from typing import Iterable, Optional
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import settings
 from app.core.cuisines import cuisine_matches
-from app.models import Ingredient, Recipe
+from app.models import Ingredient, Recipe, RecipeIngredient
 from app.schemas.recommend import RecipeCandidate
 
 RRF_K = 60  # RRF damping constant; larger => flatter rank contribution
 RRF_POOL = 30  # top-N taken from each arm before fusion
+SQL_MATCH_POOL = 200  # top-N pantry-matched recipe ids considered before hard filters
 
 
 # --------------------------------------------------------------------------- #
@@ -62,6 +63,35 @@ def _build_candidate(
         matched_essential=matched_essential,
         total_essential=total_essential,
     )
+
+
+def _pantry_ranked_recipe_ids(
+    session: Session, pantry_set: set[int], limit: int
+) -> list[int]:
+    """Recipe ids with >=1 pantry-ingredient match, ranked by match quality.
+
+    Aggregates over recipe_ingredients (indexed on ingredient_id) instead of
+    loading every Recipe + its ingredients into Python -- this bounds the
+    query to the match set, not the total corpus size, however large the
+    corpus grows.
+    """
+    if not pantry_set:
+        return []
+    pantry_list = list(pantry_set)
+    matched_total = func.count().filter(RecipeIngredient.ingredient_id.in_(pantry_list))
+    matched_essential = func.count().filter(
+        RecipeIngredient.ingredient_id.in_(pantry_list),
+        RecipeIngredient.essential.is_(True),
+    )
+    missing = func.count() - matched_total
+    query = (
+        select(RecipeIngredient.recipe_id)
+        .group_by(RecipeIngredient.recipe_id)
+        .having(matched_total > 0)
+        .order_by(matched_essential.desc(), missing.asc())
+        .limit(limit)
+    )
+    return list(session.execute(query).scalars())
 
 
 def _nutrition_ok(nutrition: dict, goals: Iterable[str]) -> bool:
@@ -128,7 +158,15 @@ def fetch_candidates(
     pantry_set = set(pantry_ids)
     exclude = [a for a in exclude_allergens if a]
 
-    query = select(Recipe).options(selectinload(Recipe.recipe_ingredients))
+    candidate_ids = _pantry_ranked_recipe_ids(session, pantry_set, SQL_MATCH_POOL)
+    if not candidate_ids:
+        return []
+
+    query = (
+        select(Recipe)
+        .where(Recipe.id.in_(candidate_ids))
+        .options(selectinload(Recipe.recipe_ingredients))
+    )
     if diet:
         query = query.where(Recipe.diet_labels.contains([diet]))
     if exclude:
@@ -156,15 +194,7 @@ def fetch_candidates(
 # --------------------------------------------------------------------------- #
 def _sql_ranked_ids(session: Session, pantry_set: set[int], limit: int) -> list[int]:
     """SQL arm: recipe ids ranked by ingredient match, no hard filters."""
-    id_to_name = _id_to_name(session)
-    query = select(Recipe).options(selectinload(Recipe.recipe_ingredients))
-    scored = []
-    for recipe in session.execute(query).scalars():
-        c = _build_candidate(recipe, pantry_set, id_to_name)
-        if c.matched_ingredients:
-            scored.append((c.matched_essential, -len(c.missing_ingredients), recipe.id))
-    scored.sort(reverse=True)
-    return [rid for _, _, rid in scored[:limit]]
+    return _pantry_ranked_recipe_ids(session, pantry_set, limit)
 
 
 def _vector_ranked_ids(
