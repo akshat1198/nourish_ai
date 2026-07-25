@@ -4,10 +4,13 @@ Guards the behaviour the recommend flow was rebuilt around — that a soft filte
 demotes rather than empties, that cuisine is never silently substituted, and
 that a matched spice does not count for as much as a matched protein.
 """
+from sqlalchemy import func, select
+
+from app.models import Recipe, RecipeIngredient
 from app.schemas.recommend import RecipeCandidate
 from app.services.ingredients import resolve_pantry
 from app.services.ranking import SoftFilters, rank
-from app.services.retrieval import fetch_hybrid
+from app.services.retrieval import fetch_hybrid, hard_clauses
 from app.tests.conftest import requires_db
 
 
@@ -117,20 +120,43 @@ def test_disliked_still_sinks_beneath_every_clean_recipe():
 # --------------------------------------------------------------------------- #
 # Recall against the real corpus
 # --------------------------------------------------------------------------- #
+def _eligible(session, pantry_ids, *, diet=None, cuisines=()):
+    """How many recipes in THIS corpus satisfy the filters and touch the pantry.
+
+    Derived rather than hardcoded so the assertion means the same thing against
+    the 144-recipe CI seed and the full local corpus.
+    """
+    clauses = hard_clauses(diet, (), cuisines)
+    return (
+        session.execute(
+            select(func.count(func.distinct(RecipeIngredient.recipe_id)))
+            .select_from(RecipeIngredient)
+            .join(Recipe, Recipe.id == RecipeIngredient.recipe_id)
+            .where(RecipeIngredient.ingredient_id.in_(list(pantry_ids)), *clauses)
+        ).scalar()
+        or 0
+    )
+
+
 @requires_db
 def test_filter_combinations_reach_the_recipes_that_satisfy_them(session):
-    # Each of these returned 0 or 1 when hard filters ran after the arms had
-    # already truncated to their top 30, despite 40+ eligible recipes existing.
-    cases = [
+    # These returned 0 and 1 when the arms truncated to their top 30 before the
+    # filters were applied, while 45 and 42 eligible recipes sat in the corpus.
+    # Retrieval must surface what exists, whatever the corpus size.
+    for pantry, kw in [
         (["onion", "tomato", "garlic", "rice", "lentils"],
          dict(diet="vegan", cuisines=["italian"])),
         (["onion", "tomato", "garlic", "rice", "chicken"],
-         dict(diet="gluten_free", cuisines=["mexican"], meal_type="dinner")),
-    ]
-    for pantry, kw in cases:
+         dict(diet="gluten_free", cuisines=["mexican"])),
+    ]:
         ids = resolve_pantry(session, pantry).ingredient_ids
+        eligible = _eligible(session, ids, **kw)
+        if not eligible:
+            continue  # this corpus has none; nothing to prove
         got = fetch_hybrid(session, ids, [], limit=50, **kw)
-        assert len(got) >= 10, f"{kw} surfaced only {len(got)}"
+        assert len(got) >= min(10, eligible), (
+            f"{kw}: {eligible} eligible in corpus but only {len(got)} surfaced"
+        )
 
 
 @requires_db
@@ -142,8 +168,21 @@ def test_hard_tier_is_never_violated(session):
         session, ids, [], limit=50,
         diet="vegan", exclude_allergens=["nuts"], cuisines=["italian"],
     )
-    assert got, "expected candidates to assert over"
+    assert _eligible(session, ids, diet="vegan", cuisines=["italian"]) == 0 or got
     for c in got:
         assert "vegan" in c.diet_labels
         assert "nuts" not in c.allergens
         assert c.cuisine == "italian"
+
+
+@requires_db
+def test_soft_filters_are_strict_unless_softening_is_requested(session):
+    # The agent tools, MCP surface, and eval harness all call retrieval directly
+    # and mean it literally: "under 20 minutes" must return recipes under 20
+    # minutes. Only /v1/recommendations opts into demotion.
+    ids = resolve_pantry(session, ["onion", "tomato", "garlic", "rice"]).ingredient_ids
+    strict = fetch_hybrid(session, ids, [], limit=50, max_time=20)
+    assert all(c.time_minutes <= 20 for c in strict)
+
+    softened = fetch_hybrid(session, ids, [], limit=50, max_time=20, soften=True)
+    assert len(softened) >= len(strict), "softening must only ever widen the pool"

@@ -276,8 +276,15 @@ def _ordered_candidates(
     cuisines: Iterable[str],
     limit: int,
     require_match: bool,
+    strict_soft: Optional[tuple] = None,
 ) -> list[RecipeCandidate]:
-    """Hydrate ids into candidates, preserving `ordered_ids` order."""
+    """Hydrate ids into candidates, preserving `ordered_ids` order.
+
+    `strict_soft` is the (max_time, meal_type, nutrition_goals) triple to
+    re-assert when the caller did NOT ask for softening — the same
+    defense-in-depth as `_passes_filters`, so a bug in an arm's SQL can't leak a
+    filter violation to a caller that expects exact semantics.
+    """
     if not ordered_ids:
         return []
     index = _ingredient_index(session)
@@ -297,8 +304,13 @@ def _ordered_candidates(
         c = _build_candidate(recipe, pantry_set, index)
         if require_match and not c.matched_ingredients:
             continue
-        if _passes_filters(c, diet, exclude_allergens, cuisines):
-            out.append(c)
+        if not _passes_filters(c, diet, exclude_allergens, cuisines):
+            continue
+        if strict_soft is not None:
+            matched, requested = soft_filters_matched(c, *strict_soft)
+            if matched != requested:
+                continue
+        out.append(c)
         if len(out) >= limit:
             break
     return out
@@ -315,22 +327,24 @@ def fetch_candidates(
     meal_type: Optional[str] = None,
     nutrition_goals: Iterable[str] = (),
     limit: int = 10,
+    soften: bool = False,
 ) -> list[RecipeCandidate]:
-    """Recipes sharing >=1 ingredient with the pantry, hard filters enforced.
+    """Recipes sharing >=1 ingredient with the pantry, filters enforced.
 
-    Soft-filter matches lead the pool, then recipes that miss some are appended
-    so a narrow preference can't empty the list; ranking sorts the two groups.
+    Every filter is strict by default: "under 20 minutes" returns recipes under
+    20 minutes, which the agent tools, MCP surface, and eval harness rely on.
+    `soften=True` demotes the preference tier instead of excluding it — after
+    the strict matches, recipes that miss time/meal-type/nutrition are appended
+    so a narrow preference can't empty the list. Only /v1/recommendations opts
+    in, because only it has a ranking layer to sort the two groups.
     """
     pantry_set = set(pantry_ids)
     exclude = [a for a in exclude_allergens if a]
     hard = hard_clauses(diet, exclude, cuisines)
     soft = soft_clauses(max_time, meal_type, nutrition_goals)
 
-    preferred = _pantry_ranked_recipe_ids(
-        session, pantry_set, SQL_MATCH_POOL, hard + soft
-    )
-    ordered = list(preferred)
-    if soft and len(ordered) < SQL_MATCH_POOL:
+    ordered = _pantry_ranked_recipe_ids(session, pantry_set, SQL_MATCH_POOL, hard + soft)
+    if soften and soft and len(ordered) < SQL_MATCH_POOL:
         seen = set(ordered)
         ordered += [
             rid
@@ -343,6 +357,7 @@ def fetch_candidates(
         session, pantry_set, ordered,
         diet=diet, exclude_allergens=exclude, cuisines=cuisines,
         limit=limit, require_match=True,
+        strict_soft=None if soften else (max_time, meal_type, nutrition_goals),
     )
 
 
@@ -396,12 +411,14 @@ def fetch_hybrid(
     meal_type: Optional[str] = None,
     nutrition_goals: Iterable[str] = (),
     limit: int = 10,
+    soften: bool = False,
 ) -> list[RecipeCandidate]:
     """Fuse SQL match + vector similarity, both arms filtered before truncation.
 
-    Fusion runs twice: once over arms restricted to the soft filters, once over
-    arms carrying only the hard ones. Soft-matching recipes therefore lead the
-    pool and the rest follow, so a narrow preference demotes rather than empties.
+    Strict by default, like `fetch_candidates`. Under `soften=True` fusion runs
+    twice: once over arms restricted to the soft filters, once over arms
+    carrying only the hard ones, so soft-matching recipes lead the pool and the
+    rest follow — a narrow preference demotes rather than empties.
     """
     pantry_set = set(pantry_ids)
     exclude = [a for a in exclude_allergens if a]
@@ -418,7 +435,7 @@ def fetch_hybrid(
         return rrf_fuse([sql_ids, vec_ids])
 
     ordered = _fuse(hard + soft)
-    if soft:
+    if soften and soft:
         seen = set(ordered)
         ordered += [rid for rid in _fuse(hard) if rid not in seen]
 
@@ -426,4 +443,5 @@ def fetch_hybrid(
         session, pantry_set, ordered,
         diet=diet, exclude_allergens=exclude, cuisines=cuisines,
         limit=limit, require_match=False,
+        strict_soft=None if soften else (max_time, meal_type, nutrition_goals),
     )

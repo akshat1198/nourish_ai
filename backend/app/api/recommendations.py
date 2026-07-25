@@ -121,6 +121,7 @@ def recommend(
                 diet=req.diet, exclude_allergens=req.exclude_allergens,
                 max_time=max_time, cuisines=cuisines, meal_type=meal_type,
                 nutrition_goals=nutrition_goals, limit=CANDIDATE_POOL,
+                soften=True,
             )
             # Disliked ingredients aren't hard-filtered (soft preference); demote
             # them in ranking so they sink but remain if nothing clean fits.
@@ -149,6 +150,7 @@ def recommend(
                 diet=req.diet, exclude_allergens=req.exclude_allergens,
                 max_time=max_time, cuisines=cuisines, meal_type=meal_type,
                 nutrition_goals=nutrition_goals, limit=CANDIDATE_POOL,
+                soften=True,
             )
             disliked = disliked_recipe_ids(
                 session, [c.id for c in candidates], req.disliked_ingredients
