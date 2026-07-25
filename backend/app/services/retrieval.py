@@ -93,11 +93,51 @@ def _build_candidate(
     )
 
 
+def _nutrition_order(goals: Iterable[str]) -> list:
+    """SQL ordering that serves the requested goals best-first.
+
+    Needed in browse mode: with no pantry to rank against, an arbitrary slice of
+    compliant recipes would hand ranking a pool that may exclude the corpus's
+    genuinely highest-protein recipes entirely.
+    """
+    macro = {
+        "high_protein": (Recipe.nutrition["protein_g"].astext.cast(Float), False),
+        "low_calorie": (Recipe.nutrition["calories"].astext.cast(Float), True),
+        "low_fat": (Recipe.nutrition["fat_g"].astext.cast(Float), True),
+        "low_carb": (Recipe.nutrition["carbs_g"].astext.cast(Float), True),
+    }
+    order = []
+    for goal in goals:
+        if goal in macro:
+            col, ascending = macro[goal]
+            order.append(col.asc() if ascending else col.desc())
+    return order
+
+
+def _filtered_recipe_ids(
+    session: Session,
+    limit: int,
+    clauses: Iterable[ColumnElement] = (),
+    order_by: Iterable = (),
+) -> list[int]:
+    """Compliant recipe ids with no pantry to rank against (browse mode)."""
+    return list(
+        session.execute(
+            select(Recipe.id)
+            .where(*clauses)
+            .order_by(*order_by, Recipe.id)  # id last, purely for determinism
+            .limit(limit)
+        ).scalars()
+    )
+
+
 def _pantry_ranked_recipe_ids(
     session: Session,
     pantry_set: set[int],
     limit: int,
     clauses: Iterable[ColumnElement] = (),
+    browse_order: Iterable = (),
+    browse: bool = False,
 ) -> list[int]:
     """Recipe ids with >=1 pantry-ingredient match, ranked by match quality.
 
@@ -108,9 +148,18 @@ def _pantry_ranked_recipe_ids(
 
     `clauses` are applied before the LIMIT so truncation selects among compliant
     recipes; joining Recipe here keeps that bound intact.
+
+    With no pantry, `browse` decides: the caller supplied no ingredients at all
+    and wants filter-only results, versus supplied some that resolved to
+    nothing. The latter must stay empty — returning arbitrary recipes would
+    imply we matched what they typed.
     """
     if not pantry_set:
-        return []
+        return (
+            _filtered_recipe_ids(session, limit, clauses, browse_order)
+            if browse
+            else []
+        )
     pantry_list = list(pantry_set)
     matched_total = func.count().filter(RecipeIngredient.ingredient_id.in_(pantry_list))
     matched_essential = func.count().filter(
@@ -131,8 +180,39 @@ def _pantry_ranked_recipe_ids(
     return list(session.execute(query).scalars())
 
 
+def nutrition_usable(nutrition: dict) -> bool:
+    """Whether the estimated per-serving nutrition is trustworthy enough to use.
+
+    Zero/absent calories means it was never derived, and values past the
+    plausibility ceilings mean a measure was mis-parsed upstream. Either way we
+    cannot honour a nutrition goal against it, so it is treated as unknown —
+    the same call `classify_and_derive` makes when it hides nutrition rather
+    than mislead.
+    """
+    n = nutrition or {}
+    calories = n.get("calories", 0.0)
+    if not (settings.NUTRI_MIN_CALORIES <= calories <= settings.NUTRI_MAX_CALORIES):
+        return False
+    protein = n.get("protein_g", 0.0)
+    fat = n.get("fat_g", 0.0)
+    carbs = n.get("carbs_g", 0.0)
+    # Real food with real calories always has some protein. Zero means the macro
+    # was never derived, and treating that as fact is how "low carb" started
+    # matching a squid dish reporting 0 g protein and 0 g carbs.
+    if protein <= 0:
+        return False
+    return (
+        protein <= settings.NUTRI_MAX_PROTEIN_G
+        and fat <= settings.NUTRI_MAX_FAT_G
+        and carbs <= settings.NUTRI_MAX_CARBS_G
+    )
+
+
 def _nutrition_ok(nutrition: dict, goals: Iterable[str]) -> bool:
     """AND semantics: the recipe must meet every requested per-serving goal."""
+    goals = list(goals)
+    if goals and not nutrition_usable(nutrition):
+        return False
     n = nutrition or {}
     for g in goals:
         if g == "high_protein" and n.get("protein_g", 0) < settings.NUTRI_HIGH_PROTEIN_G:
@@ -198,6 +278,23 @@ def soft_clauses(
         clauses.append(Recipe.time_minutes <= max_time)
     if meal_type:
         clauses.append(Recipe.meal_types.contains([meal_type]))
+    nutrition_goals = list(nutrition_goals)
+    if nutrition_goals:
+        # Mirror nutrition_usable() in SQL: a goal can't be honoured against
+        # nutrition we don't trust, so those rows are excluded here rather than
+        # surfacing as spurious top matches when ordering by a macro.
+        cal = Recipe.nutrition["calories"].astext.cast(Float)
+        protein = Recipe.nutrition["protein_g"].astext.cast(Float)
+        fat = Recipe.nutrition["fat_g"].astext.cast(Float)
+        carbs = Recipe.nutrition["carbs_g"].astext.cast(Float)
+        clauses += [
+            cal >= settings.NUTRI_MIN_CALORIES,
+            cal <= settings.NUTRI_MAX_CALORIES,
+            protein <= settings.NUTRI_MAX_PROTEIN_G,
+            fat <= settings.NUTRI_MAX_FAT_G,
+            carbs <= settings.NUTRI_MAX_CARBS_G,
+            protein > 0,
+        ]
     for goal in nutrition_goals:
         # Missing nutrition yields NULL and drops the row, matching
         # _nutrition_ok's treatment of an absent macro as a failed goal.
@@ -221,6 +318,32 @@ def soft_clauses(
                 <= settings.NUTRI_LOW_CARB_G
             )
     return clauses
+
+
+def nutrition_fit(nutrition: dict, goals: Iterable[str]) -> float:
+    """How well a recipe serves the requested goals, beyond merely passing them.
+
+    Passing a threshold is binary, but "high protein" means more protein is
+    better, not just >= 25g. Each goal contributes its macro normalized by its
+    own threshold, signed so higher is always better (protein up; calories,
+    fat and carbs down), which keeps goals comparable when several are set.
+    Returns 0.0 when no goals are requested, so ordering is unaffected.
+    """
+    goals = list(goals)
+    if not goals or not nutrition_usable(nutrition):
+        return 0.0
+    n = nutrition or {}
+    score = 0.0
+    for goal in goals:
+        if goal == "high_protein":
+            score += n.get("protein_g", 0.0) / settings.NUTRI_HIGH_PROTEIN_G
+        elif goal == "low_calorie":
+            score -= n.get("calories", 0.0) / settings.NUTRI_LOW_CALORIE_KCAL
+        elif goal == "low_fat":
+            score -= n.get("fat_g", 0.0) / settings.NUTRI_LOW_FAT_G
+        elif goal == "low_carb":
+            score -= n.get("carbs_g", 0.0) / settings.NUTRI_LOW_CARB_G
+    return round(score, 4)
 
 
 def soft_filters_matched(
@@ -328,6 +451,7 @@ def fetch_candidates(
     nutrition_goals: Iterable[str] = (),
     limit: int = 10,
     soften: bool = False,
+    browse: bool = False,
 ) -> list[RecipeCandidate]:
     """Recipes sharing >=1 ingredient with the pantry, filters enforced.
 
@@ -343,20 +467,26 @@ def fetch_candidates(
     hard = hard_clauses(diet, exclude, cuisines)
     soft = soft_clauses(max_time, meal_type, nutrition_goals)
 
-    ordered = _pantry_ranked_recipe_ids(session, pantry_set, SQL_MATCH_POOL, hard + soft)
+    browse_order = _nutrition_order(nutrition_goals)
+    ordered = _pantry_ranked_recipe_ids(
+        session, pantry_set, SQL_MATCH_POOL, hard + soft, browse_order, browse
+    )
     if soften and soft and len(ordered) < SQL_MATCH_POOL:
         seen = set(ordered)
         ordered += [
             rid
             for rid in _pantry_ranked_recipe_ids(
-                session, pantry_set, SQL_MATCH_POOL, hard
+                session, pantry_set, SQL_MATCH_POOL, hard, browse_order, browse
             )
             if rid not in seen
         ]
     return _ordered_candidates(
         session, pantry_set, ordered,
         diet=diet, exclude_allergens=exclude, cuisines=cuisines,
-        limit=limit, require_match=True,
+        limit=limit,
+        # Nothing to match against in browse mode, so requiring a match would
+        # discard every candidate.
+        require_match=bool(pantry_set),
         strict_soft=None if soften else (max_time, meal_type, nutrition_goals),
     )
 
@@ -369,9 +499,13 @@ def _sql_ranked_ids(
     pantry_set: set[int],
     limit: int,
     clauses: Iterable[ColumnElement] = (),
+    browse_order: Iterable = (),
+    browse: bool = False,
 ) -> list[int]:
     """SQL arm: recipe ids ranked by ingredient match, filtered before LIMIT."""
-    return _pantry_ranked_recipe_ids(session, pantry_set, limit, clauses)
+    return _pantry_ranked_recipe_ids(
+        session, pantry_set, limit, clauses, browse_order, browse
+    )
 
 
 def _vector_ranked_ids(
@@ -412,6 +546,7 @@ def fetch_hybrid(
     nutrition_goals: Iterable[str] = (),
     limit: int = 10,
     soften: bool = False,
+    browse: bool = False,
 ) -> list[RecipeCandidate]:
     """Fuse SQL match + vector similarity, both arms filtered before truncation.
 
@@ -425,8 +560,12 @@ def fetch_hybrid(
     hard = hard_clauses(diet, exclude, cuisines)
     soft = soft_clauses(max_time, meal_type, nutrition_goals)
 
+    browse_order = _nutrition_order(nutrition_goals)
+
     def _fuse(clauses: list[ColumnElement]) -> list[int]:
-        sql_ids = _sql_ranked_ids(session, pantry_set, RRF_POOL, clauses)
+        sql_ids = _sql_ranked_ids(
+            session, pantry_set, RRF_POOL, clauses, browse_order, browse
+        )
         vec_ids = (
             _vector_ranked_ids(session, query_vec, RRF_POOL, clauses)
             if query_vec

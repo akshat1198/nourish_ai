@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # Ranking weights. Bump RANKING_VERSION on any change so the
     # recommendation cache invalidates.
-    RANKING_VERSION: str = "v4"  # v4: category-weighted matches + tiered filter ordering
+    RANKING_VERSION: str = "v5"  # v5: filters outrank pantry fit; nutrition grades within
     RANK_W_COVERAGE: float = 0.6  # reward covering essential ingredients
     RANK_W_MISSING: float = 0.3  # penalize missing ingredients
     RANK_W_TIME: float = 0.1  # reward fitting the time budget
@@ -96,6 +96,22 @@ class Settings(BaseSettings):
     NUTRI_LOW_CALORIE_KCAL: float = 400.0  # calories <=
     NUTRI_LOW_FAT_G: float = 10.0  # fat_g <=
     NUTRI_LOW_CARB_G: float = 20.0  # carbs_g <=
+    # Per-serving plausibility ceilings. Nutrition is estimated by summing
+    # matched ingredient grams, so a mis-parsed measure ("1 kg" read as 1 kg per
+    # serving) yields impossible values — the corpus holds a recipe at 46,502 g
+    # protein and one at 247,577 kcal. Ordering by a macro floats exactly those
+    # rows to the top, so anything past these bounds is treated as unknown
+    # rather than trusted: it fails nutrition goals and contributes nothing to
+    # ranking. Generous on purpose — a large real meal sits well inside them.
+    # Floor too: an estimate under this, or one whose macros are all zero, means
+    # too few ingredients resolved to trust it. Without it, "low carb" matches
+    # recipes showing 0 g carbs simply because nothing was measured — a squid
+    # dish reporting 0 g protein is not low-carb data, it is missing data.
+    NUTRI_MIN_CALORIES: float = 25.0
+    NUTRI_MAX_CALORIES: float = 3000.0
+    NUTRI_MAX_PROTEIN_G: float = 150.0
+    NUTRI_MAX_FAT_G: float = 250.0
+    NUTRI_MAX_CARBS_G: float = 400.0
 
     # Observability admin gate. Fail-closed: an unset token locks
     # the endpoint even if a caller somehow supplies a matching empty header.

@@ -134,7 +134,7 @@ def _to_ranked(
     taste_scores: dict[int, float] | None = None,
     filters: SoftFilters | None = None,
 ) -> RankedRecipe:
-    from app.services.retrieval import soft_filters_matched
+    from app.services.retrieval import nutrition_fit, soft_filters_matched
 
     why = _why(c)
     if disliked_ids and c.id in disliked_ids:
@@ -162,21 +162,29 @@ def _to_ranked(
         filters_requested=requested,
         cuisine_matched=in_cuisine,
         pantry_complete=c.missing_substantive == 0,
+        nutrition_fit=nutrition_fit(c.nutrition, f.nutrition_goals),
     )
 
 
-def _order_key(r: RankedRecipe, disliked_ids: set[int] | None) -> tuple:
+def order_key(r: RankedRecipe, disliked_ids: set[int] | None = None) -> tuple:
     """Strict, lexicographic — not a score blend.
 
-    Cuisine outranks everything below it: a pantry-complete Indian recipe must
-    not beat a partially-stocked Italian one when Italian was asked for. A
-    disliked recipe still sinks beneath every clean one, as before.
+    What the user asked for beats what their pantry happens to hold: the
+    filters rank above pantry completeness, so asking for high-protein can
+    never put a low-protein recipe on top just because nothing is missing
+    from it. Cuisine outranks everything below it, and a disliked recipe still
+    sinks beneath every clean one.
+
+    `nutrition_fit` grades within the passing set (more protein, fewer carbs)
+    and is 0.0 for every recipe when no nutrition goal is set, so it changes
+    nothing on requests that don't ask for one.
     """
     return (
         r.cuisine_matched,
         not (disliked_ids and r.id in disliked_ids),
-        r.pantry_complete,
         r.filters_matched,
+        r.nutrition_fit,
+        r.pantry_complete,
     )
 
 
@@ -197,7 +205,7 @@ def rank(
     reorder the safe set.
     """
     ranked = [_to_ranked(c, disliked_ids, taste_scores, filters) for c in candidates]
-    ranked.sort(key=lambda r: (*_order_key(r, disliked_ids), r.score), reverse=True)
+    ranked.sort(key=lambda r: (*order_key(r, disliked_ids), r.score), reverse=True)
     return ranked[:limit]
 
 
@@ -218,5 +226,5 @@ def annotate(
     ranked = [
         _to_ranked(c, disliked_ids, taste_scores, filters) for c in candidates[:limit]
     ]
-    ranked.sort(key=lambda r: _order_key(r, disliked_ids), reverse=True)
+    ranked.sort(key=lambda r: order_key(r, disliked_ids), reverse=True)
     return ranked

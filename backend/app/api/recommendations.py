@@ -102,6 +102,11 @@ def recommend(
         query_vec = get_embedder().embed([query_str])[0] if query_str.strip() else []
 
     filters = SoftFilters.from_request(req)
+    # No ingredients entered at all means "show me what fits my filters", which
+    # must still return recipes. A pantry that was entered but resolved to
+    # nothing is NOT that: it stays empty, with the names reported back in
+    # unmatched_pantry, rather than implying we matched what they typed.
+    browse = not (req.pantry or req.pantry_text)
 
     def run(*, cuisines: list[str]) -> tuple[str, Optional[str], list[RankedRecipe]]:
         """One retrieve→rank→fallback pass.
@@ -121,7 +126,7 @@ def recommend(
                 diet=req.diet, exclude_allergens=req.exclude_allergens,
                 max_time=max_time, cuisines=cuisines, meal_type=meal_type,
                 nutrition_goals=nutrition_goals, limit=CANDIDATE_POOL,
-                soften=True,
+                soften=True, browse=browse,
             )
             # Disliked ingredients aren't hard-filtered (soft preference); demote
             # them in ranking so they sink but remain if nothing clean fits.
@@ -150,7 +155,7 @@ def recommend(
                 diet=req.diet, exclude_allergens=req.exclude_allergens,
                 max_time=max_time, cuisines=cuisines, meal_type=meal_type,
                 nutrition_goals=nutrition_goals, limit=CANDIDATE_POOL,
-                soften=True,
+                soften=True, browse=browse,
             )
             disliked = disliked_recipe_ids(
                 session, [c.id for c in candidates], req.disliked_ingredients

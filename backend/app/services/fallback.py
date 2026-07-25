@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.config import settings
 from app.models import Ingredient, Recipe, Substitution
 from app.schemas.recommend import RankedRecipe, SubstitutionSuggestion
+from app.services.ranking import order_key
 
 
 def _coverage(r: RankedRecipe) -> float:
@@ -101,16 +102,12 @@ def apply_fallback(
     sugg = substitution_suggestions(session, [r.id for r in ranked], pantry_ids)
     if sugg:
         enriched = [r.model_copy(update={"substitutions": sugg.get(r.id, [])}) for r in ranked]
-        # In-cuisine before clean-before-disliked, then swap-enabled, then score —
-        # so neither a disliked recipe nor an off-cuisine one outranks a clean
-        # in-cuisine match just for being swappable.
+        # Reuse the ranking tiers rather than restate them: being swap-enabled is
+        # only a tie-break BELOW what the user actually asked for. Sorting on
+        # swaps first is what let a low-protein recipe head a high-protein
+        # request — this mode fires often, so its ordering has to match rank()'s.
         enriched.sort(
-            key=lambda r: (
-                r.cuisine_matched,
-                r.id not in disliked_ids,
-                len(r.substitutions),
-                r.score,
-            ),
+            key=lambda r: (*order_key(r, disliked_ids), len(r.substitutions), r.score),
             reverse=True,
         )
         n = sum(1 for r in enriched if r.substitutions)

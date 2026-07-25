@@ -108,6 +108,70 @@ def test_more_soft_filters_matched_ranks_higher():
     assert all(r.filters_requested == 2 for r in ranked)
 
 
+def test_requested_filters_outrank_what_the_pantry_happens_to_hold():
+    # The reported bug: asking for high-protein put a low-protein recipe on top
+    # because nothing was missing from it. What the user asked for wins.
+    stocked_but_wrong = _candidate(
+        "Stocked Low Protein", nutrition={"calories": 400, "protein_g": 5, "carbs_g": 60},
+        missing_substantive=0, matched_weight=3.0,
+    )
+    high_protein = _candidate(
+        "Missing But High Protein", nutrition={"calories": 500, "protein_g": 40, "carbs_g": 10},
+        missing_substantive=3, matched_weight=0.5,
+    )
+    ranked = rank(
+        [stocked_but_wrong, high_protein],
+        limit=10,
+        filters=SoftFilters(nutrition_goals=("high_protein",)),
+    )
+    assert [r.title for r in ranked] == ["Missing But High Protein", "Stocked Low Protein"]
+
+
+def test_nutrition_grades_within_the_passing_set():
+    # Passing the threshold is binary, but more protein is better than just enough.
+    lots = _candidate("Lots", nutrition={"calories": 600, "protein_g": 60, "carbs_g": 10})
+    some = _candidate("Some", nutrition={"calories": 500, "protein_g": 40, "carbs_g": 10})
+    barely = _candidate("Barely", nutrition={"calories": 400, "protein_g": 26, "carbs_g": 10})
+    ranked = rank([barely, lots, some], limit=10,
+                  filters=SoftFilters(nutrition_goals=("high_protein",)))
+    assert [r.title for r in ranked] == ["Lots", "Some", "Barely"]
+
+    # low_carb runs the other way: fewer carbs ranks higher.
+    ranked = rank([lots, some, barely], limit=10,
+                  filters=SoftFilters(nutrition_goals=("low_carb",)))
+    assert [r.nutrition["carbs_g"] for r in ranked] == sorted(
+        r.nutrition["carbs_g"] for r in ranked
+    )
+
+
+def test_nutrition_ordering_is_inert_without_a_goal():
+    a = _candidate("A", nutrition={"calories": 400, "protein_g": 50, "carbs_g": 5},
+                   missing_substantive=2, matched_weight=0.5)
+    b = _candidate("B", nutrition={"calories": 400, "protein_g": 2, "carbs_g": 90},
+                   missing_substantive=0, matched_weight=3.0)
+    # No goal requested -> nutrition_fit is 0.0 for both and pantry fit decides.
+    ranked = rank([a, b], limit=10)
+    assert all(r.nutrition_fit == 0.0 for r in ranked)
+    assert ranked[0].title == "B"
+
+
+def test_implausible_nutrition_is_treated_as_unknown():
+    # The corpus holds a recipe at 46,502 g protein. Ordering by a macro floats
+    # exactly those rows to the top unless they're excluded outright.
+    absurd = _candidate("Absurd", nutrition={"calories": 247577, "protein_g": 46502})
+    real = _candidate("Real", nutrition={"calories": 600, "protein_g": 45, "carbs_g": 10})
+    ranked = rank([absurd, real], limit=10,
+                  filters=SoftFilters(nutrition_goals=("high_protein",)))
+    assert ranked[0].title == "Real"
+    assert ranked[1].filters_matched == 0, "unusable nutrition can't satisfy a goal"
+
+    # Calories with no macros at all is missing data, not a low-carb recipe.
+    empty = _candidate("No Macros", nutrition={"calories": 130, "protein_g": 0,
+                                               "carbs_g": 0, "fat_g": 0})
+    assert rank([empty], limit=1, filters=SoftFilters(nutrition_goals=("low_carb",))
+                )[0].filters_matched == 0
+
+
 def test_disliked_still_sinks_beneath_every_clean_recipe():
     # Dislike outranks pantry-completeness: being fully stocked doesn't redeem
     # a recipe containing something the user said they dislike.
@@ -173,6 +237,39 @@ def test_hard_tier_is_never_violated(session):
         assert "vegan" in c.diet_labels
         assert "nuts" not in c.allergens
         assert c.cuisine == "italian"
+
+
+@requires_db
+def test_browse_mode_returns_recipes_but_an_unresolved_pantry_does_not(session):
+    # Entering no ingredients at all used to come back completely empty, because
+    # the pantry-match query returns nothing when there is no pantry.
+    got = fetch_hybrid(
+        session, [], [], limit=10, nutrition_goals=["high_protein"], browse=True
+    )
+    assert got, "browsing with no ingredients must still surface recipes"
+    proteins = [(c.nutrition or {}).get("protein_g", 0) for c in got]
+    assert proteins == sorted(proteins, reverse=True), "browse mode orders by the goal"
+
+    # But a pantry that was typed and resolved to nothing is a different thing:
+    # returning arbitrary recipes there would imply we matched what they typed.
+    assert fetch_hybrid(session, [], [], limit=10, nutrition_goals=["high_protein"]) == []
+
+
+@requires_db
+def test_fallback_modes_preserve_the_filter_ordering(session):
+    # substitution_first fires constantly on a thin pantry, and it used to
+    # re-sort on swap-count alone — undoing the filter ordering rank() had just
+    # established. Whatever mode fires, the goal ordering must survive.
+    from app.services.fallback import apply_fallback
+
+    ids = resolve_pantry(session, ["chicken"]).ingredient_ids
+    cands = fetch_hybrid(session, ids, [], limit=50,
+                         nutrition_goals=["high_protein"], soften=True)
+    filters = SoftFilters(nutrition_goals=("high_protein",))
+    pool = rank(cands, limit=50, filters=filters)
+    _mode, _expl, results = apply_fallback(session, pool, ids, limit=10)
+    fits = [r.nutrition_fit for r in results]
+    assert fits == sorted(fits, reverse=True), f"{_mode} reordered against the goal"
 
 
 @requires_db

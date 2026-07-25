@@ -104,6 +104,9 @@ class RankedRecipe(RecipeCandidate):
     cuisine_matched: bool = True
     # No substantive ingredient missing — cookable from the pantry as-is.
     pantry_complete: bool = False
+    # Grades within the passing set: more protein / fewer carbs ranks higher.
+    # 0.0 when no nutrition goal was requested.
+    nutrition_fit: float = 0.0
 
 
 class RecommendResponse(BaseModel):
