@@ -37,7 +37,19 @@ orchestrator/ LangGraph supervisor + checkpointing
 evals/        offline eval harnesses (retrieval, agent, fallback) — run manually, not in CI
 ```
 
-Recommend flow: SQL ingredient-match + pgvector KNN candidates → RRF fusion → hard filters (diet/allergen/time) applied strictly after fusion → ranking (base score + personalization term) → fallback if the filtered set is empty. Personalization can only ever reorder an already-filtered set — it must never be able to surface a diet/allergen violation; if you touch `ranking.py` or `personalization.py`, preserve that ordering.
+Recommend flow: SQL ingredient-match + pgvector KNN candidates, **each arm filtered before its LIMIT** → RRF fusion → `_passes_filters` re-asserts the hard tier post-fusion → ranking → fallback. Personalization can only ever reorder an already-filtered set — it must never be able to surface a diet/allergen violation; if you touch `ranking.py` or `personalization.py`, preserve that ordering.
+
+**Filters come in three tiers** (`retrieval.hard_clauses` / `soft_clauses`); the tier decides the mechanism, and collapsing them is how the "no results" and "wrong cuisine" bugs happened:
+
+| Tier | Filters | Mechanism |
+|---|---|---|
+| Safety | `diet`, `exclude_allergens` | Hard SQL exclude. Never counted, relaxed, or ranked. |
+| Cuisine | `cuisines` | Hard on the primary pass. A shortfall appends other cuisines *below a divider* with `cuisine_matched=False` — never blended in, never silently substituted. |
+| Preference | `meal_type`, `max_time`, `nutrition_goals` | Ranking dimensions. Retrieval prefers them, then tops up from the unfiltered pool; a miss demotes, never excludes. |
+
+Ordering is **strict/lexicographic**, not a score blend (`ranking._order_key`): `cuisine_matched` → not-disliked → `pantry_complete` → `filters_matched` → score. Cuisine sits above pantry-completeness on purpose — a fully-stocked Indian recipe must not outrank a partially-stocked Italian one when Italian was requested.
+
+Ingredient matches are **category-weighted** (`RANK_CAT_WEIGHTS`): a matched protein counts ~5x a matched spice. Counting them equally biased results toward spice-dense cuisines — Indian recipes average 61% spice/pantry/herb vs ~42% elsewhere, so any stocked spice rack scored high coverage and low missing on them regardless of the actual protein. Don't revert to raw counts.
 
 ## Known sharp edges
 

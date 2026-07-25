@@ -12,7 +12,10 @@ from __future__ import annotations
 from typing import Optional
 
 CUISINE_TAXONOMY: dict[str, list[str]] = {
-    "asian": ["chinese", "thai", "japanese", "filipino", "korean", "vietnamese"],
+    # Regions listed here are the ones the corpus actually populates — an id the
+    # importer never stores is a filter that can only ever return nothing.
+    "asian": ["chinese", "thai", "japanese", "filipino", "korean", "vietnamese",
+              "sri_lankan", "malaysian", "indonesian", "nepalese", "burmese"],
     # Indian regions expanded once the real corpus populated them
     # (each of these has 80+ recipes). The importer already stores these slugs.
     "indian": ["north_indian", "south_indian", "punjabi", "gujarati", "marathi",
@@ -23,6 +26,13 @@ CUISINE_TAXONOMY: dict[str, list[str]] = {
     "mediterranean": [],
     "middle-eastern": [],
     "american": [],
+    "european": ["british", "irish", "french", "spanish", "portuguese", "dutch",
+                 "german", "polish", "russian", "ukrainian", "croatian",
+                 "slovak", "norwegian"],
+    "latin-american": ["brazilian", "colombian", "argentine", "venezuelan",
+                       "uruguayan", "peruvian", "chilean", "cuban"],
+    "caribbean": ["jamaican", "trinidadian", "haitian"],
+    "african": ["algerian", "kenyan", "nigerian", "ethiopian", "south_african"],
 }
 
 # Human labels for every id (top-level + "top/child"). Source of truth for the
@@ -40,6 +50,10 @@ CUISINE_LABELS: dict[str, str] = {
     "indian/goan": "Goan", "italian": "Italian", "mexican": "Mexican",
     "mediterranean": "Mediterranean", "middle-eastern": "Middle Eastern",
     "american": "American",
+    # Everything else relies on label_for's title-cased fallback, which is right
+    # for single-word ids and underscore slugs ("sri_lankan" -> "Sri Lankan").
+    # Only the hyphenated one needs spelling out.
+    "latin-american": "Latin American",
 }
 
 

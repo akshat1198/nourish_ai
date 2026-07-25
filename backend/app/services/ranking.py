@@ -7,17 +7,55 @@ Turns raw match stats from retrieval into a scored, explained ordering.
           + W_TIME     * time_fit
 
 where
-    coverage     = matched_essential / total_essential   (1.0 if no essentials)
-    missing_norm = missing_count / (missing_count + matched_count)
+    coverage     = matched_essential_weight / total_essential_weight  (1.0 if none)
+    missing_norm = missing_weight / (missing_weight + matched_weight)
     time_fit     = clamp(1 - time_minutes / TIME_REFERENCE, 0, 1)
 
-Weights live in config so they are tunable without code changes; bump
-RANKING_VERSION when they change (invalidates the recommendation cache).
+Ingredients are weighted by category (see RANK_CAT_WEIGHTS): a matched chicken
+counts for far more than a matched cumin. Counting them equally made spice-dense
+cuisines win on any stocked spice rack, regardless of the protein or vegetable.
+Candidates without weighted stats fall back to raw counts.
+
+Ordering is strict/lexicographic rather than a score blend — see `rank`. Weights
+live in config so they are tunable without code changes; bump RANKING_VERSION
+when they change (invalidates the recommendation cache).
 """
 from __future__ import annotations
 
+from typing import NamedTuple
+
 from app.core.config import settings
+from app.core.cuisines import cuisine_matches
 from app.schemas.recommend import RankedRecipe, RecipeCandidate
+
+
+def _weights(candidate: RecipeCandidate) -> tuple[float, float, float, float]:
+    """(matched, missing, matched_essential, total_essential) as weights.
+
+    Falls back to raw counts when retrieval did not supply weighted stats, so a
+    hand-built candidate still scores sensibly.
+    """
+    matched = (
+        candidate.matched_weight
+        if candidate.matched_weight is not None
+        else float(len(candidate.matched_ingredients))
+    )
+    missing = (
+        candidate.missing_weight
+        if candidate.missing_weight is not None
+        else float(len(candidate.missing_ingredients))
+    )
+    matched_ess = (
+        candidate.matched_essential_weight
+        if candidate.matched_essential_weight is not None
+        else float(candidate.matched_essential)
+    )
+    total_ess = (
+        candidate.total_essential_weight
+        if candidate.total_essential_weight is not None
+        else float(candidate.total_essential)
+    )
+    return matched, missing, matched_ess, total_ess
 
 
 def _score(
@@ -25,15 +63,10 @@ def _score(
     disliked_ids: set[int] | None = None,
     taste_scores: dict[int, float] | None = None,
 ) -> float:
-    coverage = (
-        candidate.matched_essential / candidate.total_essential
-        if candidate.total_essential
-        else 1.0
-    )
-    matched_n = len(candidate.matched_ingredients)
-    missing_n = len(candidate.missing_ingredients)
-    denom = matched_n + missing_n
-    missing_norm = missing_n / denom if denom else 0.0
+    matched_w, missing_w, matched_ess_w, total_ess_w = _weights(candidate)
+    coverage = matched_ess_w / total_ess_w if total_ess_w else 1.0
+    denom = matched_w + missing_w
+    missing_norm = missing_w / denom if denom else 0.0
     time_fit = 1 - candidate.time_minutes / settings.RANK_TIME_REFERENCE
     time_fit = max(0.0, min(1.0, time_fit))
 
@@ -51,6 +84,28 @@ def _score(
     if taste_scores:
         score += settings.RANK_W_TASTE * taste_scores.get(candidate.id, 0.0)
     return score
+
+
+class SoftFilters(NamedTuple):
+    """The request's preference-tier filters, plus the near-hard cuisine tier.
+
+    Bundled so ranking can report what each recipe satisfies without every
+    caller threading six parameters through.
+    """
+
+    max_time: int | None = None
+    meal_type: str | None = None
+    nutrition_goals: tuple[str, ...] = ()
+    cuisines: tuple[str, ...] = ()
+
+    @classmethod
+    def from_request(cls, req) -> "SoftFilters":
+        return cls(
+            max_time=req.max_time_minutes,
+            meal_type=req.meal_type,
+            nutrition_goals=tuple(req.nutrition_goals),
+            cuisines=tuple(req.cuisines),
+        )
 
 
 def _why(candidate: RecipeCandidate) -> str:
@@ -77,7 +132,10 @@ def _to_ranked(
     c: RecipeCandidate,
     disliked_ids: set[int] | None = None,
     taste_scores: dict[int, float] | None = None,
+    filters: SoftFilters | None = None,
 ) -> RankedRecipe:
+    from app.services.retrieval import soft_filters_matched
+
     why = _why(c)
     if disliked_ids and c.id in disliked_ids:
         why += "; deprioritized (contains an ingredient you dislike)"
@@ -86,7 +144,40 @@ def _to_ranked(
     if taste_scores and taste_scores.get(c.id, 0.0) > 0.15:
         why += "; matches recipes you've saved"
     score = round(_score(c, disliked_ids, taste_scores), 4)
-    return RankedRecipe(**c.model_dump(), score=score, why=why)
+
+    f = filters or SoftFilters()
+    matched, requested = soft_filters_matched(
+        c, f.max_time, f.meal_type, f.nutrition_goals
+    )
+    in_cuisine = (
+        cuisine_matches(c.cuisine, c.region, list(f.cuisines)) if f.cuisines else True
+    )
+    if not in_cuisine:
+        why += "; not in the cuisine you picked"
+    return RankedRecipe(
+        **c.model_dump(),
+        score=score,
+        why=why,
+        filters_matched=matched,
+        filters_requested=requested,
+        cuisine_matched=in_cuisine,
+        pantry_complete=c.missing_substantive == 0,
+    )
+
+
+def _order_key(r: RankedRecipe, disliked_ids: set[int] | None) -> tuple:
+    """Strict, lexicographic — not a score blend.
+
+    Cuisine outranks everything below it: a pantry-complete Indian recipe must
+    not beat a partially-stocked Italian one when Italian was asked for. A
+    disliked recipe still sinks beneath every clean one, as before.
+    """
+    return (
+        r.cuisine_matched,
+        not (disliked_ids and r.id in disliked_ids),
+        r.pantry_complete,
+        r.filters_matched,
+    )
 
 
 def rank(
@@ -95,17 +186,18 @@ def rank(
     limit: int,
     disliked_ids: set[int] | None = None,
     taste_scores: dict[int, float] | None = None,
+    filters: SoftFilters | None = None,
 ) -> list[RankedRecipe]:
-    """Score, then re-order by score (SQL path).
+    """Score, then order strictly (SQL path).
 
-    `disliked_ids` (recipe ids containing a disliked ingredient) get a soft
-    penalty so they sink to the bottom but remain — picked only if nothing clean
-    fits. `taste_scores` adds a small personalization term to the
-    score. Both omitted => behaviour is identical to before these signals
-    existed.
+    Tie-break within an equal tier is the weighted-fit score. `disliked_ids`
+    (recipe ids containing a disliked ingredient) sink to the bottom but remain
+    — picked only if nothing clean fits. `taste_scores` adds a small
+    personalization term, applied to already-filtered candidates so it can only
+    reorder the safe set.
     """
-    ranked = [_to_ranked(c, disliked_ids, taste_scores) for c in candidates]
-    ranked.sort(key=lambda r: r.score, reverse=True)
+    ranked = [_to_ranked(c, disliked_ids, taste_scores, filters) for c in candidates]
+    ranked.sort(key=lambda r: (*_order_key(r, disliked_ids), r.score), reverse=True)
     return ranked[:limit]
 
 
@@ -115,17 +207,16 @@ def annotate(
     limit: int,
     disliked_ids: set[int] | None = None,
     taste_scores: dict[int, float] | None = None,
+    filters: SoftFilters | None = None,
 ) -> list[RankedRecipe]:
-    """Score + explain but PRESERVE incoming order (hybrid path keeps RRF order).
+    """Score + order strictly, with fusion order as the final tie-break (hybrid).
 
-    `score` is the ingredient-fit (+ taste) score for display/
-    explanation; ordering is the caller's (fusion) relevance order, not
-    re-sorted by score. When `disliked_ids` is given, disliked recipes are
-    stably moved to the bottom (RRF order preserved within the clean group and
-    within the disliked group) — the fusion-order analogue of rank()'s score
-    penalty.
+    Same lexicographic tiers as `rank`, but where that falls back to the score,
+    this keeps the caller's RRF relevance order — a stable sort leaves recipes
+    in the same tier exactly as fusion ranked them.
     """
-    ranked = [_to_ranked(c, disliked_ids, taste_scores) for c in candidates[:limit]]
-    if disliked_ids:
-        ranked.sort(key=lambda r: r.id in disliked_ids)  # stable: disliked sink last
+    ranked = [
+        _to_ranked(c, disliked_ids, taste_scores, filters) for c in candidates[:limit]
+    ]
+    ranked.sort(key=lambda r: _order_key(r, disliked_ids), reverse=True)
     return ranked

@@ -101,10 +101,16 @@ def apply_fallback(
     sugg = substitution_suggestions(session, [r.id for r in ranked], pantry_ids)
     if sugg:
         enriched = [r.model_copy(update={"substitutions": sugg.get(r.id, [])}) for r in ranked]
-        # Clean before disliked, then swap-enabled first, then by score — so a
-        # disliked recipe never outranks a clean one just for being swappable.
+        # In-cuisine before clean-before-disliked, then swap-enabled, then score —
+        # so neither a disliked recipe nor an off-cuisine one outranks a clean
+        # in-cuisine match just for being swappable.
         enriched.sort(
-            key=lambda r: (r.id not in disliked_ids, len(r.substitutions), r.score),
+            key=lambda r: (
+                r.cuisine_matched,
+                r.id not in disliked_ids,
+                len(r.substitutions),
+                r.score,
+            ),
             reverse=True,
         )
         n = sum(1 for r in enriched if r.substitutions)

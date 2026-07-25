@@ -160,9 +160,10 @@ def test_config_exposes_nutrition_thresholds():
 
 
 @requires_db
-def test_recommendations_relaxes_when_soft_filter_empties():
-    # A savory pantry with meal_type=dessert can't match anything, so the endpoint
-    # should set the soft filter aside and return the closest matches, flagged.
+def test_recommendations_demote_rather_than_drop_an_unmatchable_soft_filter():
+    # A savory pantry with meal_type=dessert matches nothing. A soft filter must
+    # never empty the list: the near-misses stay in the pool, ranked below any
+    # recipe that does satisfy it, and report filters_matched=0 so the UI can say so.
     r = client.post(
         "/v1/recommendations",
         json={"pantry": ["chicken breast", "onion", "garlic"],
@@ -170,9 +171,33 @@ def test_recommendations_relaxes_when_soft_filter_empties():
     )
     assert r.status_code == 200
     body = r.json()
-    assert body["mode"] == "relaxed"
-    assert body["results"], "relaxed mode must still surface the closest matches"
-    assert body["explanation"]
+    assert body["results"], "a soft filter must never dead-end the list"
+    assert all(f["filters_requested"] == 1 for f in body["results"])
+    matched = [f["filters_matched"] for f in body["results"]]
+    assert matched == sorted(matched, reverse=True), "satisfied filters must rank first"
+
+
+@requires_db
+def test_recommendations_never_silently_swap_the_cuisine():
+    # The original bug: ask for Italian, get Indian, because an empty first pass
+    # retried with the cuisine dropped. Off-cuisine results may only appear
+    # below the in-cuisine ones and must be flagged cuisine_matched=False.
+    r = client.post(
+        "/v1/recommendations",
+        json={"pantry": ["pasta", "tomato", "garlic", "olive oil"],
+              "cuisines": ["italian"], "limit": 10},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["mode"] in {"normal", "off_cuisine", "substitution_first",
+                            "shopping_assisted"}
+    flags = [f["cuisine_matched"] for f in body["results"]]
+    assert flags == sorted(flags, reverse=True), "off-cuisine results must sort last"
+    for item in body["results"]:
+        if item["cuisine_matched"]:
+            assert item["cuisine"] == "italian"
+    if body["mode"] == "off_cuisine":
+        assert body["explanation"], "an off-cuisine list must say so"
 
 
 @requires_db

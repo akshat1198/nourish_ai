@@ -54,7 +54,7 @@ class IngredientMatch(BaseModel):
 
 
 class RecipeCandidate(BaseModel):
-    """A retrieved recipe with match stats (ranking is layered on in step 1.3)."""
+    """A retrieved recipe with match stats."""
 
     id: int
     title: str
@@ -71,6 +71,17 @@ class RecipeCandidate(BaseModel):
     matched_essential: int
     total_essential: int
 
+    # Category-weighted match stats. Retrieval fills these in (it is where
+    # ingredient categories are known); ranking prefers them and falls back to
+    # raw counts when absent, so a hand-built candidate still scores sensibly.
+    matched_weight: Optional[float] = None
+    missing_weight: Optional[float] = None
+    matched_essential_weight: Optional[float] = None
+    total_essential_weight: Optional[float] = None
+    # Missing ingredients that actually block cooking (weight >= the substantive
+    # cutoff) — missing cumin doesn't, missing the chicken does.
+    missing_substantive: int = 0
+
 
 class SubstitutionSuggestion(BaseModel):
     missing: str  # essential ingredient the recipe needs and pantry lacks
@@ -84,6 +95,15 @@ class RankedRecipe(RecipeCandidate):
     score: float
     why: str
     substitutions: list[SubstitutionSuggestion] = Field(default_factory=list)
+    # Soft filters (meal type / time / nutrition goals) this recipe satisfies,
+    # out of those requested. Drives the strict ordering and the UI grouping.
+    filters_matched: int = 0
+    filters_requested: int = 0
+    # False only on off-cuisine results, which the UI must show under an explicit
+    # divider rather than blending into the main list.
+    cuisine_matched: bool = True
+    # No substantive ingredient missing — cookable from the pantry as-is.
+    pantry_complete: bool = False
 
 
 class RecommendResponse(BaseModel):
@@ -92,8 +112,9 @@ class RecommendResponse(BaseModel):
         "normal",
         description=(
             "normal | substitution_first | shopping_assisted (low-confidence "
-            "fallback) | relaxed (soft filters set aside because "
-            "nothing matched them; diet/allergen still applied)"
+            "fallback) | off_cuisine (too few recipes in the requested cuisine, "
+            "so results from other cuisines are appended below a divider — they "
+            "carry cuisine_matched=False and never outrank an in-cuisine result)"
         ),
     )
     explanation: Optional[str] = None

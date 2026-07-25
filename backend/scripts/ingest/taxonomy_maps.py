@@ -92,10 +92,15 @@ _CUISINE_MAP: dict[str, tuple[Optional[str], Optional[str]]] = {
     "arab": ("middle-eastern", None),
     "afghan": ("middle-eastern", None),
     "american": ("american", None),
-    # Deliberately unmapped -> (None, None): continental, fusion, french,
-    # european, british, african, caribbean, world breakfast, jewish, and the
-    # course-words that leak into the cuisine column (appetizer, snack, side
-    # dish, dessert, dinner, lunch, brunch).
+    "french": ("european", "french"),
+    "european": ("european", None),
+    "british": ("european", "british"),
+    "african": ("african", None),
+    "caribbean": ("caribbean", None),
+    # Deliberately unmapped -> (None, None): continental and fusion (catch-alls
+    # covering 1156 rows between them — no honest cuisine to assign), jewish,
+    # world breakfast, and the course-words that leak into the cuisine column
+    # (appetizer, snack, side dish, dessert, dinner, lunch, brunch).
 }
 
 
@@ -181,11 +186,50 @@ _MEALDB_AREA_MAP: dict[str, tuple[Optional[str], Optional[str]]] = {
     "moroccan": ("mediterranean", None),
     "tunisian": ("mediterranean", None),
     "egyptian": ("middle-eastern", None),
+    "saudi arabian": ("middle-eastern", None),
+    "syrian": ("middle-eastern", None),
     "american": ("american", None),
     "canadian": ("american", None),
-    # Unmapped -> (None, None): british, french, irish, dutch, jamaican,
-    # croatian, polish, portuguese, russian, spanish, ukrainian, kenyan, etc.
-    # (still pantry-searchable, just no cuisine filter).
+    "european": ("european", None),
+    "british": ("european", "british"),
+    "irish": ("european", "irish"),
+    "french": ("european", "french"),
+    "spanish": ("european", "spanish"),
+    "portuguese": ("european", "portuguese"),
+    "dutch": ("european", "dutch"),
+    "german": ("european", "german"),
+    "polish": ("european", "polish"),
+    "russian": ("european", "russian"),
+    "ukrainian": ("european", "ukrainian"),
+    "croatian": ("european", "croatian"),
+    "norwegian": ("european", "norwegian"),
+    "jamaican": ("caribbean", "jamaican"),
+    "trinidadian": ("caribbean", "trinidadian"),
+    "haitian": ("caribbean", "haitian"),
+    "brazilian": ("latin-american", "brazilian"),
+    "colombian": ("latin-american", "colombian"),
+    "argentine": ("latin-american", "argentine"),
+    "uruguayan": ("latin-american", "uruguayan"),
+    "peruvian": ("latin-american", "peruvian"),
+    "chilean": ("latin-american", "chilean"),
+    "cuban": ("latin-american", "cuban"),
+    "algerian": ("african", "algerian"),
+    "kenyan": ("african", "kenyan"),
+    "nigerian": ("african", "nigerian"),
+    "ethiopian": ("african", "ethiopian"),
+    "south african": ("african", "south_african"),
+    # TheMealDB mixes nationalities with bare country names in the same column;
+    # both spellings have to resolve or the recipe silently loses its cuisine.
+    "india": ("indian", None),
+    "united states": ("american", None),
+    "france": ("european", "french"),
+    "norway": ("european", "norwegian"),
+    "netherlands": ("european", "dutch"),
+    "slovakia": ("european", "slovak"),
+    "venezuela": ("latin-american", "venezuelan"),
+    "argentina": ("latin-american", "argentine"),
+    # Still unmapped -> (None, None): australian (western-fusion, no honest
+    # bucket here) and the rows TheMealDB ships with no area at all.
 }
 
 

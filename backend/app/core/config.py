@@ -1,3 +1,4 @@
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,11 +20,35 @@ class Settings(BaseSettings):
 
     # Ranking weights. Bump RANKING_VERSION on any change so the
     # recommendation cache invalidates.
-    RANKING_VERSION: str = "v3"  # v3: adds taste term for personalization
+    RANKING_VERSION: str = "v4"  # v4: category-weighted matches + tiered filter ordering
     RANK_W_COVERAGE: float = 0.6  # reward covering essential ingredients
     RANK_W_MISSING: float = 0.3  # penalize missing ingredients
     RANK_W_TIME: float = 0.1  # reward fitting the time budget
     RANK_TIME_REFERENCE: int = 60  # minutes; time_fit = 1 - time/reference (clamped)
+    # Per-category match weight. Counting every ingredient equally biased results
+    # toward spice-dense cuisines: Indian recipes average 61% spice/pantry/herb vs
+    # ~42% elsewhere, so any stocked spice rack scored high coverage AND low
+    # missing on them before the protein or vegetable was ever considered.
+    # Unlisted categories fall back to RANK_CAT_WEIGHT_DEFAULT.
+    RANK_CAT_WEIGHTS: dict[str, float] = Field(
+        default_factory=lambda: {
+            "protein": 1.0,
+            "vegetable": 1.0,
+            "grain": 0.9,
+            "starch": 0.9,
+            "dairy": 0.8,
+            "fruit": 0.8,
+            "sauce": 0.6,
+            "herb": 0.3,
+            "spice": 0.2,
+            "pantry": 0.2,
+        }
+    )
+    RANK_CAT_WEIGHT_DEFAULT: float = 0.8
+    # An ingredient at/above this weight is "substantive" — a recipe missing none
+    # of them counts as cookable from the pantry alone (missing cumin doesn't
+    # disqualify a recipe; missing the chicken does).
+    RANK_SUBSTANTIVE_MIN_WEIGHT: float = 0.5
     # Soft demotion for a disliked ingredient: large enough to dominate the base
     # score span (~[-0.3, 0.7]) so disliked recipes sink beneath every clean one,
     # but they stay in the list — chosen only if nothing clean fits.
@@ -82,6 +107,13 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def category_weight(category: str | None) -> float:
+    """Ranking weight for one ingredient category."""
+    if not category:
+        return settings.RANK_CAT_WEIGHT_DEFAULT
+    return settings.RANK_CAT_WEIGHTS.get(category, settings.RANK_CAT_WEIGHT_DEFAULT)
 
 
 # Human-readable cutoff labels for the nutrition goals (single source of truth,

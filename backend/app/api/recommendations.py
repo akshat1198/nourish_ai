@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.api.auth import get_current_user_key
 from app.api.deps import get_session
-from app.core.config import nutrition_goal_label, settings
-from app.core.cuisines import VALID_CUISINE_IDS
+from app.core.config import settings
+from app.core.cuisines import VALID_CUISINE_IDS, label_for
 from app.schemas.recommend import RankedRecipe, RecommendRequest, RecommendResponse
 from app.services.cache import get_cached, recommend_key, set_cached
 from app.services.embedder import get_embedder
@@ -16,28 +16,25 @@ from app.services.fallback import apply_fallback
 from app.services.ingredients import disliked_recipe_ids, resolve_pantry
 from app.services.pantry_text import parse_pantry_text
 from app.services.personalization import taste_scores, taste_vector
-from app.services.ranking import annotate, rank
+from app.services.ranking import SoftFilters, annotate, rank
 from app.services.retrieval import fetch_candidates, fetch_hybrid
 
 router = APIRouter(prefix="/v1", tags=["recommendations"])
 
 # Retrieve a wider pool than requested so ranking has room to reorder.
 CANDIDATE_POOL = 50
+# Below this many in-cuisine results, append other cuisines under a divider
+# rather than leaving the user with almost nothing. Never blended in.
+OFF_CUISINE_FLOOR = 3
 
 
-def _relaxed_explanation(dropped_nutrition: list[str], dropped_other: bool) -> str:
-    """Message for the 'relaxed' mode: name what we set aside. Diet and allergen
-    limits are never relaxed, so the closest matches are still safe to eat."""
-    parts: list[str] = []
-    if dropped_nutrition:
-        goals = ", ".join(nutrition_goal_label(g) for g in dropped_nutrition)
-        parts.append(f"the {goals} goal" + ("s" if len(dropped_nutrition) > 1 else ""))
-    if dropped_other:
-        parts.append("some of your other filters")
-    what = " and ".join(parts) if parts else "some filters"
+def _off_cuisine_explanation(cuisines: list[str]) -> str:
+    """Message for 'off_cuisine' mode. Never claims the results are what was
+    asked for — they sit below a divider and carry cuisine_matched=False."""
+    names = ", ".join(label_for(c) for c in cuisines)
     return (
-        f"No recipe fully matched {what} with your pantry — showing the closest "
-        "matches instead. Your diet and allergen limits are still applied."
+        f"We don't have many {names} recipes that fit your pantry and filters yet. "
+        "Everything below the divider is from a different cuisine."
     )
 
 
@@ -104,15 +101,20 @@ def recommend(
         query_str = " ".join(pantry + ([req.pantry_text] if req.pantry_text else []))
         query_vec = get_embedder().embed([query_str])[0] if query_str.strip() else []
 
-    def run(
-        *,
-        nutrition_goals: list[str],
-        cuisines: list[str],
-        meal_type: Optional[str],
-        max_time: Optional[int],
-    ) -> tuple[str, Optional[str], list[RankedRecipe]]:
-        """One retrieve→rank→fallback pass. diet and exclude_allergens always
-        come from the request (never relaxed — they're safety constraints)."""
+    filters = SoftFilters.from_request(req)
+
+    def run(*, cuisines: list[str]) -> tuple[str, Optional[str], list[RankedRecipe]]:
+        """One retrieve→rank→fallback pass.
+
+        diet and exclude_allergens always come from the request — they are
+        safety constraints and are never varied. `cuisines` is the only filter
+        this varies, and only to build the clearly-labelled off-cuisine group.
+        Soft filters (time / meal type / nutrition goals) are always passed
+        through: retrieval prefers them, ranking demotes what misses them.
+        """
+        nutrition_goals = req.nutrition_goals
+        meal_type = req.meal_type
+        max_time = req.max_time_minutes
         if mode == "hybrid":
             candidates = fetch_hybrid(
                 session, resolved.ingredient_ids, query_vec,
@@ -139,7 +141,7 @@ def recommend(
             # the wider pool to find swap-eligible recipes).
             pool = annotate(
                 candidates, limit=CANDIDATE_POOL, disliked_ids=disliked,
-                taste_scores=tscores,
+                taste_scores=tscores, filters=filters,
             )
         else:
             candidates = fetch_candidates(
@@ -158,37 +160,27 @@ def recommend(
             )
             pool = rank(
                 candidates, limit=CANDIDATE_POOL, disliked_ids=disliked,
-                taste_scores=tscores,
+                taste_scores=tscores, filters=filters,
             )
         return apply_fallback(
             session, pool, resolved.ingredient_ids, limit=req.limit, disliked_ids=disliked
         )
 
-    fb_mode, explanation, results = run(
-        nutrition_goals=req.nutrition_goals, cuisines=req.cuisines,
-        meal_type=req.meal_type, max_time=req.max_time_minutes,
-    )
+    fb_mode, explanation, results = run(cuisines=req.cuisines)
 
-    # Graceful degradation: if the soft filters emptied the list, retry with them
-    # set aside (nutrition goals first, then cuisine/meal/time) so the user still
-    # sees the closest matches — flagged so they know these may not fit the goals.
-    if not results:
-        has_other = bool(req.cuisines) or req.meal_type is not None or req.max_time_minutes is not None
-        if req.nutrition_goals:
-            m, _e, res = run(
-                nutrition_goals=[], cuisines=req.cuisines,
-                meal_type=req.meal_type, max_time=req.max_time_minutes,
-            )
-            if res:
-                fb_mode, explanation, results = "relaxed", _relaxed_explanation(req.nutrition_goals, False), res
-        if not results and (req.nutrition_goals or has_other):
-            m, _e, res = run(nutrition_goals=[], cuisines=[], meal_type=None, max_time=None)
-            if res:
-                fb_mode, explanation, results = (
-                    "relaxed",
-                    _relaxed_explanation(req.nutrition_goals, has_other),
-                    res,
-                )
+    # Soft filters no longer empty the list — retrieval keeps near-misses in the
+    # pool and ranking demotes them — so the only shortfall left to handle is
+    # cuisine. It is never silently substituted: other cuisines are appended
+    # below, carrying cuisine_matched=False, and can never outrank an in-cuisine
+    # result because that flag is the top sort key.
+    if req.cuisines and len(results) < OFF_CUISINE_FLOOR:
+        _m, _e, other = run(cuisines=[])
+        seen = {r.id for r in results}
+        extra = [r for r in other if r.id not in seen and not r.cuisine_matched]
+        if extra:
+            results = (results + extra)[: req.limit]
+            fb_mode = "off_cuisine"
+            explanation = _off_cuisine_explanation(req.cuisines)
 
     payload = RecommendResponse(
         results=results,

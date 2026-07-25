@@ -83,7 +83,14 @@ def test_course_and_diet_seed():
 def test_mealdb_area():
     assert map_mealdb_area("Indian") == ("indian", None)
     assert map_mealdb_area("Chinese") == ("asian", "chinese")
-    assert map_mealdb_area("British") == (None, None)  # unmapped
+    assert map_mealdb_area("British") == ("european", "british")
+    # TheMealDB mixes nationalities and bare country names in the same column.
+    assert map_mealdb_area("France") == map_mealdb_area("French")
+    assert map_mealdb_area("India") == ("indian", None)
+    assert map_mealdb_area("United States") == ("american", None)
+    # No honest bucket for these — they must stay NULL rather than be mis-filed.
+    assert map_mealdb_area("Australian") == (None, None)
+    assert map_mealdb_area("") == (None, None)
 
 
 from app.core.allergens import ALLERGEN_SET, ALLERGEN_VOCAB
