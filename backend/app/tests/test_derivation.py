@@ -7,6 +7,7 @@ from app.services.derivation import (
     classify_and_derive,
     ingredient_columns,
     load_props,
+    measure_to_grams,
 )
 from app.tests.conftest import requires_db
 
@@ -113,3 +114,62 @@ def test_an_ingredient_added_at_runtime_is_immediately_usable(session):
         assert derived["nutrition"], "a new ingredient must contribute nutrition"
     finally:
         session.rollback()
+
+
+# --------------------------------------------------------------------------- #
+# Plant compounds vs real dairy
+# --------------------------------------------------------------------------- #
+_COCONUT_MILK = {"vegetarian": True, "vegan": True, "allergens": [],
+                 "per_100g": {"calories": 230, "protein_g": 2.3, "carbs_g": 6, "fat_g": 24}}
+
+
+def test_coconut_milk_does_not_make_a_recipe_non_vegan():
+    # "coconut milk" contains the word "milk", and the keyword backstop split on
+    # words — 386 recipes carried a dairy allergen for it and 341 lost vegan.
+    props = {"coconut milk": _COCONUT_MILK, "rice": _RICE}
+    d = classify_and_derive(
+        props,
+        [("coconut milk", 200.0, True), ("rice", 200.0, True)],
+        ["coconut milk", "rice"],
+        servings=2,
+        title="Coconut Milk Rice",
+    )
+    assert "vegan" in d["diet_labels"]
+    assert "dairy" not in d["allergens"]
+
+
+def test_real_dairy_is_still_caught_alongside_a_plant_compound():
+    # Only the qualified occurrence is neutralized; ordinary milk still trips.
+    props = {"coconut milk": _COCONUT_MILK, "rice": _RICE}
+    d = classify_and_derive(
+        props, [("rice", 200.0, True)], ["coconut milk", "whole milk"], servings=2
+    )
+    assert "vegan" not in d["diet_labels"]
+    assert "dairy" in d["allergens"]
+
+
+def test_peanut_butter_keeps_its_peanut_allergen():
+    # Blanking the whole phrase to kill the dairy reading also erased the nut
+    # signal, which would have dropped peanuts from 257 recipes.
+    props = {"rice": _RICE}
+    d = classify_and_derive(
+        props, [("rice", 200.0, True)], ["peanut butter", "rice"], servings=2
+    )
+    assert "peanuts" in d["allergens"]
+    assert "dairy" not in d["allergens"]
+
+
+def test_buttermilk_is_dairy():
+    # One word, so neither "butter" nor "milk" matched it before.
+    props = {"rice": _RICE}
+    d = classify_and_derive(props, [("rice", 200.0, True)], ["buttermilk"], servings=2)
+    assert "dairy" in d["allergens"]
+    assert "vegan" not in d["diet_labels"]
+
+
+def test_a_bare_count_is_pieces_not_cups():
+    # grams_per_piece held the CUP weight for bulk items, so "10 peanuts"
+    # resolved to ten cups: 1,460 g and a 2,381 kcal stuffed bitter gourd.
+    props = {"peanuts": {"grams_per_piece": 0.5, "grams_per_cup": 146}}
+    assert measure_to_grams(props, "peanuts", "10") == 5.0
+    assert measure_to_grams(props, "peanuts", "1 cup") == 146.0

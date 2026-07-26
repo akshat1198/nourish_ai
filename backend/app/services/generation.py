@@ -89,6 +89,15 @@ def can_generate(session: Session) -> bool:
 # --------------------------------------------------------------------------- #
 # Vocabulary extension
 # --------------------------------------------------------------------------- #
+# Things a recipe lists but nobody shops for. Admitting them to the vocabulary
+# makes them pantry-matchable, so every recipe scores a match on them and the
+# signal means nothing — generation added "water" on its first real run.
+_NOT_INGREDIENTS = {
+    "water", "cold water", "warm water", "hot water", "boiling water",
+    "ice", "ice cubes", "ice water", "air", "nothing",
+}
+
+
 def _ingredient_is_plausible(item: NewIngredient) -> Optional[str]:
     """None if the proposed ingredient is safe to store, else why it isn't.
 
@@ -97,6 +106,8 @@ def _ingredient_is_plausible(item: NewIngredient) -> Optional[str]:
     """
     if not item.name.strip():
         return "empty name"
+    if normalize(item.name) in _NOT_INGREDIENTS:
+        return "not a shoppable ingredient"
     if item.category not in INGREDIENT_CATEGORIES:
         return f"unknown category {item.category!r}"
     if item.default_unit not in INGREDIENT_UNITS:

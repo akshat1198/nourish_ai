@@ -35,5 +35,7 @@ class Ingredient(Base):
     default_unit: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     # grams per `default_unit`; 1 for anything stored in grams.
     grams_per_unit: Mapped[Optional[float]] = mapped_column(Numeric(10, 3), nullable=True)
-    # What one bare, unit-less quantity weighs (a piece, or a cup for bulk).
+    # What ONE piece weighs — distinct from the cup weight, which for anything
+    # countable differs by orders of magnitude (a peanut 0.5 g, a cup 146 g).
     grams_per_piece: Mapped[Optional[float]] = mapped_column(Numeric(10, 3), nullable=True)
+    grams_per_cup: Mapped[Optional[float]] = mapped_column(Numeric(10, 3), nullable=True)

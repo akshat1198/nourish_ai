@@ -42,12 +42,15 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry", action="store_true", help="report only, no writes")
     ap.add_argument("--sample", type=int, default=5, help="before/after rows to print")
+    ap.add_argument("--labels", action="store_true",
+                    help="also rewrite diet_labels/allergens (safety-bearing; review the delta)")
     args = ap.parse_args()
 
     changed = 0
     emptied = 0
     inconsistent = 0
     samples: list[str] = []
+    label_delta: list[tuple] = []
 
     with SessionLocal() as session:
         props = load_props(session)
@@ -70,6 +73,26 @@ def main() -> int:
             derived = classify_and_derive(
                 props, items, raw_names, recipe.servings, title=recipe.title
             )
+            if args.labels:
+                # Safety-bearing: only ever applied deliberately, and reported
+                # as a delta so a label that DISAPPEARS is visible rather than
+                # silently dropped.
+                old_diet = set(recipe.diet_labels or [])
+                # classify_and_derive only ever emits these five. Any other
+                # label (pescatarian, on 31 rows) came from the source and is
+                # not ours to drop just because we cannot re-derive it.
+                DERIVED = {"vegan", "vegetarian", "gluten_free", "dairy_free", "nut_free"}
+                new_diet = set(derived["diet_labels"]) | (old_diet - DERIVED)
+                old_alg = set(recipe.allergens or [])
+                new_alg = set(derived["allergens"])
+                if old_diet != new_diet or old_alg != new_alg:
+                    label_delta.append(
+                        (recipe.title, sorted(new_diet - old_diet), sorted(old_diet - new_diet),
+                         sorted(new_alg - old_alg), sorted(old_alg - new_alg))
+                    )
+                    recipe.diet_labels = sorted(new_diet)
+                    recipe.allergens = sorted(new_alg)
+
             before, after = recipe.nutrition or {}, derived["nutrition"]
             if before == after:
                 continue
@@ -95,6 +118,14 @@ def main() -> int:
     print(f"\nchanged {changed}{' (dry run)' if args.dry else ''}; "
           f"{emptied} now have no usable nutrition; "
           f"{inconsistent} do not reconcile with their calorie total")
+    if args.labels:
+        gained = sum(1 for d in label_delta if "vegan" in d[1])
+        lost = sum(1 for d in label_delta if "vegan" in d[2])
+        alg_removed = sum(1 for d in label_delta if d[4])
+        print(f"\nlabel changes: {len(label_delta)} recipes; +vegan {gained}, -vegan {lost}, "
+              f"allergen removed on {alg_removed}")
+        for t, dg, dl, ag, al in label_delta[:6]:
+            print(f"  {t[:44]:46} diet +{dg} -{dl}  allergen +{ag} -{al}")
     print("\nsample:")
     print("\n".join(samples))
     return 0

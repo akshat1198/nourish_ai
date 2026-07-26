@@ -47,13 +47,15 @@ _FISH_KW = {"fish", "salmon", "tuna", "cod", "anchovy", "anchovies", "sardine",
 _SHELLFISH_KW = {"prawn", "shrimp", "crab", "lobster", "oyster", "mussel", "clam",
                  "squid", "jhinga", "chingri"}
 _NON_VEGAN_KW = {"egg", "eggs", "milk", "cheese", "butter", "cream", "ghee",
-                 "paneer", "yogurt", "yoghurt", "curd", "khoya", "honey", "mayonnaise"}
+                 "paneer", "yogurt", "yoghurt", "curd", "khoya", "honey", "mayonnaise",
+                 "buttermilk", "condensed milk"}
 _ALLERGEN_KW = {
     "nuts": {"almond", "cashew", "walnut", "pistachio", "hazelnut", "pecan", "badam"},
     "peanuts": {"peanut", "groundnut"},
     "sesame": {"sesame", "tahini", "til"},
     "eggs": {"egg", "eggs"},
-    "dairy": {"milk", "cheese", "butter", "cream", "ghee", "paneer", "yogurt", "yoghurt", "curd"},
+    "dairy": {"milk", "cheese", "butter", "cream", "ghee", "paneer", "yogurt", "yoghurt",
+              "curd", "buttermilk", "khoya"},
 }
 # The keyword map's target tokens must be real allergen labels (single source of truth).
 assert set(_ALLERGEN_KW) <= ALLERGEN_SET, f"off-vocab allergen keys: {set(_ALLERGEN_KW) - ALLERGEN_SET}"
@@ -89,6 +91,7 @@ def load_props(session=None) -> dict:
             "default_unit": ing.default_unit,
             "grams_per_unit": float(ing.grams_per_unit) if ing.grams_per_unit else None,
             "grams_per_piece": float(ing.grams_per_piece) if ing.grams_per_piece else None,
+            "grams_per_cup": float(ing.grams_per_cup) if ing.grams_per_cup else None,
         }
     return props
 
@@ -118,6 +121,7 @@ def ingredient_columns(spec: dict) -> dict:
         "default_unit": spec.get("default_unit"),
         "grams_per_unit": spec.get("grams_per_unit"),
         "grams_per_piece": spec.get("grams_per_piece"),
+        "grams_per_cup": spec.get("grams_per_cup"),
     }
 
 
@@ -163,8 +167,10 @@ def measure_to_grams(props: dict, name: str, measure: str) -> float:
         return qty
     if "cup" in m:
         # A cup is a volume; only liquids weigh ~240 g. Prefer the ingredient's
-        # own cup weight (rice ~185 g, flour ~120 g) when we have one.
-        return qty * (entry.get("grams_per_piece") or 240)
+        # own cup weight (rice ~185 g, flour ~120 g) when we have one. This is
+        # NOT grams_per_piece: for anything counted individually the two differ
+        # by orders of magnitude (a peanut is 0.5 g, a cup of them is 146 g).
+        return qty * (entry.get("grams_per_cup") or entry.get("grams_per_piece") or 240)
     if re.search(r"\bml\b|litre|liter|\bl\b", m):
         return qty * 1  # ~1 g/ml
     if re.search(r"tbsp|tablespoon", m):
@@ -185,6 +191,36 @@ def measure_to_grams(props: dict, name: str, measure: str) -> float:
     return qty * per_piece
 
 
+# A dairy word preceded by one of these is a plant product, not dairy: coconut
+# milk, peanut butter, oat milk. Scanning bare words marked 386 recipes as
+# containing dairy, 341 of which then lost their vegan label.
+_PLANT_QUALIFIERS = {
+    "coconut", "almond", "soy", "soya", "oat", "rice", "cashew", "peanut",
+    "groundnut", "hemp", "flax", "hazelnut", "macadamia", "cocoa", "shea",
+    "nut", "plant", "vegan",
+}
+_QUALIFIABLE = {"milk", "butter", "cream", "cheese", "yogurt", "yoghurt", "curd"}
+# Compounds where the dairy word leads and the whole phrase is still plant-based.
+_PLANT_COMPOUNDS = r"butter\s*beans?|butter\s*nut|butternut|cream\s*of\s*(coconut|tartar)"
+
+
+def _strip_plant_compounds(text: str) -> str:
+    """Blank out dairy words that context makes plant-based.
+
+    Only the qualified occurrence is removed, so a recipe listing both coconut
+    milk and ordinary milk still trips on the second.
+    """
+    text = re.sub(_PLANT_COMPOUNDS, " ", text.lower())
+    # Keep the qualifier, drop only the dairy word: "peanut butter" -> "peanut".
+    # Blanking the whole phrase also erased the peanut/nut allergen signal, which
+    # would have quietly removed the peanuts allergen from 257 recipes.
+    return re.sub(
+        rf"\b({'|'.join(_PLANT_QUALIFIERS)})[\s-]+({'|'.join(_QUALIFIABLE)})\b",
+        r"\1",
+        text,
+    )
+
+
 def _kw_hit(text: str, kws: set[str]) -> bool:
     # Singularize each word so plurals ("shrimps", "prawns", "eggs") still match
     # the singular keyword sets — a safety-critical detail for allergen/veg flags.
@@ -202,7 +238,11 @@ def classify_and_derive(
     force_non_veg: bool = False,   # source Diet column says non-veg (e.g. Hindi meat word)
     title: str = "",               # scanned too: catches "Chicken …" when the ingredient is unmatched
 ) -> dict:
-    raw_text = " ".join(raw_names) + " " + title
+    # The keyword pass is a backstop for ingredients that did NOT resolve — a
+    # resolved one already carries accurate vegan/allergen flags, and scanning
+    # its name only invents false positives. Plant compounds are neutralized so
+    # "coconut milk" cannot read as dairy in either the names or the title.
+    raw_text = _strip_plant_compounds(" ".join(raw_names) + " " + title)
     # --- allergens: matched props ∪ keyword backstop ---
     allergens: set[str] = set()
     for name, _g, _e in matched_items:

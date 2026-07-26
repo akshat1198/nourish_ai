@@ -3,23 +3,27 @@
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** After this long, the wait is almost certainly a recipe being written. */
-const WRITING_AFTER_MS = 2500;
+/** Past this, the request is slower than a plain corpus lookup. */
+const SLOW_AFTER_MS = 2500;
 
 /**
  * Loading state for the results list.
  *
  * Most requests are served from the corpus in well under a second. When
  * nothing fits the filters the backend writes recipes to order, which takes
- * several seconds — long enough that a silent spinner reads as a hang. So the
- * copy changes once the wait passes the point where retrieval would have
- * answered, and says what is actually happening.
+ * several seconds — long enough that a silent spinner reads as a hang.
+ *
+ * The longer message is deliberately conditional. Recommendations are a single
+ * request, so the client cannot know whether the backend decided to generate;
+ * a slow lookup looks exactly like a generation from here. Stating "writing
+ * you some recipes" outright was wrong often enough to matter — it appeared on
+ * a Kenyan search that was served entirely from the corpus.
  */
 export function ResultsSkeleton() {
-  const [writing, setWriting] = useState(false);
+  const [slow, setSlow] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setWriting(true), WRITING_AFTER_MS);
+    const t = setTimeout(() => setSlow(true), SLOW_AFTER_MS);
     return () => clearTimeout(t);
   }, []);
 
@@ -30,8 +34,8 @@ export function ResultsSkeleton() {
         role="status"
         aria-live="polite"
       >
-        {writing
-          ? "Nothing in the collection fits those filters — writing you some recipes…"
+        {slow
+          ? "Still looking — if nothing in the collection fits, we'll write you one, which takes a few seconds…"
           : "Finding recipes…"}
       </p>
 
