@@ -1,3 +1,5 @@
+import { CUISINES, type CuisineNode } from "@/lib/cuisines";
+
 import type { MealType, NutritionGoal } from "@/types/api";
 
 // The questionnaire's working state (frontend-only; composed into a
@@ -64,27 +66,20 @@ export const TIME_OPTIONS: { value: number | null; label: string }[] = [
 ];
 
 // Human labels for a taxonomy id, e.g. "indian/gujarati" -> "Gujarati".
-const CUISINE_LABELS: Record<string, string> = {
-  asian: "Asian",
-  "asian/chinese": "Chinese",
-  "asian/thai": "Thai",
-  "asian/japanese": "Japanese",
-  "asian/filipino": "Filipino",
-  "asian/korean": "Korean",
-  "asian/vietnamese": "Vietnamese",
-  indian: "Indian",
-  "indian/north_indian": "North Indian",
-  "indian/south_indian": "South Indian",
-  "indian/gujarati": "Gujarati",
-  "indian/punjabi": "Punjabi",
-  "indian/marathi": "Marathi",
-  "indian/bengali": "Bengali",
-  italian: "Italian",
-  mexican: "Mexican",
-  mediterranean: "Mediterranean",
-  "middle-eastern": "Middle Eastern",
-  american: "American",
-};
+// Derived from the CUISINES tree rather than hand-listed: the two were
+// maintained separately and drifted, so ids present in the tree but missing
+// here rendered as raw slugs ("african/kenyan") in chips and cards.
+const CUISINE_LABELS: Record<string, string> = (() => {
+  const out: Record<string, string> = {};
+  const walk = (nodes: CuisineNode[]) => {
+    for (const node of nodes) {
+      out[node.id] = node.label;
+      if (node.children) walk(node.children);
+    }
+  };
+  walk(CUISINES);
+  return out;
+})();
 
 // Allergens a diet choice already guarantees excluded, per the backend's own
 // derivation truth (app/services/derivation.py::classify_and_derive): "vegan"
