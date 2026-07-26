@@ -79,7 +79,6 @@ def get_recipe(
         tags=recipe.tags or [],
         diet_labels=recipe.diet_labels or [],
         allergens=recipe.allergens or [],
-        time_minutes=recipe.time_minutes,
         servings=recipe.servings,
         nutrition=recipe.nutrition or {},
         nutrition_estimated=recipe.nutrition_estimated,

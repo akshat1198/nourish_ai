@@ -67,7 +67,6 @@ class GeneratedRecipe(BaseModel):
     cuisine: Optional[str] = Field(None, description="Top-level cuisine id requested")
     region: Optional[str] = Field(None, description="Sub-cuisine id, if one was requested")
     meal_types: list[str] = Field(default_factory=list)
-    time_minutes: int = Field(..., gt=0)
     servings: int = Field(2, gt=0)
     ingredients: list[GeneratedIngredientLine] = Field(default_factory=list)
     steps: list[str] = Field(default_factory=list, description="Numbered method, one step per entry")

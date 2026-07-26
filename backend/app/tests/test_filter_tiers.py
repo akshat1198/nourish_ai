@@ -18,7 +18,6 @@ def _candidate(title, **kw):
     base = dict(
         id=abs(hash(title)) % 100000,
         title=title,
-        time_minutes=30,
         diet_labels=[],
         allergens=[],
         tags=[],
@@ -94,18 +93,13 @@ def test_cuisine_outranks_pantry_completeness():
     assert ranked[1].cuisine_matched is False
 
 
-def test_more_soft_filters_matched_ranks_higher():
-    both = _candidate("Both", time_minutes=20, meal_types=["dinner"])
-    one = _candidate("One", time_minutes=20, meal_types=["breakfast"])
-    neither = _candidate("Neither", time_minutes=90, meal_types=["breakfast"])
-    ranked = rank(
-        [neither, one, both],
-        limit=10,
-        filters=SoftFilters(max_time=30, meal_type="dinner"),
-    )
-    assert [r.title for r in ranked] == ["Both", "One", "Neither"]
-    assert [r.filters_matched for r in ranked] == [2, 1, 0]
-    assert all(r.filters_requested == 2 for r in ranked)
+def test_a_matched_soft_filter_ranks_higher():
+    matches = _candidate("Dinner", meal_types=["dinner"])
+    misses = _candidate("Breakfast", meal_types=["breakfast"])
+    ranked = rank([misses, matches], limit=10, filters=SoftFilters(meal_type="dinner"))
+    assert [r.title for r in ranked] == ["Dinner", "Breakfast"]
+    assert [r.filters_matched for r in ranked] == [1, 0]
+    assert all(r.filters_requested == 1 for r in ranked)
 
 
 def test_requested_filters_outrank_what_the_pantry_happens_to_hold():
@@ -289,11 +283,11 @@ def test_fallback_modes_preserve_the_filter_ordering(session):
 @requires_db
 def test_soft_filters_are_strict_unless_softening_is_requested(session):
     # The agent tools, MCP surface, and eval harness all call retrieval directly
-    # and mean it literally: "under 20 minutes" must return recipes under 20
-    # minutes. Only /v1/recommendations opts into demotion.
+    # and mean it literally: meal_type="dinner" must return dinner recipes.
+    # Only /v1/recommendations opts into demotion.
     ids = resolve_pantry(session, ["onion", "tomato", "garlic", "rice"]).ingredient_ids
-    strict = fetch_hybrid(session, ids, [], limit=50, max_time=20)
-    assert all(c.time_minutes <= 20 for c in strict)
+    strict = fetch_hybrid(session, ids, [], limit=50, meal_type="dinner")
+    assert all("dinner" in (c.meal_types or []) for c in strict)
 
-    softened = fetch_hybrid(session, ids, [], limit=50, max_time=20, soften=True)
+    softened = fetch_hybrid(session, ids, [], limit=50, meal_type="dinner", soften=True)
     assert len(softened) >= len(strict), "softening must only ever widen the pool"

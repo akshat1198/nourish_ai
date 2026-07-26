@@ -18,7 +18,6 @@ class AgentRequest(BaseModel):
     exclude_allergens: list[str] = Field(default_factory=list)
     disliked_ingredients: list[str] = Field(default_factory=list)
     cuisine_prefs: list[str] = Field(default_factory=list)
-    max_time_minutes: Optional[int] = None
     limit: int = Field(3, ge=1, le=10)
 
 

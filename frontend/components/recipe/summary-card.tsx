@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Clock3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cuisineLabel } from "@/lib/filter-options";
@@ -38,11 +37,6 @@ export function SummaryCard({
           {recipe.title}
         </Link>
         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-          {recipe.time_minutes != null && (
-            <span className="inline-flex items-center gap-1 tabular">
-              <Clock3 className="size-3" /> {recipe.time_minutes} min
-            </span>
-          )}
           {cuisine && (
             <Badge variant="primary" className="text-[11px]">
               {cuisine}

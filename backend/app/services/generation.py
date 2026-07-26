@@ -198,8 +198,6 @@ def _build_prompt(
         lines.append(f"- Cuisine: {', '.join(label_for(c) for c in req.cuisines)}")
     if req.meal_type:
         lines.append(f"- Meal: {req.meal_type}")
-    if req.max_time_minutes:
-        lines.append(f"- Ready within {req.max_time_minutes} minutes")
     for goal in req.nutrition_goals:
         lines.append(f"- Nutrition goal: {goal.replace('_', ' ')} (as much as the dish allows)")
     if req.disliked_ingredients:
@@ -316,7 +314,6 @@ def _persist(
         cuisine=cuisine,
         region=region,
         meal_types=gen.meal_types or ([req.meal_type] if req.meal_type else []),
-        time_minutes=gen.time_minutes,
         servings=gen.servings,
         nutrition=derived["nutrition"],
         search_text=search_text,

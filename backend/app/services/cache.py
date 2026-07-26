@@ -33,7 +33,6 @@ def recommend_key(payload: dict) -> str:
         "cuisines": sorted(payload.get("cuisines") or []),
         "meal_type": payload.get("meal_type"),
         "nutrition_goals": sorted(payload.get("nutrition_goals") or []),
-        "max_time_minutes": payload.get("max_time_minutes"),
         "limit": payload.get("limit"),
         "mode": payload.get("mode", "hybrid"),
         # Personalized results must not collide across users. None

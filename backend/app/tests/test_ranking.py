@@ -3,11 +3,10 @@ from app.schemas.recommend import RecipeCandidate
 from app.services.ranking import annotate, rank
 
 
-def _candidate(title, *, matched_ess, total_ess, matched, missing, time=30):
+def _candidate(title, *, matched_ess, total_ess, matched, missing):
     return RecipeCandidate(
         id=abs(hash(title)) % 100000,
         title=title,
-        time_minutes=time,
         diet_labels=[],
         allergens=[],
         tags=[],
@@ -36,13 +35,12 @@ def test_higher_coverage_wins():
     assert ranked[0].title == "A"
 
 
-def test_why_string_mentions_missing_and_time():
-    c = _candidate("C", matched_ess=4, total_ess=5, matched=["a"] * 4, missing=["butter"], time=25)
-    ranked = rank([c], limit=1)
-    why = ranked[0].why
+def test_why_string_mentions_coverage_and_missing():
+    c = _candidate("C", matched_ess=4, total_ess=5, matched=["a"] * 4, missing=["butter"])
+    why = rank([c], limit=1)[0].why
     assert "4/5" in why
     assert "butter" in why
-    assert "25 min" in why
+    assert "min" not in why, "cooking time is no longer part of the explanation"
 
 
 def test_limit_trims_results():

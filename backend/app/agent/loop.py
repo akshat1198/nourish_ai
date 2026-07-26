@@ -56,8 +56,6 @@ def _build_user_prompt(req: AgentRequest, recent: list[dict] | None = None) -> s
         )
     if req.cuisine_prefs:
         parts.append(f"Preferred cuisines (soft): {', '.join(req.cuisine_prefs)}")
-    if req.max_time_minutes is not None:
-        parts.append(f"Max time: {req.max_time_minutes} minutes")
     if recent:
         titles = ", ".join(r["title"] for r in recent)
         parts.append(
@@ -113,7 +111,6 @@ def deterministic_plan(session: Session, request: AgentRequest) -> MealPlanRespo
         resolved.ingredient_ids,
         diet=request.diet,
         exclude_allergens=request.exclude_allergens,
-        max_time=request.max_time_minutes,
         limit=50,
     )
     disliked_ids = disliked_recipe_ids(

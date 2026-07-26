@@ -17,7 +17,6 @@ export function buildRequest(
     meal_type: answers.meal_type,
     nutrition_goals: answers.nutrition_goals,
     diet: answers.diet,
-    max_time_minutes: answers.max_time_minutes,
     limit: 15, // surface a comfortable set (≥10 when the corpus allows)
     session_id: getSessionId(), // for A/B bucketing
   };

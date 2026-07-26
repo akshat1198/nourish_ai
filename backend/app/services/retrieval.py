@@ -73,7 +73,6 @@ def _build_candidate(
     return RecipeCandidate(
         id=recipe.id,
         title=recipe.title,
-        time_minutes=recipe.time_minutes,
         diet_labels=recipe.diet_labels,
         allergens=recipe.allergens,
         tags=recipe.tags,
@@ -269,15 +268,12 @@ def hard_clauses(
 
 
 def soft_clauses(
-    max_time: Optional[int] = None,
     meal_type: Optional[str] = None,
     nutrition_goals: Iterable[str] = (),
 ) -> list[ColumnElement]:
     """Preference filters. Used to build a preferred pool, never to exclude —
     the caller tops up from the unfiltered pool when these come up short."""
     clauses: list[ColumnElement] = []
-    if max_time is not None:
-        clauses.append(Recipe.time_minutes <= max_time)
     if meal_type:
         clauses.append(Recipe.meal_types.contains([meal_type]))
     nutrition_goals = list(nutrition_goals)
@@ -350,7 +346,6 @@ def nutrition_fit(nutrition: dict, goals: Iterable[str]) -> float:
 
 def soft_filters_matched(
     c: RecipeCandidate,
-    max_time: Optional[int] = None,
     meal_type: Optional[str] = None,
     nutrition_goals: Iterable[str] = (),
     include_nutrition: bool = True,
@@ -364,8 +359,6 @@ def soft_filters_matched(
     gating here. Strict callers keep it counted, since they ask literally.
     """
     checks: list[bool] = []
-    if max_time is not None:
-        checks.append(c.time_minutes <= max_time)
     if meal_type:
         checks.append(meal_type in (c.meal_types or []))
     if include_nutrition:
@@ -414,7 +407,7 @@ def _ordered_candidates(
 ) -> list[RecipeCandidate]:
     """Hydrate ids into candidates, preserving `ordered_ids` order.
 
-    `strict_soft` is the (max_time, meal_type, nutrition_goals) triple to
+    `strict_soft` is the (meal_type, nutrition_goals) pair to
     re-assert when the caller did NOT ask for softening — the same
     defense-in-depth as `_passes_filters`, so a bug in an arm's SQL can't leak a
     filter violation to a caller that expects exact semantics.
@@ -456,7 +449,6 @@ def fetch_candidates(
     *,
     diet: Optional[str] = None,
     exclude_allergens: Iterable[str] = (),
-    max_time: Optional[int] = None,
     cuisines: Iterable[str] = (),
     meal_type: Optional[str] = None,
     nutrition_goals: Iterable[str] = (),
@@ -476,7 +468,7 @@ def fetch_candidates(
     pantry_set = set(pantry_ids)
     exclude = [a for a in exclude_allergens if a]
     hard = hard_clauses(diet, exclude, cuisines)
-    soft = soft_clauses(max_time, meal_type, nutrition_goals)
+    soft = soft_clauses(meal_type, nutrition_goals)
 
     browse_order = _nutrition_order(nutrition_goals)
     ordered = _pantry_ranked_recipe_ids(
@@ -498,7 +490,7 @@ def fetch_candidates(
         # Nothing to match against in browse mode, so requiring a match would
         # discard every candidate.
         require_match=bool(pantry_set),
-        strict_soft=None if soften else (max_time, meal_type, nutrition_goals),
+        strict_soft=None if soften else (meal_type, nutrition_goals),
     )
 
 
@@ -551,7 +543,6 @@ def fetch_hybrid(
     *,
     diet: Optional[str] = None,
     exclude_allergens: Iterable[str] = (),
-    max_time: Optional[int] = None,
     cuisines: Iterable[str] = (),
     meal_type: Optional[str] = None,
     nutrition_goals: Iterable[str] = (),
@@ -569,7 +560,7 @@ def fetch_hybrid(
     pantry_set = set(pantry_ids)
     exclude = [a for a in exclude_allergens if a]
     hard = hard_clauses(diet, exclude, cuisines)
-    soft = soft_clauses(max_time, meal_type, nutrition_goals)
+    soft = soft_clauses(meal_type, nutrition_goals)
 
     browse_order = _nutrition_order(nutrition_goals)
 
@@ -593,5 +584,5 @@ def fetch_hybrid(
         session, pantry_set, ordered,
         diet=diet, exclude_allergens=exclude, cuisines=cuisines,
         limit=limit, require_match=False,
-        strict_soft=None if soften else (max_time, meal_type, nutrition_goals),
+        strict_soft=None if soften else (meal_type, nutrition_goals),
     )

@@ -31,7 +31,6 @@ export interface RecommendRequest {
   cuisines: string[]; // taxonomy ids: "indian" or "indian/gujarati"
   meal_type?: MealType | null;
   nutrition_goals: NutritionGoal[];
-  max_time_minutes?: number | null;
   limit: number;
   session_id?: string | null; // persisted per-browser id for A/B bucketing
 }
@@ -45,7 +44,6 @@ export interface SubstitutionSuggestion {
 export interface RankedRecipe {
   id: number;
   title: string;
-  time_minutes: number;
   diet_labels: string[];
   allergens: string[];
   tags: string[];
@@ -103,7 +101,6 @@ export interface RecipeDetail {
   tags: string[];
   diet_labels: string[];
   allergens: string[];
-  time_minutes: number;
   servings: number;
   nutrition: Record<string, number>;
   nutrition_estimated: boolean;
@@ -241,7 +238,6 @@ export interface CuisineCount {
 export interface RecipeSummary {
   id: number;
   title: string;
-  time_minutes?: number | null;
   cuisine?: string | null;
   region?: string | null;
   image_url?: string | null;

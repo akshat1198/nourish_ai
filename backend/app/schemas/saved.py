@@ -12,7 +12,6 @@ class RecipeSummary(BaseModel):
 
     id: int
     title: str
-    time_minutes: Optional[int] = None
     cuisine: Optional[str] = None
     region: Optional[str] = None
     image_url: Optional[str] = None

@@ -49,15 +49,6 @@ def test_diet_violation_caught(session):
     assert any(x["type"] == "diet" for x in v)
 
 
-@requires_db
-def test_time_violation_caught(session):
-    slow = session.execute(
-        select(Recipe).where(Recipe.time_minutes >= 45).limit(1)
-    ).scalar_one()
-    v = validate_plan(session, _plan(slow.id), AgentRequest(max_time_minutes=15))
-    assert any(x["type"] == "time" for x in v)
-
-
 def test_unknown_recipe_caught():
     v = validate_plan(_FakeSession(), _plan(999999), AgentRequest())
     assert any(x["type"] == "unknown_recipe" for x in v)

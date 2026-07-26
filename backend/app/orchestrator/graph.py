@@ -75,7 +75,7 @@ def _plan_llm(
     llm = _chat(1024).with_structured_output(DraftPlan, method="json_schema")
     cand_lines = "\n".join(
         f"{c['id']}: {c['title']} — diet={c['diet_labels']}, allergens={c['allergens']}, "
-        f"{c['time_minutes']}min, missing {len(c['missing_ingredients'])}"
+        f"missing {len(c['missing_ingredients'])}"
         for c in candidates
     )
     context = ""
@@ -91,7 +91,7 @@ def _plan_llm(
     prompt = (
         f"Pick up to {req.limit} recipes for this request, using ONLY these candidates.\n"
         f"Constraints: diet={req.diet}, avoid_allergens={req.exclude_allergens}, "
-        f"disliked={req.disliked_ingredients}, max_time={req.max_time_minutes}.{context}\n"
+        f"disliked={req.disliked_ingredients}.{context}\n"
         f"Candidates:\n{cand_lines}\n"
         "Return recipe_id, title, and a one-line 'why' for each pick."
     )
@@ -145,7 +145,6 @@ def node_recipe_planner(state: PlanState) -> dict:
                 "pantry": state["pantry"],
                 "diet": req.diet,
                 "exclude_allergens": req.exclude_allergens,
-                "max_time_minutes": req.max_time_minutes,
                 "limit": CANDIDATE_LIMIT,
             },
         )

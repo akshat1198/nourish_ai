@@ -115,17 +115,16 @@ def recommend(
         diet and exclude_allergens always come from the request — they are
         safety constraints and are never varied. `cuisines` is the only filter
         this varies, and only to build the clearly-labelled off-cuisine group.
-        Soft filters (time / meal type / nutrition goals) are always passed
+        Soft filters (meal type / nutrition goals) are always passed
         through: retrieval prefers them, ranking demotes what misses them.
         """
         nutrition_goals = req.nutrition_goals
         meal_type = req.meal_type
-        max_time = req.max_time_minutes
         if mode == "hybrid":
             candidates = fetch_hybrid(
                 session, resolved.ingredient_ids, query_vec,
                 diet=req.diet, exclude_allergens=req.exclude_allergens,
-                max_time=max_time, cuisines=cuisines, meal_type=meal_type,
+                cuisines=cuisines, meal_type=meal_type,
                 nutrition_goals=nutrition_goals, limit=CANDIDATE_POOL,
                 soften=True, browse=browse,
             )
@@ -154,7 +153,7 @@ def recommend(
             candidates = fetch_candidates(
                 session, resolved.ingredient_ids,
                 diet=req.diet, exclude_allergens=req.exclude_allergens,
-                max_time=max_time, cuisines=cuisines, meal_type=meal_type,
+                cuisines=cuisines, meal_type=meal_type,
                 nutrition_goals=nutrition_goals, limit=CANDIDATE_POOL,
                 soften=True, browse=browse,
             )

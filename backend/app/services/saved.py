@@ -13,7 +13,6 @@ def recipe_summary(r: Recipe) -> RecipeSummary:
     return RecipeSummary(
         id=r.id,
         title=r.title,
-        time_minutes=r.time_minutes,
         cuisine=r.cuisine,
         region=r.region,
         image_url=r.image_url,

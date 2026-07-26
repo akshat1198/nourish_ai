@@ -26,7 +26,6 @@ class EvalCase:
     pantry: list[str]
     diet: str | None
     exclude_allergens: list[str]
-    max_time_minutes: int | None
     relevant_titles: list[str]
     # Adversarial fields: retrieval can't hard-filter a disliked
     # ingredient, but the validator flags it — so these drive the repair loop.
@@ -50,7 +49,6 @@ def load_cases(path: Path = QUERIES_PATH) -> list[EvalCase]:
                 pantry=d["pantry"],
                 diet=d.get("diet"),
                 exclude_allergens=d.get("exclude_allergens", []),
-                max_time_minutes=d.get("max_time_minutes"),
                 relevant_titles=d.get("relevant_titles", []),
                 disliked_ingredients=d.get("disliked_ingredients", []),
                 question=d.get("question"),
@@ -103,7 +101,5 @@ def count_violations(recipe, case: EvalCase) -> int:
     if case.diet and case.diet not in recipe.diet_labels:
         v += 1
     if set(case.exclude_allergens) & set(recipe.allergens):
-        v += 1
-    if case.max_time_minutes is not None and recipe.time_minutes > case.max_time_minutes:
         v += 1
     return v

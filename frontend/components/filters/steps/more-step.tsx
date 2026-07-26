@@ -3,10 +3,9 @@
 import { IngredientToken } from "@/components/ingredient-token";
 import { OptionPill } from "@/components/filters/option-pill";
 import { IngredientCombobox } from "@/components/pantry/ingredient-combobox";
-import { TIME_OPTIONS } from "@/lib/filter-options";
 import { useFilterFlow } from "@/lib/flow/filter-flow-context";
 
-// Dislikes + cook time — the last filter before review.
+// Dislikes — the last filter before review.
 export function MoreStep() {
   const { answers, patch } = useFilterFlow();
 
@@ -45,25 +44,6 @@ export function MoreStep() {
             ))}
           </div>
         )}
-      </div>
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Time to cook</p>
-        <div className="flex flex-wrap gap-2">
-          {TIME_OPTIONS.map((t) => (
-            <OptionPill
-              key={t.label}
-              selected={answers.max_time_minutes === t.value}
-              onClick={() =>
-                patch({
-                  max_time_minutes:
-                    answers.max_time_minutes === t.value ? null : t.value,
-                })
-              }
-            >
-              {t.label}
-            </OptionPill>
-          ))}
-        </div>
       </div>
     </div>
   );

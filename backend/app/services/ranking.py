@@ -4,12 +4,10 @@ Turns raw match stats from retrieval into a scored, explained ordering.
 
     score = W_COVERAGE * coverage
           - W_MISSING  * missing_norm
-          + W_TIME     * time_fit
 
 where
     coverage     = matched_essential_weight / total_essential_weight  (1.0 if none)
     missing_norm = missing_weight / (missing_weight + matched_weight)
-    time_fit     = clamp(1 - time_minutes / TIME_REFERENCE, 0, 1)
 
 Ingredients are weighted by category (see RANK_CAT_WEIGHTS): a matched chicken
 counts for far more than a matched cumin. Counting them equally made spice-dense
@@ -67,13 +65,9 @@ def _score(
     coverage = matched_ess_w / total_ess_w if total_ess_w else 1.0
     denom = matched_w + missing_w
     missing_norm = missing_w / denom if denom else 0.0
-    time_fit = 1 - candidate.time_minutes / settings.RANK_TIME_REFERENCE
-    time_fit = max(0.0, min(1.0, time_fit))
-
     score = (
         settings.RANK_W_COVERAGE * coverage
         - settings.RANK_W_MISSING * missing_norm
-        + settings.RANK_W_TIME * time_fit
     )
     # Soft demotion: sink disliked recipes beneath clean ones without removing them.
     if disliked_ids and candidate.id in disliked_ids:
@@ -93,7 +87,6 @@ class SoftFilters(NamedTuple):
     caller threading six parameters through.
     """
 
-    max_time: int | None = None
     meal_type: str | None = None
     nutrition_goals: tuple[str, ...] = ()
     cuisines: tuple[str, ...] = ()
@@ -101,7 +94,6 @@ class SoftFilters(NamedTuple):
     @classmethod
     def from_request(cls, req) -> "SoftFilters":
         return cls(
-            max_time=req.max_time_minutes,
             meal_type=req.meal_type,
             nutrition_goals=tuple(req.nutrition_goals),
             cuisines=tuple(req.cuisines),
@@ -124,7 +116,6 @@ def _why(candidate: RecipeCandidate) -> str:
         parts.append("missing only " + ", ".join(missing))
     else:
         parts.append(f"missing {len(missing)} items")
-    parts.append(f"ready in {candidate.time_minutes} min")
     return "; ".join(parts)
 
 
@@ -150,7 +141,7 @@ def _to_ranked(
     # degree via nutrition_fit, so a goal nothing can satisfy still orders the
     # results best-first instead of flattening them all to "matched 0".
     matched, requested = soft_filters_matched(
-        c, f.max_time, f.meal_type, f.nutrition_goals, include_nutrition=False
+        c, f.meal_type, f.nutrition_goals, include_nutrition=False
     )
     in_cuisine = (
         cuisine_matches(c.cuisine, c.region, list(f.cuisines)) if f.cuisines else True

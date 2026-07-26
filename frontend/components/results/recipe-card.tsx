@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock3, Sparkles, Trophy, X } from "lucide-react";
+import { Sparkles, Trophy, X } from "lucide-react";
 import { IngredientToken } from "@/components/ingredient-token";
 import { MatchMeter } from "@/components/match-meter";
 import { SaveButton } from "@/components/recipe/save-button";
@@ -87,7 +87,6 @@ export function RecipeCard({
             summary={{
               id: recipe.id,
               title: recipe.title,
-              time_minutes: recipe.time_minutes,
               cuisine: recipe.cuisine,
               region: recipe.region,
             }}
@@ -105,9 +104,6 @@ export function RecipeCard({
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-        <span className="inline-flex items-center gap-1 tabular">
-          <Clock3 className="size-3.5" /> {recipe.time_minutes} min
-        </span>
         {protein != null && <span className="tabular">{protein}g protein</span>}
         {calories != null && <span className="tabular">{calories} kcal</span>}
         {recipe.diet_labels.slice(0, 3).map((d) => (

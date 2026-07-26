@@ -34,7 +34,6 @@ class RecommendRequest(BaseModel):
         default_factory=list,
         description="AND: high_protein | low_calorie | low_fat | low_carb (per-serving thresholds)",
     )
-    max_time_minutes: Optional[int] = Field(None, ge=0)
     limit: int = Field(10, ge=1, le=50)
     session_id: Optional[str] = Field(
         None, description="Persisted per-browser session id, used for A/B bucketing"
@@ -58,7 +57,6 @@ class RecipeCandidate(BaseModel):
 
     id: int
     title: str
-    time_minutes: int
     diet_labels: list[str]
     allergens: list[str]
     tags: list[str]

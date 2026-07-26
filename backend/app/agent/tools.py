@@ -56,7 +56,6 @@ def _search_recipes(session: Session, inp: dict) -> dict:
         query_vec,
         diet=inp.get("diet"),
         exclude_allergens=inp.get("exclude_allergens", []),
-        max_time=inp.get("max_time_minutes"),
         limit=50,
     )
     ranked = annotate(candidates, limit=inp.get("limit", 5))
@@ -65,7 +64,6 @@ def _search_recipes(session: Session, inp: dict) -> dict:
         {
             "id": r.id,
             "title": r.title,
-            "time_minutes": r.time_minutes,
             "diet_labels": r.diet_labels,
             "allergens": r.allergens,
             "matched_ingredients": r.matched_ingredients,
@@ -195,7 +193,7 @@ TOOLS: dict[str, ToolSpec] = {
         description=(
             "Find recipes that best use a pantry. Call this first to get candidate "
             "recipes. Pass the user's on-hand ingredients as `pantry` (bare names). "
-            "Optionally constrain by `diet`, `exclude_allergens`, and `max_time_minutes`."
+            "Optionally constrain by `diet` and `exclude_allergens`."
         ),
         input_schema={
             "type": "object",
@@ -203,7 +201,6 @@ TOOLS: dict[str, ToolSpec] = {
                 "pantry": {"type": "array", "items": {"type": "string"}},
                 "diet": {"type": "string"},
                 "exclude_allergens": {"type": "array", "items": {"type": "string"}},
-                "max_time_minutes": {"type": "integer"},
                 "limit": {"type": "integer"},
             },
             "required": ["pantry"],

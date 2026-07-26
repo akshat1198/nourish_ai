@@ -20,11 +20,9 @@ class Settings(BaseSettings):
 
     # Ranking weights. Bump RANKING_VERSION on any change so the
     # recommendation cache invalidates.
-    RANKING_VERSION: str = "v6"  # v6: nutrition goals graded, not gated; grams fixed
+    RANKING_VERSION: str = "v7"  # v7: cooking time no longer filtered, ranked or shown
     RANK_W_COVERAGE: float = 0.6  # reward covering essential ingredients
     RANK_W_MISSING: float = 0.3  # penalize missing ingredients
-    RANK_W_TIME: float = 0.1  # reward fitting the time budget
-    RANK_TIME_REFERENCE: int = 60  # minutes; time_fit = 1 - time/reference (clamped)
     # Per-category match weight. Counting every ingredient equally biased results
     # toward spice-dense cuisines: Indian recipes average 61% spice/pantry/herb vs
     # ~42% elsewhere, so any stocked spice rack scored high coverage AND low

@@ -36,7 +36,6 @@ class RecipeDetail(BaseModel):
     tags: list[str] = Field(default_factory=list)
     diet_labels: list[str] = Field(default_factory=list)
     allergens: list[str] = Field(default_factory=list)
-    time_minutes: int
     servings: int
     nutrition: dict = Field(default_factory=dict)
     nutrition_estimated: bool = False

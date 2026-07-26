@@ -44,14 +44,6 @@ def validate_plan(
                 {"recipe_id": item.recipe_id, "type": "diet",
                  "detail": f"not {request.diet} (labels: {recipe.diet_labels})"}
             )
-        if (
-            request.max_time_minutes is not None
-            and recipe.time_minutes > request.max_time_minutes
-        ):
-            violations.append(
-                {"recipe_id": item.recipe_id, "type": "time",
-                 "detail": f"{recipe.time_minutes} min > {request.max_time_minutes} min"}
-            )
         if disliked:
             recipe_names = {normalize(i["name"]) for i in (recipe.ingredients or [])}
             hit = sorted(disliked & recipe_names)

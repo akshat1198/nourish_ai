@@ -50,13 +50,6 @@ def test_allergen_exclusion(session):
 
 
 @requires_db
-def test_time_filter(session):
-    resolved = resolve_pantry(session, ["rice", "garlic", "soy sauce"])
-    results = fetch_candidates(session, resolved.ingredient_ids, max_time=20, limit=20)
-    assert all(c.time_minutes <= 20 for c in results)
-
-
-@requires_db
 def test_unknown_pantry_degrades_gracefully(session):
     # No exception; simply no matches from a nonsense pantry.
     resolved = resolve_pantry(session, ["xyzzy", "florble"])

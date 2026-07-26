@@ -78,7 +78,6 @@ def _req(case) -> AgentRequest:
         pantry=case.pantry,
         diet=case.diet,
         exclude_allergens=case.exclude_allergens,
-        max_time_minutes=case.max_time_minutes,
         disliked_ingredients=case.disliked_ingredients,
         question=case.question,
         limit=2,

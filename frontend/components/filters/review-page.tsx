@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   DIETS,
   NUTRITION_GOALS,
-  TIME_OPTIONS,
   cuisineLabel,
   titleCase,
   type FilterAnswers,
@@ -22,11 +21,6 @@ export function ReviewBody() {
   const dietLabel = answers.diet
     ? DIETS.find((d) => d.value === answers.diet)?.label ?? answers.diet
     : null;
-  const timeLabel =
-    answers.max_time_minutes != null
-      ? TIME_OPTIONS.find((t) => t.value === answers.max_time_minutes)?.label ??
-        `${answers.max_time_minutes} min`
-      : null;
 
   const remove = <K extends keyof FilterAnswers>(key: K, value: string) =>
     setAnswers((a) => ({
@@ -36,8 +30,7 @@ export function ReviewBody() {
   const muted = "text-sm text-muted-foreground";
 
   const dietGoalsEmpty = !dietLabel && answers.nutrition_goals.length === 0;
-  const dislikesTimeEmpty =
-    answers.disliked_ingredients.length === 0 && timeLabel == null;
+  const dislikesEmpty = answers.disliked_ingredients.length === 0;
 
   return (
     <div className="space-y-4">
@@ -114,12 +107,12 @@ export function ReviewBody() {
       </ReviewGroup>
 
       <ReviewGroup
-        label="Dislikes & time"
-        empty={dislikesTimeEmpty}
+        label="Dislikes"
+        empty={dislikesEmpty}
         onEdit={() => goToStep("more")}
       >
-        {dislikesTimeEmpty && (
-          <span className={muted}>No dislikes · Any time</span>
+        {dislikesEmpty && (
+          <span className={muted}>No dislikes</span>
         )}
         {answers.disliked_ingredients.map((n) => (
           <RemovableChip
@@ -128,14 +121,6 @@ export function ReviewBody() {
             onRemove={() => remove("disliked_ingredients", n)}
           />
         ))}
-        {timeLabel && (
-          <RemovableChip
-            label={timeLabel}
-            onRemove={() =>
-              setAnswers((a) => ({ ...a, max_time_minutes: null }))
-            }
-          />
-        )}
       </ReviewGroup>
     </div>
   );

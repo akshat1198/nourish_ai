@@ -20,7 +20,6 @@ export function RecipeActions({ recipe }: { recipe: RecipeDetail }) {
   const summary: RecipeSummary = {
     id: recipe.id,
     title: recipe.title,
-    time_minutes: recipe.time_minutes,
     cuisine: recipe.cuisine,
     region: recipe.region,
     image_url: recipe.image_url,

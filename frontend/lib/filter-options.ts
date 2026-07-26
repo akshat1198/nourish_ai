@@ -11,7 +11,6 @@ export interface FilterAnswers {
   nutrition_goals: NutritionGoal[];
   exclude_allergens: string[];
   disliked_ingredients: string[];
-  max_time_minutes: number | null; // null = any time
 }
 
 export const EMPTY_ANSWERS: FilterAnswers = {
@@ -21,7 +20,6 @@ export const EMPTY_ANSWERS: FilterAnswers = {
   nutrition_goals: [],
   exclude_allergens: [],
   disliked_ingredients: [],
-  max_time_minutes: null,
 };
 
 export const MEAL_TYPES: { value: MealType; label: string }[] = [
@@ -55,14 +53,6 @@ export const ALLERGENS: string[] = [
   "shellfish",
   "fish",
   "sesame",
-];
-
-export const TIME_OPTIONS: { value: number | null; label: string }[] = [
-  { value: 15, label: "≤ 15 min" },
-  { value: 30, label: "≤ 30 min" },
-  { value: 45, label: "≤ 45 min" },
-  { value: 60, label: "≤ 60 min" },
-  { value: null, label: "Any time" },
 ];
 
 // Human labels for a taxonomy id, e.g. "indian/gujarati" -> "Gujarati".

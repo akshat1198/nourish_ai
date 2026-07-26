@@ -45,10 +45,10 @@ Recommend flow: SQL ingredient-match + pgvector KNN candidates, **each arm filte
 |---|---|---|
 | Safety | `diet`, `exclude_allergens` | Hard SQL exclude. Never counted, relaxed, or ranked. |
 | Cuisine | `cuisines` | Hard on the primary pass. A shortfall appends other cuisines *below a divider* with `cuisine_matched=False` — never blended in, never silently substituted. |
-| Preference | `meal_type`, `max_time` | Binary ranking dimensions. Retrieval prefers them, then tops up from the unfiltered pool; a miss demotes, never excludes. |
+| Preference | `meal_type` | Binary ranking dimensions. Retrieval prefers them, then tops up from the unfiltered pool; a miss demotes, never excludes. |
 | Preference | `nutrition_goals` | **Graded, not gated.** Never counted into `filters_matched` — ranked by degree via `nutrition_fit` (protein up; calories/fat/carbs down, each normalized by its threshold). Asking for high protein returns the highest protein available even when nothing clears 25 g, which no vegetarian Thai recipe in the corpus does. Strict callers (`soften=False`) keep exact threshold semantics. |
 
-Ordering is **strict/lexicographic**, not a score blend (`ranking._order_key`): `cuisine_matched` → not-disliked → `pantry_complete` → `filters_matched` → score. Cuisine sits above pantry-completeness on purpose — a fully-stocked Indian recipe must not outrank a partially-stocked Italian one when Italian was requested.
+Ordering is **strict/lexicographic**, not a score blend (`ranking.order_key`): `cuisine_matched` → not-disliked → `pantry_complete` → `filters_matched` → score. Cuisine sits above pantry-completeness on purpose — a fully-stocked Indian recipe must not outrank a partially-stocked Italian one when Italian was requested.
 
 **Generation fills corpus gaps, it doesn't replace the corpus** (`services/generation.py`). When a request has fewer than `GENERATION_MIN_RESULTS` in-cuisine matches, Claude writes recipes for that exact filter payload; they're validated, embedded, and persisted with `source="generated"`, so the corpus grows toward real demand and the next identical request is a DB hit. Non-negotiables if you touch it:
 

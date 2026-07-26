@@ -37,7 +37,9 @@ class Recipe(Base):
     cuisine: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     region: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     meal_types: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
-    time_minutes: Mapped[int] = mapped_column(Integer)
+    # No longer filtered, ranked or displayed. Kept (nullable) rather than
+    # dropped so the imported values survive if it is ever wanted again.
+    time_minutes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     servings: Mapped[int] = mapped_column(Integer, default=2)
     # {calories, protein_g, carbs_g, fat_g} per serving
     nutrition: Mapped[dict] = mapped_column(JSONB, default=dict)

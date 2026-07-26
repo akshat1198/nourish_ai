@@ -19,7 +19,7 @@ export const STEP_TITLES: Record<StepSlug, string> = {
   meal: "Which meal?",
   diet: "How do you want to eat?",
   avoid: "Anything to avoid?",
-  more: "Dislikes & time",
+  more: "Dislikes",
   review: "Ready to cook?",
 };
 

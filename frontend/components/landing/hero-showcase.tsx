@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Clock3 } from "lucide-react";
 import {
   IngredientToken,
   type IngredientCategory,
@@ -15,7 +14,6 @@ import { cn } from "@/lib/utils";
 interface Demo {
   cuisine: string;
   title: string;
-  time: number;
   protein: number;
   have: number;
   total: number;
@@ -27,7 +25,6 @@ const DEMOS: Demo[] = [
   {
     cuisine: "Italian",
     title: "Garlic Basil Pasta",
-    time: 20,
     protein: 16,
     have: 4,
     total: 5,
@@ -42,7 +39,6 @@ const DEMOS: Demo[] = [
   {
     cuisine: "Mexican",
     title: "Chicken Street Tacos",
-    time: 25,
     protein: 32,
     have: 3,
     total: 5,
@@ -57,7 +53,6 @@ const DEMOS: Demo[] = [
   {
     cuisine: "Thai",
     title: "Ginger Tofu Stir-Fry",
-    time: 18,
     protein: 22,
     have: 5,
     total: 5,
@@ -72,7 +67,6 @@ const DEMOS: Demo[] = [
   {
     cuisine: "Mediterranean",
     title: "Chickpea Feta Bowl",
-    time: 15,
     protein: 18,
     have: 4,
     total: 6,
@@ -151,9 +145,6 @@ export function HeroShowcase() {
                 {d.title}
               </h3>
               <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
-                <span className="inline-flex items-center gap-1 tabular">
-                  <Clock3 className="size-3.5" /> {d.time} min
-                </span>
                 <span className="tabular">{d.protein}g protein</span>
               </div>
             </div>
