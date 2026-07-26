@@ -74,17 +74,25 @@ class LLMClient:
         *,
         model: Optional[str] = None,
         max_tokens: int = 1024,
+        timeout: Optional[float] = None,
     ) -> T:
-        """Schema-validated completion via messages.parse(). Returns a `schema` instance."""
+        """Schema-validated completion via messages.parse(). Returns a `schema` instance.
+
+        `timeout` overrides the client default for this call — writing several
+        full recipes takes far longer than the short-prompt uses this adapter
+        was first built for, and the default would abort them mid-generation.
+        """
         import anthropic
 
         client = self._ensure()
+        options = {"timeout": timeout} if timeout is not None else {}
         try:
             resp = client.messages.parse(
                 model=model or settings.LLM_MODEL_FAST,
                 max_tokens=max_tokens,
                 messages=messages,
                 output_format=schema,
+                **options,
             )
         except anthropic.APIError as e:
             raise LLMError(str(e)) from e

@@ -113,6 +113,25 @@ class Settings(BaseSettings):
     NUTRI_MAX_FAT_G: float = 250.0
     NUTRI_MAX_CARBS_G: float = 400.0
 
+    # Recipe generation. Fills gaps the corpus genuinely can't serve (a Korean
+    # vegan dinner) instead of substituting another cuisine. Fails open: any
+    # error or timeout degrades to whatever retrieval found.
+    GENERATION_ENABLED: bool = True
+    GENERATION_MIN_RESULTS: int = 3  # generate when fewer in-cuisine matches than this
+    GENERATION_MAX_RECIPES: int = 3  # per request
+    # Writing several full recipes takes far longer than the short-prompt calls
+    # LLM_TIMEOUT_SECONDS was sized for; that default aborts them mid-generation.
+    GENERATION_TIMEOUT_SECONDS: float = 180.0
+    GENERATION_DAILY_CAP: int = 200  # spend ceiling; generations per rolling day
+    # Cosine distance below which a generated recipe is a near-duplicate of one
+    # already stored, so it is reused instead of inserted again.
+    GENERATION_DEDUP_DISTANCE: float = 0.06
+    # Plausibility bounds for a model-proposed ingredient's per-100g macros.
+    # Pure fat is ~900 kcal/100 g; anything past these is a hallucination that
+    # would corrupt every recipe later using that ingredient.
+    GENERATION_MAX_KCAL_PER_100G: float = 950.0
+    GENERATION_MAX_MACRO_PER_100G: float = 100.0
+
     # Observability admin gate. Fail-closed: an unset token locks
     # the endpoint even if a caller somehow supplies a matching empty header.
     ADMIN_TOKEN: str = ""

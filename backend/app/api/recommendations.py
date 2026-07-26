@@ -13,6 +13,7 @@ from app.services.cache import get_cached, recommend_key, set_cached
 from app.services.embedder import get_embedder
 from app.services.experiments import assign_variant
 from app.services.fallback import apply_fallback
+from app.services.generation import can_generate, generate_recipes
 from app.services.ingredients import disliked_recipe_ids, resolve_pantry
 from app.services.pantry_text import parse_pantry_text
 from app.services.personalization import taste_scores, taste_vector
@@ -174,6 +175,14 @@ def recommend(
         )
 
     fb_mode, explanation, results = run(cuisines=req.cuisines)
+
+    # A genuine shortfall is a gap in the corpus, not a reason to serve another
+    # cuisine: write recipes for these exact filters, persist them, and re-run
+    # so they flow through the same ranking as everything else. Fails open —
+    # generate_recipes never raises, and an empty return just leaves `results`.
+    if len(results) < settings.GENERATION_MIN_RESULTS and can_generate(session):
+        if generate_recipes(session, req, pantry, user_key):
+            fb_mode, explanation, results = run(cuisines=req.cuisines)
 
     # Soft filters no longer empty the list — retrieval keeps near-misses in the
     # pool and ranking demotes them — so the only shortfall left to handle is
