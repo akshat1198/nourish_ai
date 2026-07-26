@@ -399,7 +399,7 @@ def _apply_remove(
             changed.append(st.index)
 
     # Re-derive diet/allergen deterministically on the post-removal canonical set.
-    props = load_props()
+    props = load_props(session)
     post_names: list[str] = []
     post_items: list[tuple] = []
     for ri in recipe.recipe_ingredients:
@@ -549,7 +549,7 @@ def modify_recipe(
         new_lines.append(line)
 
     # Re-derive diet/allergen on the post-swap canonical set.
-    props = load_props()
+    props = load_props(session)
     post_names: list[str] = []
     post_items: list[tuple] = []
     for ri in recipe.recipe_ingredients:

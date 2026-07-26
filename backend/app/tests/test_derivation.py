@@ -1,6 +1,14 @@
-"""Shared diet/allergen derivation (7.3a) — the validator the modify endpoint
-re-runs after a swap. Pure, no DB; props built inline."""
-from app.services.derivation import classify_and_derive, load_props
+"""Shared diet/allergen derivation — the validator the modify endpoint re-runs
+after a swap. Mostly pure with props built inline; the DB-backed tests cover
+the ingredient vocabulary being readable and extendable at runtime."""
+from app.models import Ingredient
+from app.services.derivation import (
+    _seed_props,
+    classify_and_derive,
+    ingredient_columns,
+    load_props,
+)
+from app.tests.conftest import requires_db
 
 _PANEER = {"vegetarian": True, "vegan": False, "allergens": ["dairy"],
            "per_100g": {"calories": 265, "protein_g": 18, "carbs_g": 1.2, "fat_g": 21}}
@@ -39,7 +47,69 @@ def test_swap_paneer_to_tofu_drops_dairy_adds_soy():
     assert removed == {"dairy"}
 
 
-def test_load_props_reads_seed_file():
+def test_load_props_falls_back_to_the_seed_file_without_a_session():
     props = load_props()
     assert "paneer" in props and "tofu" in props
     assert props["paneer"]["allergens"]  # non-empty (dairy)
+
+
+@requires_db
+def test_db_props_match_the_seed_file(session):
+    # The migration backfilled from the seed file; derivation must read the same
+    # values through either path or nutrition would shift under the refactor.
+    seed, db = _seed_props(), load_props(session)
+    assert set(seed) <= set(db)
+    for name, want in seed.items():
+        got = db[name]
+        assert bool(want.get("vegan")) == got["vegan"], name
+        assert bool(want.get("vegetarian")) == got["vegetarian"], name
+        assert sorted(want.get("allergens") or []) == sorted(got["allergens"]), name
+
+
+@requires_db
+def test_seeded_ingredient_carries_every_property_derivation_reads(session):
+    # The seeder and importer both build rows through ingredient_columns. If a
+    # property is added to the seed file but not to that mapping, rows come out
+    # with NULLs that read as "not vegan, no nutrition" instead of missing data.
+    spec = _seed_props()["paneer"]
+    session.add(Ingredient(**{**ingredient_columns(spec), "name": "test-paneer-copy"}))
+    session.flush()
+    try:
+        got = load_props(session)["test-paneer-copy"]
+        assert got["vegetarian"] is True and got["vegan"] is False
+        assert "dairy" in got["allergens"]
+        assert got["per_100g"].get("protein_g")
+        assert got["grams_per_piece"], "gram weights must survive seeding"
+    finally:
+        session.rollback()
+
+
+@requires_db
+def test_an_ingredient_added_at_runtime_is_immediately_usable(session):
+    # The point of moving properties into the table: a vocabulary entry created
+    # while the app is running must carry nutrition and diet flags right away.
+    # An lru_cache here would serve a snapshot taken before it existed.
+    session.add(
+        Ingredient(
+            name="test-galangal", category="spice", aliases=[],
+            vegetarian=True, vegan=True, allergens=[],
+            per_100g={"calories": 71, "protein_g": 1.0, "carbs_g": 15.0, "fat_g": 0.5},
+            default_unit="g", grams_per_unit=1, grams_per_piece=30,
+        )
+    )
+    session.flush()
+    try:
+        props = load_props(session)
+        assert "test-galangal" in props, "a new ingredient must appear without a restart"
+        assert props["test-galangal"]["per_100g"]["protein_g"] == 1.0
+
+        derived = classify_and_derive(
+            props,
+            [("test-galangal", 100.0, True), ("rice", 200.0, True)],
+            ["test-galangal", "rice"],
+            servings=2,
+        )
+        assert "vegan" in derived["diet_labels"]
+        assert derived["nutrition"], "a new ingredient must contribute nutrition"
+    finally:
+        session.rollback()

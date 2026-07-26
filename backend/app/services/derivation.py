@@ -4,9 +4,10 @@ Extracted from the ingestion pipeline so the modify endpoint and
 the importers share ONE implementation — a swap must re-validate diet/allergen
 exactly the way ingestion first derived them, or the two would drift.
 
-Lives in `app/` (not `scripts/`) and reads `seed_data/ingredients.json`
-directly, because the canonical properties (vegetarian/vegan/allergens/per_100g)
-live in that file, not the DB. The backend image must therefore ship
+Canonical properties (vegetarian/vegan/allergens/per_100g/gram weights) live on
+the `ingredients` table, so a vocabulary entry added at runtime is immediately
+usable. `seed_data/ingredients.json` remains the bootstrap for a fresh install
+and the fallback when there is no session, so the backend image must still ship
 `seed_data/` (see Dockerfile).
 """
 from __future__ import annotations
@@ -16,6 +17,8 @@ import json
 import re
 from pathlib import Path
 from typing import Optional
+
+from sqlalchemy import select as sa_select
 
 from app.core.allergens import ALLERGEN_SET, clean_allergens
 
@@ -57,15 +60,65 @@ assert set(_ALLERGEN_KW) <= ALLERGEN_SET, f"off-vocab allergen keys: {set(_ALLER
 _MEAT_CATEGORIES = {"beef", "chicken", "pork", "lamb", "goat", "seafood"}
 
 
-@functools.lru_cache(maxsize=1)
-def load_props() -> dict:
-    """Canonical ingredient name -> properties, from seed_data/ingredients.json.
+def load_props(session=None) -> dict:
+    """Canonical ingredient name -> properties.
 
-    Cached (the file is immutable at runtime). Used by the modify endpoint to
-    re-derive diet/allergen on a post-swap ingredient set.
+    Reads the `ingredients` table when given a session, so an ingredient added
+    at runtime is usable immediately. Without one it falls back to the seed
+    file, which is the bootstrap for a fresh install and the only source
+    available to tooling that runs before the DB exists.
+
+    Deliberately uncached: the vocabulary grows at runtime now, and an
+    lru_cache here would serve a snapshot taken before the newest ingredient
+    was inserted — silently giving it no nutrition and no vegan flag.
     """
+    if session is None:
+        return _seed_props()
+    from app.models import Ingredient  # local: avoids a models <-> services cycle
+
+    props: dict[str, dict] = {}
+    for ing in session.execute(sa_select(Ingredient)).scalars():
+        props[ing.name] = {
+            "name": ing.name,
+            "category": ing.category,
+            "aliases": ing.aliases or [],
+            "vegetarian": bool(ing.vegetarian),
+            "vegan": bool(ing.vegan),
+            "allergens": ing.allergens or [],
+            "per_100g": ing.per_100g or {},
+            "default_unit": ing.default_unit,
+            "grams_per_unit": float(ing.grams_per_unit) if ing.grams_per_unit else None,
+            "grams_per_piece": float(ing.grams_per_piece) if ing.grams_per_piece else None,
+        }
+    return props
+
+
+@functools.lru_cache(maxsize=1)
+def _seed_props() -> dict:
+    """Bootstrap properties straight from the immutable seed file."""
     ings = json.loads((SEED / "ingredients.json").read_text())
     return {i["name"]: i for i in ings}
+
+
+def ingredient_columns(spec: dict) -> dict:
+    """Seed-file entry -> Ingredient column values.
+
+    One mapping shared by every writer (seeder, importer, and anything that
+    adds vocabulary later). Creating a row without these leaves the properties
+    NULL, which reads as "not vegan, no nutrition" rather than as missing data.
+    """
+    return {
+        "name": spec["name"],
+        "category": spec["category"],
+        "aliases": list(spec.get("aliases", [])),
+        "vegetarian": spec.get("vegetarian"),
+        "vegan": spec.get("vegan"),
+        "allergens": list(spec.get("allergens", [])),
+        "per_100g": spec.get("per_100g") or {},
+        "default_unit": spec.get("default_unit"),
+        "grams_per_unit": spec.get("grams_per_unit"),
+        "grams_per_piece": spec.get("grams_per_piece"),
+    }
 
 
 def _parse_qty(m: str) -> float:

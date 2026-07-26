@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from sqlalchemy import delete  # noqa: E402
 
 from app.db import SessionLocal  # noqa: E402
+from app.services.derivation import ingredient_columns  # noqa: E402
 from app.models import (  # noqa: E402
     Ingredient,
     PantryItem,
@@ -50,9 +51,7 @@ def main():
 
         ing_ids = {}
         for ing in ingredients:
-            row = Ingredient(
-                name=ing["name"], category=ing["category"], aliases=ing["aliases"]
-            )
+            row = Ingredient(**ingredient_columns(ing))
             session.add(row)
             session.flush()
             ing_ids[ing["name"]] = row.id

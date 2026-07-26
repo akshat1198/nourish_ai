@@ -23,6 +23,7 @@ from app.models import Ingredient, Recipe, RecipeIngredient
 # 7.3f); re-exported so the importers' `from scripts.ingest.pipeline import ...` hold.
 from app.services.derivation import (  # noqa: F401
     classify_and_derive,
+    ingredient_columns,
     measure_to_grams,
 )
 from app.services.ingredients import normalize
@@ -57,8 +58,7 @@ def ensure_ingredients_in_db(session) -> dict:
     for spec in ings:
         row = existing.get(spec["name"].lower())
         if row is None:
-            row = Ingredient(name=spec["name"], category=spec["category"],
-                             aliases=list(spec.get("aliases", [])))
+            row = Ingredient(**ingredient_columns(spec))
             session.add(row)
             session.flush()
             existing[spec["name"].lower()] = row

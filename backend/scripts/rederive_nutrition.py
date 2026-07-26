@@ -44,13 +44,13 @@ def main() -> int:
     ap.add_argument("--sample", type=int, default=5, help="before/after rows to print")
     args = ap.parse_args()
 
-    props = load_props()
     changed = 0
     emptied = 0
     inconsistent = 0
     samples: list[str] = []
 
     with SessionLocal() as session:
+        props = load_props(session)
         names = {i.id: i.name for i in session.execute(select(Ingredient)).scalars()}
         recipes = session.execute(
             select(Recipe).options(selectinload(Recipe.recipe_ingredients))
