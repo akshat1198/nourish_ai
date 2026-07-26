@@ -70,6 +70,11 @@ class RecipeCandidate(BaseModel):
     missing_ingredients: list[str]
     matched_essential: int
     total_essential: int
+    # Provenance, so the UI can be honest about where a recipe came from:
+    # "generated" recipes were written for a request, and nutrition here is
+    # always estimated from ingredients rather than measured.
+    source: str = "seed"
+    nutrition_estimated: bool = False
 
     # Category-weighted match stats. Retrieval fills these in (it is where
     # ingredient categories are known); ranking prefers them and falls back to

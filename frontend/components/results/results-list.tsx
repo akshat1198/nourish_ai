@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { ModeBanner } from "@/components/results/mode-banner";
 import { RecipeCard } from "@/components/results/recipe-card";
+import { ResultsSkeleton } from "@/components/results/results-skeleton";
 import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { cuisineLabel } from "@/lib/filter-options";
 import { useRecommendations } from "@/lib/hooks/use-recommendations";
 import { setLastVariant, track } from "@/lib/track";
 import type { RecommendRequest } from "@/types/api";
@@ -27,15 +28,7 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
 
   if (request === null) return null;
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[0, 1, 2].map((i) => (
-          <Skeleton key={i} className="h-44 w-full rounded-xl" />
-        ))}
-      </div>
-    );
-  }
+  if (isLoading) return <ResultsSkeleton />;
 
   if (isError) {
     return (
@@ -54,6 +47,12 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
 
   const visibleResults = data.results.filter((r) => !dismissedIds.has(r.id));
   const allDismissed = data.results.length > 0 && visibleResults.length === 0;
+  // The backend already ranks in-cuisine results above off-cuisine ones; this
+  // only splits them so the divider can sit between the two groups.
+  const inCuisine = visibleResults.filter((r) => r.cuisine_matched);
+  const offCuisine = visibleResults.filter((r) => !r.cuisine_matched);
+  const requestedCuisine =
+    request.cuisines.length === 1 ? cuisineLabel(request.cuisines[0]) : null;
 
   return (
     <div className="space-y-4">
@@ -99,7 +98,7 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
         </Card>
       ) : (
         <div className="space-y-4">
-          {visibleResults.map((r, i) => (
+          {inCuisine.map((r, i) => (
             <Reveal key={r.id} delay={Math.min(i, 6) * 60}>
               <RecipeCard
                 recipe={r}
@@ -110,6 +109,37 @@ export function ResultsList({ request }: { request: RecommendRequest | null }) {
               />
             </Reveal>
           ))}
+
+          {/* Off-cuisine results are never blended into the list above. They
+              sit behind their own heading so picking Thai and being shown
+              Italian reads as an explicit fallback, not a broken filter. */}
+          {offCuisine.length > 0 && (
+            <div className="space-y-4 pt-2">
+              {/* A real heading, not a styled separator: this is a distinct
+                  group and screen-reader users should be able to navigate to
+                  it under the "Recipes for you" h2. */}
+              <div className="flex items-center gap-3">
+                <span className="h-px flex-1 bg-border" aria-hidden="true" />
+                <h3 className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {requestedCuisine
+                    ? `Not ${requestedCuisine}, but you could make these`
+                    : "Outside your chosen cuisine"}
+                </h3>
+                <span className="h-px flex-1 bg-border" aria-hidden="true" />
+              </div>
+              {offCuisine.map((r, i) => (
+                <Reveal key={r.id} delay={Math.min(i, 6) * 60}>
+                  <RecipeCard
+                    recipe={r}
+                    onDismiss={(id) =>
+                      setDismissedIds((prev) => new Set(prev).add(id))
+                    }
+                  />
+                </Reveal>
+              ))}
+            </div>
+          )}
+
           {visibleResults.length < 10 && (
             <p className="pt-1 text-center text-sm text-muted-foreground">
               That&apos;s every match for these filters. For more to choose from,

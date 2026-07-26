@@ -12,12 +12,12 @@ export function ModeBanner({
   if (mode === "normal") return null;
 
   // Warm (turmeric) for "you'll need to do something" modes; primary otherwise.
-  const warm = mode === "substitution_first" || mode === "relaxed";
+  const warm = mode === "substitution_first" || mode === "off_cuisine";
   const title =
     mode === "substitution_first"
       ? "Not much matched — but these work with a swap"
-      : mode === "relaxed"
-        ? "Closest matches — not an exact filter fit"
+      : mode === "off_cuisine"
+        ? "We're short on recipes in that cuisine"
         : "Best options — you'll need a few extra items";
   return (
     <div
@@ -26,7 +26,10 @@ export function ModeBanner({
         warm ? "border-turmeric/40 bg-turmeric/10" : "border-primary/30 bg-primary/8",
       )}
     >
-      <Info className={cn("mt-0.5 size-4 shrink-0", warm ? "text-turmeric" : "text-primary")} />
+      <Info
+        aria-hidden="true"
+        className={cn("mt-0.5 size-4 shrink-0", warm ? "text-turmeric" : "text-primary")}
+      />
       <div>
         <p className="font-medium text-foreground">{title}</p>
         {explanation && (

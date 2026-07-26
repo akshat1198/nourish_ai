@@ -85,6 +85,8 @@ def _build_candidate(
         missing_ingredients=missing,
         matched_essential=matched_essential,
         total_essential=total_essential,
+        source=recipe.source,
+        nutrition_estimated=recipe.nutrition_estimated,
         matched_weight=round(matched_w, 4),
         missing_weight=round(missing_w, 4),
         matched_essential_weight=round(matched_ess_w, 4),

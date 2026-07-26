@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock3, Trophy, X } from "lucide-react";
+import { Clock3, Sparkles, Trophy, X } from "lucide-react";
 import { IngredientToken } from "@/components/ingredient-token";
 import { MatchMeter } from "@/components/match-meter";
 import { SaveButton } from "@/components/recipe/save-button";
@@ -41,6 +41,7 @@ export function RecipeCard({
     : recipe.cuisine
       ? cuisineLabel(recipe.cuisine)
       : null;
+  const written = recipe.source === "generated";
   const protein = num(recipe.nutrition?.protein_g);
   const calories = num(recipe.nutrition?.calories);
 
@@ -51,10 +52,25 @@ export function RecipeCard({
         top && "border-primary/40 ring-1 ring-primary/20",
       )}
     >
-      {top && (
-        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-          <Trophy className="size-3.5" />
-          Top match
+      {(top || written) && (
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          {top && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+              <Trophy className="size-3.5" aria-hidden="true" />
+              Top match
+            </span>
+          )}
+          {/* Say plainly that no one has cooked this one yet — it was written
+              for these filters because the collection had nothing that fit. */}
+          {written && (
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full bg-turmeric/15 px-2.5 py-0.5 text-xs font-medium text-foreground"
+              title="Written for your filters — we had nothing that fit"
+            >
+              <Sparkles className="size-3.5 text-turmeric" aria-hidden="true" />
+              Written for you
+            </span>
+          )}
         </div>
       )}
       <div className="flex items-start justify-between gap-3">

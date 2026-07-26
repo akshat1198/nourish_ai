@@ -7,7 +7,10 @@ export type RecommendMode =
   | "normal"
   | "substitution_first"
   | "shopping_assisted"
-  | "relaxed";
+  // Too few recipes in the requested cuisine, so other cuisines are appended
+  // below a divider. They carry cuisine_matched=false and never outrank an
+  // in-cuisine result.
+  | "off_cuisine";
 
 // GET /v1/config — the nutrition-goal cutoffs, so the UI can show what each goal
 // means without hardcoding numbers that could drift from the backend.
@@ -57,6 +60,21 @@ export interface RankedRecipe {
   score: number;
   why: string;
   substitutions: SubstitutionSuggestion[];
+  // Soft filters (meal type / time) this recipe satisfies, of those requested.
+  // Nutrition goals are excluded — they're graded by nutrition_fit, not ticked.
+  filters_matched: number;
+  filters_requested: number;
+  // False only on off-cuisine results, which must sit under their own divider
+  // rather than being blended into the main list.
+  cuisine_matched: boolean;
+  // No substantive ingredient missing — cookable from the pantry as-is.
+  pantry_complete: boolean;
+  // How well the recipe serves the requested nutrition goals; 0 when none set.
+  nutrition_fit: number;
+  // "seed" | "themealdb" | "archanas" | "generated"
+  source: string;
+  // True when nutrition was estimated from ingredients rather than measured.
+  nutrition_estimated: boolean;
 }
 
 export interface RecommendResponse {
