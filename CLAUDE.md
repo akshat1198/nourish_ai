@@ -45,9 +45,12 @@ Recommend flow: SQL ingredient-match + pgvector KNN candidates, **each arm filte
 |---|---|---|
 | Safety | `diet`, `exclude_allergens` | Hard SQL exclude. Never counted, relaxed, or ranked. |
 | Cuisine | `cuisines` | Hard on the primary pass. A shortfall appends other cuisines *below a divider* with `cuisine_matched=False` — never blended in, never silently substituted. |
-| Preference | `meal_type`, `max_time`, `nutrition_goals` | Ranking dimensions. Retrieval prefers them, then tops up from the unfiltered pool; a miss demotes, never excludes. |
+| Preference | `meal_type`, `max_time` | Binary ranking dimensions. Retrieval prefers them, then tops up from the unfiltered pool; a miss demotes, never excludes. |
+| Preference | `nutrition_goals` | **Graded, not gated.** Never counted into `filters_matched` — ranked by degree via `nutrition_fit` (protein up; calories/fat/carbs down, each normalized by its threshold). Asking for high protein returns the highest protein available even when nothing clears 25 g, which no vegetarian Thai recipe in the corpus does. Strict callers (`soften=False`) keep exact threshold semantics. |
 
 Ordering is **strict/lexicographic**, not a score blend (`ranking._order_key`): `cuisine_matched` → not-disliked → `pantry_complete` → `filters_matched` → score. Cuisine sits above pantry-completeness on purpose — a fully-stocked Indian recipe must not outrank a partially-stocked Italian one when Italian was requested.
+
+**Nutrition is 100% derived, never sourced** — no importer supplies it, so every number comes from `derivation.py` summing matched ingredient grams. That makes `measure_to_grams` the single point of failure for all four nutrition goals: it once read "3 chicken breast" as 3 g (the `grams_per_unit` for anything stored in grams is 1), putting whole cuisines under the protein threshold. Ingredients now carry `grams_per_piece` — what one bare unit weighs — and the parser handles oz/lb, fractions, and gram weights written without a space ("25g"). If you touch it, re-run `scripts/rederive_nutrition.py` and check the macros still reconcile with the calorie totals.
 
 Ingredient matches are **category-weighted** (`RANK_CAT_WEIGHTS`): a matched protein counts ~5x a matched spice. Counting them equally biased results toward spice-dense cuisines — Indian recipes average 61% spice/pantry/herb vs ~42% elsewhere, so any stocked spice rack scored high coverage and low missing on them regardless of the actual protein. Don't revert to raw counts.
 

@@ -16,7 +16,8 @@
       "protein_g": 31,
       "carbs_g": 0,
       "fat_g": 3.6
-    }
+    },
+    "grams_per_piece": 170
   },
   {
     "name": "chicken thigh",
@@ -35,7 +36,8 @@
       "protein_g": 26,
       "carbs_g": 0,
       "fat_g": 11
-    }
+    },
+    "grams_per_piece": 110
   },
   {
     "name": "ground beef",
@@ -54,7 +56,8 @@
       "protein_g": 26,
       "carbs_g": 0,
       "fat_g": 15
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "beef sirloin",
@@ -74,7 +77,8 @@
       "protein_g": 26,
       "carbs_g": 0,
       "fat_g": 11
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "pork loin",
@@ -92,7 +96,8 @@
       "protein_g": 27,
       "carbs_g": 0,
       "fat_g": 14
-    }
+    },
+    "grams_per_piece": 180
   },
   {
     "name": "bacon",
@@ -108,7 +113,8 @@
       "protein_g": 37,
       "carbs_g": 1.4,
       "fat_g": 42
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "turkey",
@@ -126,7 +132,8 @@
       "protein_g": 29,
       "carbs_g": 0,
       "fat_g": 7
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "salmon",
@@ -146,7 +153,8 @@
       "protein_g": 20,
       "carbs_g": 0,
       "fat_g": 13
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "cod",
@@ -166,7 +174,8 @@
       "protein_g": 18,
       "carbs_g": 0,
       "fat_g": 0.7
-    }
+    },
+    "grams_per_piece": 140
   },
   {
     "name": "tuna",
@@ -186,7 +195,8 @@
       "protein_g": 28,
       "carbs_g": 0,
       "fat_g": 1.3
-    }
+    },
+    "grams_per_piece": 140
   },
   {
     "name": "shrimp",
@@ -206,7 +216,8 @@
       "protein_g": 24,
       "carbs_g": 0.2,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "tofu",
@@ -226,7 +237,8 @@
       "protein_g": 8,
       "carbs_g": 1.9,
       "fat_g": 4.8
-    }
+    },
+    "grams_per_piece": 400
   },
   {
     "name": "tempeh",
@@ -244,7 +256,8 @@
       "protein_g": 20,
       "carbs_g": 7.6,
       "fat_g": 11
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "eggs",
@@ -266,7 +279,8 @@
       "protein_g": 13,
       "carbs_g": 1.1,
       "fat_g": 11
-    }
+    },
+    "grams_per_piece": 50
   },
   {
     "name": "paneer",
@@ -287,7 +301,8 @@
       "protein_g": 18,
       "carbs_g": 1.2,
       "fat_g": 21
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "chickpeas",
@@ -306,7 +321,8 @@
       "protein_g": 8.9,
       "carbs_g": 27,
       "fat_g": 2.6
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "black beans",
@@ -322,7 +338,8 @@
       "protein_g": 8.9,
       "carbs_g": 24,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "kidney beans",
@@ -340,7 +357,8 @@
       "protein_g": 8.7,
       "carbs_g": 23,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "lentils",
@@ -361,7 +379,8 @@
       "protein_g": 9,
       "carbs_g": 20,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "pasta",
@@ -384,7 +403,8 @@
       "protein_g": 5.8,
       "carbs_g": 31,
       "fat_g": 0.9
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "rice",
@@ -405,7 +425,8 @@
       "protein_g": 2.7,
       "carbs_g": 28,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 185
   },
   {
     "name": "brown rice",
@@ -421,7 +442,8 @@
       "protein_g": 2.6,
       "carbs_g": 23,
       "fat_g": 0.9
-    }
+    },
+    "grams_per_piece": 190
   },
   {
     "name": "arborio rice",
@@ -439,7 +461,8 @@
       "protein_g": 2.4,
       "carbs_g": 29,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "quinoa",
@@ -455,7 +478,8 @@
       "protein_g": 4.4,
       "carbs_g": 21,
       "fat_g": 1.9
-    }
+    },
+    "grams_per_piece": 170
   },
   {
     "name": "rice noodles",
@@ -471,7 +495,8 @@
       "protein_g": 0.9,
       "carbs_g": 25,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "egg noodles",
@@ -490,7 +515,8 @@
       "protein_g": 4.5,
       "carbs_g": 25,
       "fat_g": 2.1
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "couscous",
@@ -508,7 +534,8 @@
       "protein_g": 3.8,
       "carbs_g": 23,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 173
   },
   {
     "name": "bread",
@@ -535,7 +562,8 @@
       "protein_g": 9,
       "carbs_g": 49,
       "fat_g": 3.2
-    }
+    },
+    "grams_per_piece": 40
   },
   {
     "name": "tortillas",
@@ -555,7 +583,8 @@
       "protein_g": 8.2,
       "carbs_g": 49,
       "fat_g": 7.7
-    }
+    },
+    "grams_per_piece": 45
   },
   {
     "name": "oats",
@@ -575,7 +604,8 @@
       "protein_g": 17,
       "carbs_g": 66,
       "fat_g": 7
-    }
+    },
+    "grams_per_piece": 90
   },
   {
     "name": "flour",
@@ -605,7 +635,8 @@
       "protein_g": 10,
       "carbs_g": 76,
       "fat_g": 1
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "potatoes",
@@ -625,7 +656,8 @@
       "protein_g": 2,
       "carbs_g": 17,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "sweet potato",
@@ -643,7 +675,8 @@
       "protein_g": 1.6,
       "carbs_g": 20,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "tomato",
@@ -666,7 +699,8 @@
       "protein_g": 0.9,
       "carbs_g": 3.9,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "garlic",
@@ -690,7 +724,8 @@
       "protein_g": 6.4,
       "carbs_g": 33,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "onion",
@@ -710,7 +745,8 @@
       "protein_g": 1.1,
       "carbs_g": 9.3,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 110
   },
   {
     "name": "red onion",
@@ -726,7 +762,8 @@
       "protein_g": 1.1,
       "carbs_g": 9.3,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 110
   },
   {
     "name": "bell pepper",
@@ -751,7 +788,8 @@
       "protein_g": 1,
       "carbs_g": 6,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "zucchini",
@@ -771,7 +809,8 @@
       "protein_g": 1.2,
       "carbs_g": 3.1,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "spinach",
@@ -790,7 +829,8 @@
       "protein_g": 2.9,
       "carbs_g": 3.6,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "kale",
@@ -806,7 +846,8 @@
       "protein_g": 4.3,
       "carbs_g": 8.8,
       "fat_g": 0.9
-    }
+    },
+    "grams_per_piece": 65
   },
   {
     "name": "broccoli",
@@ -822,7 +863,8 @@
       "protein_g": 2.8,
       "carbs_g": 6.6,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 350
   },
   {
     "name": "carrot",
@@ -842,7 +884,8 @@
       "protein_g": 0.9,
       "carbs_g": 9.6,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 60
   },
   {
     "name": "celery",
@@ -858,7 +901,8 @@
       "protein_g": 0.7,
       "carbs_g": 3,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 40
   },
   {
     "name": "mushroom",
@@ -878,7 +922,8 @@
       "protein_g": 3.1,
       "carbs_g": 3.3,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 20
   },
   {
     "name": "green beans",
@@ -894,7 +939,8 @@
       "protein_g": 1.8,
       "carbs_g": 7,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "peas",
@@ -914,7 +960,8 @@
       "protein_g": 5.4,
       "carbs_g": 14,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 145
   },
   {
     "name": "corn",
@@ -933,7 +980,8 @@
       "protein_g": 3.3,
       "carbs_g": 19,
       "fat_g": 1.4
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "cucumber",
@@ -952,7 +1000,8 @@
       "protein_g": 0.7,
       "carbs_g": 3.6,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "lettuce",
@@ -972,7 +1021,8 @@
       "protein_g": 1.4,
       "carbs_g": 2.9,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 300
   },
   {
     "name": "avocado",
@@ -988,7 +1038,8 @@
       "protein_g": 2,
       "carbs_g": 8.5,
       "fat_g": 15
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "cauliflower",
@@ -1004,7 +1055,8 @@
       "protein_g": 1.9,
       "carbs_g": 5,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 600
   },
   {
     "name": "eggplant",
@@ -1024,7 +1076,8 @@
       "protein_g": 1,
       "carbs_g": 5.9,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 300
   },
   {
     "name": "scallion",
@@ -1045,7 +1098,8 @@
       "protein_g": 1.8,
       "carbs_g": 7.3,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "ginger",
@@ -1067,7 +1121,8 @@
       "protein_g": 1.8,
       "carbs_g": 18,
       "fat_g": 0.8
-    }
+    },
+    "grams_per_piece": 30
   },
   {
     "name": "cabbage",
@@ -1086,7 +1141,8 @@
       "protein_g": 1.3,
       "carbs_g": 5.8,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 900
   },
   {
     "name": "basil",
@@ -1107,7 +1163,8 @@
       "protein_g": 3.2,
       "carbs_g": 2.7,
       "fat_g": 0.6
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "cilantro",
@@ -1132,7 +1189,8 @@
       "protein_g": 2.1,
       "carbs_g": 3.7,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "parsley",
@@ -1150,7 +1208,8 @@
       "protein_g": 3,
       "carbs_g": 6.3,
       "fat_g": 0.8
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "lemon",
@@ -1172,7 +1231,8 @@
       "protein_g": 1.1,
       "carbs_g": 9.3,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 60
   },
   {
     "name": "lime",
@@ -1188,7 +1248,8 @@
       "protein_g": 0.7,
       "carbs_g": 11,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 50
   },
   {
     "name": "banana",
@@ -1207,7 +1268,8 @@
       "protein_g": 1.1,
       "carbs_g": 23,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "butter",
@@ -1231,7 +1293,8 @@
       "protein_g": 0.9,
       "carbs_g": 0.1,
       "fat_g": 81
-    }
+    },
+    "grams_per_piece": 113
   },
   {
     "name": "milk",
@@ -1253,7 +1316,8 @@
       "protein_g": 3.2,
       "carbs_g": 4.8,
       "fat_g": 3.3
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "heavy cream",
@@ -1276,7 +1340,8 @@
       "protein_g": 2.1,
       "carbs_g": 2.8,
       "fat_g": 36
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "cheddar",
@@ -1296,7 +1361,8 @@
       "protein_g": 25,
       "carbs_g": 1.3,
       "fat_g": 33
-    }
+    },
+    "grams_per_piece": 110
   },
   {
     "name": "parmesan",
@@ -1316,7 +1382,8 @@
       "protein_g": 38,
       "carbs_g": 4.1,
       "fat_g": 29
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "mozzarella",
@@ -1336,7 +1403,8 @@
       "protein_g": 28,
       "carbs_g": 3.1,
       "fat_g": 17
-    }
+    },
+    "grams_per_piece": 110
   },
   {
     "name": "feta",
@@ -1356,7 +1424,8 @@
       "protein_g": 14,
       "carbs_g": 4.1,
       "fat_g": 21
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "greek yogurt",
@@ -1380,7 +1449,8 @@
       "protein_g": 10,
       "carbs_g": 3.6,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 245
   },
   {
     "name": "cream cheese",
@@ -1400,7 +1470,8 @@
       "protein_g": 6.2,
       "carbs_g": 4.1,
       "fat_g": 34
-    }
+    },
+    "grams_per_piece": 230
   },
   {
     "name": "olive oil",
@@ -1419,7 +1490,8 @@
       "protein_g": 0,
       "carbs_g": 0,
       "fat_g": 100
-    }
+    },
+    "grams_per_piece": 14
   },
   {
     "name": "vegetable oil",
@@ -1448,7 +1520,8 @@
       "protein_g": 0,
       "carbs_g": 0,
       "fat_g": 100
-    }
+    },
+    "grams_per_piece": 14
   },
   {
     "name": "sesame oil",
@@ -1470,7 +1543,8 @@
       "protein_g": 0,
       "carbs_g": 0,
       "fat_g": 100
-    }
+    },
+    "grams_per_piece": 14
   },
   {
     "name": "soy sauce",
@@ -1492,7 +1566,8 @@
       "protein_g": 8.1,
       "carbs_g": 4.9,
       "fat_g": 0.6
-    }
+    },
+    "grams_per_piece": 16
   },
   {
     "name": "coconut milk",
@@ -1511,7 +1586,8 @@
       "protein_g": 2.3,
       "carbs_g": 5.5,
       "fat_g": 24
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "curry paste",
@@ -1530,7 +1606,8 @@
       "protein_g": 2,
       "carbs_g": 12,
       "fat_g": 7
-    }
+    },
+    "grams_per_piece": 20
   },
   {
     "name": "curry powder",
@@ -1546,7 +1623,8 @@
       "protein_g": 14,
       "carbs_g": 56,
       "fat_g": 14
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "cumin",
@@ -1570,7 +1648,8 @@
       "protein_g": 18,
       "carbs_g": 44,
       "fat_g": 22
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "paprika",
@@ -1589,7 +1668,8 @@
       "protein_g": 14,
       "carbs_g": 54,
       "fat_g": 13
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "chili flakes",
@@ -1610,7 +1690,8 @@
       "protein_g": 12,
       "carbs_g": 57,
       "fat_g": 17
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "oregano",
@@ -1628,7 +1709,8 @@
       "protein_g": 9,
       "carbs_g": 69,
       "fat_g": 4.3
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "thyme",
@@ -1647,7 +1729,8 @@
       "protein_g": 9.1,
       "carbs_g": 64,
       "fat_g": 7.4
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "black pepper",
@@ -1672,7 +1755,8 @@
       "protein_g": 10,
       "carbs_g": 64,
       "fat_g": 3.3
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "salt",
@@ -1695,7 +1779,8 @@
       "protein_g": 0,
       "carbs_g": 0,
       "fat_g": 0
-    }
+    },
+    "grams_per_piece": 6
   },
   {
     "name": "vinegar",
@@ -1719,7 +1804,8 @@
       "protein_g": 0,
       "carbs_g": 0.9,
       "fat_g": 0
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "honey",
@@ -1735,7 +1821,8 @@
       "protein_g": 0.3,
       "carbs_g": 82,
       "fat_g": 0
-    }
+    },
+    "grams_per_piece": 21
   },
   {
     "name": "maple syrup",
@@ -1751,7 +1838,8 @@
       "protein_g": 0,
       "carbs_g": 67,
       "fat_g": 0
-    }
+    },
+    "grams_per_piece": 20
   },
   {
     "name": "sugar",
@@ -1775,7 +1863,8 @@
       "protein_g": 0,
       "carbs_g": 100,
       "fat_g": 0
-    }
+    },
+    "grams_per_piece": 12
   },
   {
     "name": "tomato paste",
@@ -1794,7 +1883,8 @@
       "protein_g": 4.3,
       "carbs_g": 19,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 16
   },
   {
     "name": "canned tomatoes",
@@ -1814,7 +1904,8 @@
       "protein_g": 0.9,
       "carbs_g": 3.9,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 400
   },
   {
     "name": "vegetable broth",
@@ -1832,7 +1923,8 @@
       "protein_g": 0.2,
       "carbs_g": 1,
       "fat_g": 0
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "chicken broth",
@@ -1850,7 +1942,8 @@
       "protein_g": 0.6,
       "carbs_g": 0.9,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "peanut butter",
@@ -1868,7 +1961,8 @@
       "protein_g": 25,
       "carbs_g": 20,
       "fat_g": 50
-    }
+    },
+    "grams_per_piece": 16
   },
   {
     "name": "peanuts",
@@ -1889,7 +1983,8 @@
       "protein_g": 26,
       "carbs_g": 16,
       "fat_g": 49
-    }
+    },
+    "grams_per_piece": 146
   },
   {
     "name": "cashews",
@@ -1911,7 +2006,8 @@
       "protein_g": 18,
       "carbs_g": 30,
       "fat_g": 44
-    }
+    },
+    "grams_per_piece": 137
   },
   {
     "name": "almonds",
@@ -1934,7 +2030,8 @@
       "protein_g": 21,
       "carbs_g": 22,
       "fat_g": 50
-    }
+    },
+    "grams_per_piece": 143
   },
   {
     "name": "walnuts",
@@ -1952,7 +2049,8 @@
       "protein_g": 15,
       "carbs_g": 14,
       "fat_g": 65
-    }
+    },
+    "grams_per_piece": 117
   },
   {
     "name": "tahini",
@@ -1970,7 +2068,8 @@
       "protein_g": 17,
       "carbs_g": 21,
       "fat_g": 54
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "turmeric",
@@ -1993,7 +2092,8 @@
       "protein_g": 9.7,
       "carbs_g": 65.0,
       "fat_g": 9.9
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "red chilli powder",
@@ -2015,7 +2115,8 @@
       "protein_g": 14.3,
       "carbs_g": 56.8,
       "fat_g": 12.9
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "green chili",
@@ -2040,7 +2141,8 @@
       "protein_g": 2.0,
       "carbs_g": 9.0,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "curry leaves",
@@ -2063,7 +2165,8 @@
       "protein_g": 2.7,
       "carbs_g": 18.5,
       "fat_g": 1.0
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "mustard seeds",
@@ -2084,7 +2187,8 @@
       "protein_g": 26.1,
       "carbs_g": 28.3,
       "fat_g": 36.2
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "ghee",
@@ -2110,7 +2214,8 @@
       "protein_g": 0.2,
       "carbs_g": 0.0,
       "fat_g": 99.5
-    }
+    },
+    "grams_per_piece": 13
   },
   {
     "name": "asafoetida",
@@ -2133,7 +2238,8 @@
       "protein_g": 4.0,
       "carbs_g": 64.0,
       "fat_g": 1.1
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "garam masala",
@@ -2153,7 +2259,8 @@
       "protein_g": 12.7,
       "carbs_g": 53.0,
       "fat_g": 6.2
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "coconut",
@@ -2176,7 +2283,8 @@
       "protein_g": 3.3,
       "carbs_g": 15.2,
       "fat_g": 33.5
-    }
+    },
+    "grams_per_piece": 400
   },
   {
     "name": "cinnamon",
@@ -2196,7 +2304,8 @@
       "protein_g": 3.99,
       "carbs_g": 80.6,
       "fat_g": 1.2
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "urad dal",
@@ -2221,7 +2330,8 @@
       "protein_g": 25.2,
       "carbs_g": 56.7,
       "fat_g": 0.6
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "cardamom",
@@ -2245,7 +2355,8 @@
       "protein_g": 10.8,
       "carbs_g": 68.5,
       "fat_g": 6.7
-    }
+    },
+    "grams_per_piece": 0.5
   },
   {
     "name": "jaggery",
@@ -2264,7 +2375,8 @@
       "protein_g": 0.3,
       "carbs_g": 95.0,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 20
   },
   {
     "name": "mint",
@@ -2283,7 +2395,8 @@
       "protein_g": 3.7,
       "carbs_g": 6.3,
       "fat_g": 0.7
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "bay leaf",
@@ -2303,7 +2416,8 @@
       "protein_g": 7.6,
       "carbs_g": 49.7,
       "fat_g": 8.4
-    }
+    },
+    "grams_per_piece": 0.2
   },
   {
     "name": "fennel seeds",
@@ -2323,7 +2437,8 @@
       "protein_g": 15.8,
       "carbs_g": 52.3,
       "fat_g": 14.9
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "chana dal",
@@ -2343,7 +2458,8 @@
       "protein_g": 20.0,
       "carbs_g": 60.0,
       "fat_g": 1.5
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "ginger garlic paste",
@@ -2364,7 +2480,8 @@
       "protein_g": 1.2,
       "carbs_g": 5.8,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "vanilla extract",
@@ -2382,7 +2499,8 @@
       "protein_g": 0.0,
       "carbs_g": 12.7,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 4
   },
   {
     "name": "dry red chilli",
@@ -2403,7 +2521,8 @@
       "protein_g": 13.9,
       "carbs_g": 49.3,
       "fat_g": 8.8
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "fenugreek seeds",
@@ -2423,7 +2542,8 @@
       "protein_g": 26.2,
       "carbs_g": 58.4,
       "fat_g": 6.4
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "mustard oil",
@@ -2441,7 +2561,8 @@
       "protein_g": 0.0,
       "carbs_g": 0.0,
       "fat_g": 100.0
-    }
+    },
+    "grams_per_piece": 14
   },
   {
     "name": "ajwain",
@@ -2461,7 +2582,8 @@
       "protein_g": 15.3,
       "carbs_g": 35.2,
       "fat_g": 22.0
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "sesame seeds",
@@ -2482,7 +2604,8 @@
       "protein_g": 17.7,
       "carbs_g": 23.5,
       "fat_g": 48.8
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "baking powder",
@@ -2500,7 +2623,8 @@
       "protein_g": 0.0,
       "carbs_g": 37.0,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 4
   },
   {
     "name": "chaat masala",
@@ -2519,7 +2643,8 @@
       "protein_g": 8.0,
       "carbs_g": 65.0,
       "fat_g": 2.0
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "amchur",
@@ -2540,7 +2665,8 @@
       "protein_g": 1.4,
       "carbs_g": 72.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "tamarind",
@@ -2561,7 +2687,8 @@
       "protein_g": 2.8,
       "carbs_g": 62.5,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 20
   },
   {
     "name": "rice flour",
@@ -2580,7 +2707,8 @@
       "protein_g": 6.0,
       "carbs_g": 79.5,
       "fat_g": 1.4
-    }
+    },
+    "grams_per_piece": 158
   },
   {
     "name": "arhar dal",
@@ -2602,7 +2730,8 @@
       "protein_g": 22.0,
       "carbs_g": 60.0,
       "fat_g": 1.5
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "coconut oil",
@@ -2618,7 +2747,8 @@
       "protein_g": 0.0,
       "carbs_g": 0.0,
       "fat_g": 99.0
-    }
+    },
+    "grams_per_piece": 14
   },
   {
     "name": "raisins",
@@ -2637,7 +2767,8 @@
       "protein_g": 3.39,
       "carbs_g": 79.78,
       "fat_g": 0.46
-    }
+    },
+    "grams_per_piece": 145
   },
   {
     "name": "kashmiri red chilli powder",
@@ -2655,7 +2786,8 @@
       "protein_g": 14.3,
       "carbs_g": 64.0,
       "fat_g": 3.3
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "baking soda",
@@ -2674,7 +2806,8 @@
       "protein_g": 0.0,
       "carbs_g": 0.0,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 4
   },
   {
     "name": "mango",
@@ -2692,7 +2825,8 @@
       "protein_g": 0.82,
       "carbs_g": 15.0,
       "fat_g": 0.38
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "pistachios",
@@ -2712,7 +2846,8 @@
       "protein_g": 20.27,
       "carbs_g": 27.17,
       "fat_g": 45.32
-    }
+    },
+    "grams_per_piece": 125
   },
   {
     "name": "kasuri methi",
@@ -2732,7 +2867,8 @@
       "protein_g": 26.2,
       "carbs_g": 58.4,
       "fat_g": 6.4
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "semolina",
@@ -2754,7 +2890,8 @@
       "protein_g": 12.0,
       "carbs_g": 72.0,
       "fat_g": 1.1
-    }
+    },
+    "grams_per_piece": 167
   },
   {
     "name": "moong dal",
@@ -2775,7 +2912,8 @@
       "protein_g": 24.0,
       "carbs_g": 62.6,
       "fat_g": 1.15
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "poppy seeds",
@@ -2794,7 +2932,8 @@
       "protein_g": 17.99,
       "carbs_g": 28.13,
       "fat_g": 41.56
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "red chilli sauce",
@@ -2814,7 +2953,8 @@
       "protein_g": 1.5,
       "carbs_g": 18.0,
       "fat_g": 3.0
-    }
+    },
+    "grams_per_piece": 15.0
   },
   {
     "name": "methi leaves",
@@ -2832,7 +2972,8 @@
       "protein_g": 4.4,
       "carbs_g": 6.4,
       "fat_g": 0.9
-    }
+    },
+    "grams_per_piece": 20
   },
   {
     "name": "black cardamom",
@@ -2852,7 +2993,8 @@
       "protein_g": 10.8,
       "carbs_g": 68.5,
       "fat_g": 6.7
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "cocoa powder",
@@ -2870,7 +3012,8 @@
       "protein_g": 12.3,
       "carbs_g": 30.3,
       "fat_g": 12.0
-    }
+    },
+    "grams_per_piece": 85
   },
   {
     "name": "sambar powder",
@@ -2888,7 +3031,8 @@
       "protein_g": 12.8,
       "carbs_g": 48.2,
       "fat_g": 7.5
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "star anise",
@@ -2907,7 +3051,8 @@
       "protein_g": 17.6,
       "carbs_g": 50.0,
       "fat_g": 15.9
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "pearl onion",
@@ -2927,7 +3072,8 @@
       "protein_g": 1.2,
       "carbs_g": 9.2,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 10
   },
   {
     "name": "red chili powder",
@@ -2947,7 +3093,8 @@
       "protein_g": 14.3,
       "carbs_g": 56.8,
       "fat_g": 17.3
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "nutmeg powder",
@@ -2966,7 +3113,8 @@
       "protein_g": 5.8,
       "carbs_g": 49.0,
       "fat_g": 36.3
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "date",
@@ -2984,7 +3132,8 @@
       "protein_g": 2.7,
       "carbs_g": 75.0,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 8
   },
   {
     "name": "pumpkin",
@@ -3003,7 +3152,8 @@
       "protein_g": 1.0,
       "carbs_g": 6.5,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 500
   },
   {
     "name": "dry ginger powder",
@@ -3023,7 +3173,8 @@
       "protein_g": 8.6,
       "carbs_g": 71.6,
       "fat_g": 4.3
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "desiccated coconut",
@@ -3043,7 +3194,8 @@
       "protein_g": 6.0,
       "carbs_g": 24.0,
       "fat_g": 64.0
-    }
+    },
+    "grams_per_piece": 80
   },
   {
     "name": "mutton",
@@ -3062,7 +3214,8 @@
       "protein_g": 23.5,
       "carbs_g": 0.0,
       "fat_g": 12.7
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "beetroot",
@@ -3081,7 +3234,8 @@
       "protein_g": 1.6,
       "carbs_g": 9.6,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "active dry yeast",
@@ -3100,7 +3254,8 @@
       "protein_g": 38.7,
       "carbs_g": 41.2,
       "fat_g": 7.6
-    }
+    },
+    "grams_per_piece": 7
   },
   {
     "name": "green moong dal",
@@ -3120,7 +3275,8 @@
       "protein_g": 24.2,
       "carbs_g": 62.6,
       "fat_g": 1.2
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "tomato ketchup",
@@ -3139,7 +3295,8 @@
       "protein_g": 0.5,
       "carbs_g": 25.5,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 17
   },
   {
     "name": "kalonji",
@@ -3162,7 +3319,8 @@
       "protein_g": 12.7,
       "carbs_g": 35.0,
       "fat_g": 20.8
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "black salt",
@@ -3182,7 +3340,8 @@
       "protein_g": 0.0,
       "carbs_g": 0.0,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 6
   },
   {
     "name": "rye",
@@ -3203,7 +3362,8 @@
       "protein_g": 10.0,
       "carbs_g": 71.2,
       "fat_g": 1.6
-    }
+    },
+    "grams_per_piece": 130
   },
   {
     "name": "mixed herbs",
@@ -3223,7 +3383,8 @@
       "protein_g": 10.0,
       "carbs_g": 48.0,
       "fat_g": 4.0
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "strawberry",
@@ -3239,7 +3400,8 @@
       "protein_g": 0.8,
       "carbs_g": 7.7,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 12
   },
   {
     "name": "condensed milk",
@@ -3259,7 +3421,8 @@
       "protein_g": 8.0,
       "carbs_g": 54.0,
       "fat_g": 8.5
-    }
+    },
+    "grams_per_piece": 306
   },
   {
     "name": "rosemary",
@@ -3277,7 +3440,8 @@
       "protein_g": 3.3,
       "carbs_g": 20.7,
       "fat_g": 5.2
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "dark chocolate",
@@ -3297,7 +3461,8 @@
       "protein_g": 12.0,
       "carbs_g": 46.0,
       "fat_g": 43.0
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "shallot",
@@ -3315,7 +3480,8 @@
       "protein_g": 2.5,
       "carbs_g": 16.8,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 30
   },
   {
     "name": "green chutney",
@@ -3335,7 +3501,8 @@
       "protein_g": 1.2,
       "carbs_g": 6.0,
       "fat_g": 2.0
-    }
+    },
+    "grams_per_piece": 30
   },
   {
     "name": "bottle gourd",
@@ -3357,7 +3524,8 @@
       "protein_g": 0.6,
       "carbs_g": 2.5,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 500
   },
   {
     "name": "pineapple",
@@ -3375,7 +3543,8 @@
       "protein_g": 0.5,
       "carbs_g": 13.0,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 900
   },
   {
     "name": "okra",
@@ -3396,7 +3565,8 @@
       "protein_g": 1.9,
       "carbs_g": 7.5,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 10
   },
   {
     "name": "poha",
@@ -3416,7 +3586,8 @@
       "protein_g": 8.0,
       "carbs_g": 76.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 80
   },
   {
     "name": "apple",
@@ -3434,7 +3605,8 @@
       "protein_g": 0.3,
       "carbs_g": 13.8,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 180
   },
   {
     "name": "black chickpeas",
@@ -3453,7 +3625,8 @@
       "protein_g": 24.0,
       "carbs_g": 54.0,
       "fat_g": 3.5
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "clove",
@@ -3473,7 +3646,8 @@
       "protein_g": 3.3,
       "carbs_g": 65.0,
       "fat_g": 13.0
-    }
+    },
+    "grams_per_piece": 0.1
   },
   {
     "name": "radish",
@@ -3495,7 +3669,8 @@
       "protein_g": 0.7,
       "carbs_g": 3.4,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 50
   },
   {
     "name": "icing sugar",
@@ -3515,7 +3690,8 @@
       "protein_g": 0.0,
       "carbs_g": 100.0,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "black olives",
@@ -3534,7 +3710,8 @@
       "protein_g": 1.3,
       "carbs_g": 3.8,
       "fat_g": 13.5
-    }
+    },
+    "grams_per_piece": 135
   },
   {
     "name": "raw banana",
@@ -3555,7 +3732,8 @@
       "protein_g": 1.1,
       "carbs_g": 20.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "pickled jalapeños",
@@ -3575,7 +3753,8 @@
       "protein_g": 0.9,
       "carbs_g": 5.3,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "mung sprouts",
@@ -3596,7 +3775,8 @@
       "protein_g": 3.0,
       "carbs_g": 5.2,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 105
   },
   {
     "name": "ragi flour",
@@ -3616,7 +3796,8 @@
       "protein_g": 6.3,
       "carbs_g": 72.0,
       "fat_g": 1.3
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "mace",
@@ -3635,7 +3816,8 @@
       "protein_g": 14.0,
       "carbs_g": 50.0,
       "fat_g": 32.0
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "dill",
@@ -3656,7 +3838,8 @@
       "protein_g": 3.5,
       "carbs_g": 7.0,
       "fat_g": 1.1
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "baby corn",
@@ -3676,7 +3859,8 @@
       "protein_g": 2.1,
       "carbs_g": 5.2,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 10
   },
   {
     "name": "rose water",
@@ -3695,7 +3879,8 @@
       "protein_g": 0.0,
       "carbs_g": 0.0,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "orange juice",
@@ -3714,7 +3899,8 @@
       "protein_g": 0.7,
       "carbs_g": 11.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "chocolate chips",
@@ -3735,7 +3921,8 @@
       "protein_g": 7.6,
       "carbs_g": 57.0,
       "fat_g": 32.0
-    }
+    },
+    "grams_per_piece": 170
   },
   {
     "name": "panch phoran",
@@ -3758,7 +3945,8 @@
       "protein_g": 12.0,
       "carbs_g": 35.0,
       "fat_g": 17.0
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "vivatta maida",
@@ -3779,7 +3967,8 @@
       "protein_g": 6.0,
       "carbs_g": 77.0,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "buttermilk",
@@ -3801,7 +3990,8 @@
       "protein_g": 3.3,
       "carbs_g": 4.8,
       "fat_g": 0.9
-    }
+    },
+    "grams_per_piece": 245
   },
   {
     "name": "drumstick",
@@ -3822,7 +4012,8 @@
       "protein_g": 2.1,
       "carbs_g": 8.3,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 40
   },
   {
     "name": "sweet chutney",
@@ -3840,7 +4031,8 @@
       "protein_g": 0.5,
       "carbs_g": 38.0,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 30
   },
   {
     "name": "anardana powder",
@@ -3860,7 +4052,8 @@
       "protein_g": 3.0,
       "carbs_g": 75.0,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "fennel powder",
@@ -3879,7 +4072,8 @@
       "protein_g": 15.8,
       "carbs_g": 52.3,
       "fat_g": 14.9
-    }
+    },
+    "grams_per_piece": 3.0
   },
   {
     "name": "kokum",
@@ -3899,7 +4093,8 @@
       "protein_g": 0.0,
       "carbs_g": 8.5,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "bitter melon",
@@ -3919,7 +4114,8 @@
       "protein_g": 0.93,
       "carbs_g": 3.7,
       "fat_g": 0.19
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "tabasco sauce",
@@ -3938,7 +4134,8 @@
       "protein_g": 1.0,
       "carbs_g": 8.0,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 5.0
   },
   {
     "name": "pomegranate arils",
@@ -3961,7 +4158,8 @@
       "protein_g": 1.17,
       "carbs_g": 14.37,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 175
   },
   {
     "name": "elephant yam",
@@ -3981,7 +4179,8 @@
       "protein_g": 1.5,
       "carbs_g": 13.5,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "orange zest",
@@ -3999,7 +4198,8 @@
       "protein_g": 0.7,
       "carbs_g": 12.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 2.0
   },
   {
     "name": "sev",
@@ -4020,7 +4220,8 @@
       "protein_g": 12.0,
       "carbs_g": 60.0,
       "fat_g": 14.0
-    }
+    },
+    "grams_per_piece": 30
   },
   {
     "name": "khoya",
@@ -4042,7 +4243,8 @@
       "protein_g": 25.0,
       "carbs_g": 22.0,
       "fat_g": 28.0
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "chia seeds",
@@ -4060,7 +4262,8 @@
       "protein_g": 16.54,
       "carbs_g": 42.12,
       "fat_g": 30.74
-    }
+    },
+    "grams_per_piece": 12
   },
   {
     "name": "roasted lentils",
@@ -4079,7 +4282,8 @@
       "protein_g": 26.0,
       "carbs_g": 60.0,
       "fat_g": 1.5
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "cranberries",
@@ -4097,7 +4301,8 @@
       "protein_g": 0.39,
       "carbs_g": 12.2,
       "fat_g": 0.13
-    }
+    },
+    "grams_per_piece": 110
   },
   {
     "name": "idli rice",
@@ -4117,7 +4322,8 @@
       "protein_g": 2.7,
       "carbs_g": 28.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 185
   },
   {
     "name": "bajra flour",
@@ -4137,7 +4343,8 @@
       "protein_g": 11.6,
       "carbs_g": 67.0,
       "fat_g": 4.9
-    }
+    },
+    "grams_per_piece": 120
   },
   {
     "name": "black eyed peas",
@@ -4156,7 +4363,8 @@
       "protein_g": 8.7,
       "carbs_g": 17.9,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 200
   },
   {
     "name": "sriracha",
@@ -4175,7 +4383,8 @@
       "protein_g": 2.2,
       "carbs_g": 17.0,
       "fat_g": 3.4
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "soy chunks",
@@ -4198,7 +4407,8 @@
       "protein_g": 54.0,
       "carbs_g": 30.0,
       "fat_g": 5.0
-    }
+    },
+    "grams_per_piece": 60
   },
   {
     "name": "orange",
@@ -4216,7 +4426,8 @@
       "protein_g": 0.9,
       "carbs_g": 11.8,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 130
   },
   {
     "name": "tomato puree",
@@ -4234,7 +4445,8 @@
       "protein_g": 1.6,
       "carbs_g": 7.7,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "coriander powder",
@@ -4255,7 +4467,8 @@
       "protein_g": 12.0,
       "carbs_g": 54.9,
       "fat_g": 17.8
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "flax seed powder",
@@ -4277,7 +4490,8 @@
       "protein_g": 18.3,
       "carbs_g": 28.9,
       "fat_g": 42.2
-    }
+    },
+    "grams_per_piece": 10
   },
   {
     "name": "instant coffee powder",
@@ -4296,7 +4510,8 @@
       "protein_g": 0.2,
       "carbs_g": 0.0,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 2.5
   },
   {
     "name": "foxtail millet",
@@ -4316,7 +4531,8 @@
       "protein_g": 12.3,
       "carbs_g": 65.0,
       "fat_g": 4.2
-    }
+    },
+    "grams_per_piece": 180.0
   },
   {
     "name": "sour cream",
@@ -4336,7 +4552,8 @@
       "protein_g": 3.7,
       "carbs_g": 4.0,
       "fat_g": 20.1
-    }
+    },
+    "grams_per_piece": 15.0
   },
   {
     "name": "jowar flour",
@@ -4355,7 +4572,8 @@
       "protein_g": 11.0,
       "carbs_g": 73.0,
       "fat_g": 3.3
-    }
+    },
+    "grams_per_piece": 140.0
   },
   {
     "name": "byadagi chili",
@@ -4375,7 +4593,8 @@
       "protein_g": 2.0,
       "carbs_g": 9.0,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 1.5
   },
   {
     "name": "broken wheat",
@@ -4397,7 +4616,8 @@
       "protein_g": 12.3,
       "carbs_g": 75.0,
       "fat_g": 1.5
-    }
+    },
+    "grams_per_piece": 150.0
   },
   {
     "name": "mayonnaise",
@@ -4418,7 +4638,8 @@
       "protein_g": 0.2,
       "carbs_g": 0.6,
       "fat_g": 75.0
-    }
+    },
+    "grams_per_piece": 15.0
   },
   {
     "name": "chilli vinegar",
@@ -4437,7 +4658,8 @@
       "protein_g": 0.04,
       "carbs_g": 0.4,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 5.0
   },
   {
     "name": "lemongrass",
@@ -4456,7 +4678,8 @@
       "protein_g": 1.5,
       "carbs_g": 26.0,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 30.0
   },
   {
     "name": "colocasia root",
@@ -4476,7 +4699,8 @@
       "protein_g": 1.5,
       "carbs_g": 26.4,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 150.0
   },
   {
     "name": "ridge gourd",
@@ -4496,7 +4720,8 @@
       "protein_g": 0.5,
       "carbs_g": 4.8,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 150.0
   },
   {
     "name": "roasted tomato pasta sauce",
@@ -4515,7 +4740,8 @@
       "protein_g": 1.2,
       "carbs_g": 8.5,
       "fat_g": 1.5
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "green chilli sauce",
@@ -4534,7 +4760,8 @@
       "protein_g": 0.8,
       "carbs_g": 5.2,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "tindora",
@@ -4554,7 +4781,8 @@
       "protein_g": 1.2,
       "carbs_g": 3.5,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "cornmeal flour",
@@ -4573,7 +4801,8 @@
       "protein_g": 8.6,
       "carbs_g": 74.3,
       "fat_g": 3.9
-    }
+    },
+    "grams_per_piece": 122
   },
   {
     "name": "white pepper",
@@ -4592,7 +4821,8 @@
       "protein_g": 10.4,
       "carbs_g": 64.8,
       "fat_g": 3.3
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "idli dosa batter",
@@ -4612,7 +4842,8 @@
       "protein_g": 2.8,
       "carbs_g": 10.2,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "watermelon",
@@ -4630,7 +4861,8 @@
       "protein_g": 0.6,
       "carbs_g": 7.6,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 280
   },
   {
     "name": "cinnamon stick",
@@ -4650,7 +4882,8 @@
       "protein_g": 3.9,
       "carbs_g": 80.6,
       "fat_g": 1.2
-    }
+    },
+    "grams_per_piece": 2
   },
   {
     "name": "muesli",
@@ -4671,7 +4904,8 @@
       "protein_g": 10.1,
       "carbs_g": 68.3,
       "fat_g": 6.2
-    }
+    },
+    "grams_per_piece": 85
   },
   {
     "name": "kiwi",
@@ -4690,7 +4924,8 @@
       "protein_g": 1.1,
       "carbs_g": 14.7,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 75
   },
   {
     "name": "pav bhaji masala",
@@ -4708,7 +4943,8 @@
       "protein_g": 10.2,
       "carbs_g": 54.8,
       "fat_g": 9.3
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "dijon mustard",
@@ -4728,7 +4964,8 @@
       "protein_g": 3.6,
       "carbs_g": 3.2,
       "fat_g": 3.8
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "processed cheese spread",
@@ -4750,7 +4987,8 @@
       "protein_g": 9.5,
       "carbs_g": 7.2,
       "fat_g": 25.4
-    }
+    },
+    "grams_per_piece": 20
   },
   {
     "name": "papaya",
@@ -4769,7 +5007,8 @@
       "protein_g": 0.5,
       "carbs_g": 11.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 500
   },
   {
     "name": "rasam powder",
@@ -4787,7 +5026,8 @@
       "protein_g": 12.0,
       "carbs_g": 60.0,
       "fat_g": 5.0
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "green chilli paste",
@@ -4806,7 +5046,8 @@
       "protein_g": 2.0,
       "carbs_g": 8.0,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "sabudana",
@@ -4826,7 +5067,8 @@
       "protein_g": 0.1,
       "carbs_g": 82.0,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 180
   },
   {
     "name": "boondi",
@@ -4846,7 +5088,8 @@
       "protein_g": 10.0,
       "carbs_g": 68.0,
       "fat_g": 6.0
-    }
+    },
+    "grams_per_piece": 30
   },
   {
     "name": "goda masala",
@@ -4864,7 +5107,8 @@
       "protein_g": 10.0,
       "carbs_g": 58.0,
       "fat_g": 5.5
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "palm sugar",
@@ -4883,7 +5127,8 @@
       "protein_g": 0.0,
       "carbs_g": 92.0,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "egg yolk",
@@ -4903,7 +5148,8 @@
       "protein_g": 16.0,
       "carbs_g": 3.3,
       "fat_g": 26.5
-    }
+    },
+    "grams_per_piece": 17
   },
   {
     "name": "drumstick leaves",
@@ -4922,7 +5168,8 @@
       "protein_g": 2.1,
       "carbs_g": 12.5,
       "fat_g": 1.7
-    }
+    },
+    "grams_per_piece": 50
   },
   {
     "name": "apple cider vinegar",
@@ -4940,7 +5187,8 @@
       "protein_g": 0.0,
       "carbs_g": 0.9,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "amla",
@@ -4960,7 +5208,8 @@
       "protein_g": 0.9,
       "carbs_g": 10.2,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 10
   },
   {
     "name": "mango pulp",
@@ -4979,7 +5228,8 @@
       "protein_g": 0.7,
       "carbs_g": 15.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 240
   },
   {
     "name": "hakka noodles",
@@ -5001,7 +5251,8 @@
       "protein_g": 4.5,
       "carbs_g": 28.0,
       "fat_g": 2.0
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "fox nuts",
@@ -5021,7 +5272,8 @@
       "protein_g": 4.7,
       "carbs_g": 20.8,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 10
   },
   {
     "name": "chickpea flour",
@@ -5042,7 +5294,8 @@
       "protein_g": 22.0,
       "carbs_g": 27.4,
       "fat_g": 6.5
-    }
+    },
+    "grams_per_piece": 92
   },
   {
     "name": "puffed rice",
@@ -5062,7 +5315,8 @@
       "protein_g": 2.5,
       "carbs_g": 36.0,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 15
   },
   {
     "name": "sunflower seeds",
@@ -5083,7 +5337,8 @@
       "protein_g": 20.0,
       "carbs_g": 20.0,
       "fat_g": 51.5
-    }
+    },
+    "grams_per_piece": 12
   },
   {
     "name": "vermicelli",
@@ -5105,7 +5360,8 @@
       "protein_g": 10.0,
       "carbs_g": 76.0,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 80
   },
   {
     "name": "blueberries",
@@ -5121,7 +5377,8 @@
       "protein_g": 0.7,
       "carbs_g": 14.5,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "dried figs",
@@ -5140,7 +5397,8 @@
       "protein_g": 3.3,
       "carbs_g": 63.9,
       "fat_g": 0.9
-    }
+    },
+    "grams_per_piece": 20
   },
   {
     "name": "melon seeds",
@@ -5159,7 +5417,8 @@
       "protein_g": 15.2,
       "carbs_g": 20.0,
       "fat_g": 38.0
-    }
+    },
+    "grams_per_piece": 10
   },
   {
     "name": "custard powder",
@@ -5177,7 +5436,8 @@
       "protein_g": 0.5,
       "carbs_g": 87.0,
       "fat_g": 0.2
-    }
+    },
+    "grams_per_piece": 8
   },
   {
     "name": "barnyard millet",
@@ -5197,7 +5457,8 @@
       "protein_g": 6.2,
       "carbs_g": 76.0,
       "fat_g": 2.5
-    }
+    },
+    "grams_per_piece": 180
   },
   {
     "name": "ricotta",
@@ -5218,7 +5479,8 @@
       "protein_g": 11.0,
       "carbs_g": 3.0,
       "fat_g": 13.0
-    }
+    },
+    "grams_per_piece": 250
   },
   {
     "name": "fenugreek",
@@ -5234,7 +5496,8 @@
       "protein_g": 23.2,
       "carbs_g": 58.4,
       "fat_g": 6.4
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "flax seeds",
@@ -5253,7 +5516,8 @@
       "protein_g": 18.3,
       "carbs_g": 28.9,
       "fat_g": 42.2
-    }
+    },
+    "grams_per_piece": 10
   },
   {
     "name": "amaranth leaves",
@@ -5274,7 +5538,8 @@
       "protein_g": 2.1,
       "carbs_g": 4.3,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 100
   },
   {
     "name": "stone flower",
@@ -5294,7 +5559,8 @@
       "protein_g": 0.0,
       "carbs_g": 0.0,
       "fat_g": 0.0
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "sun dried tomatoes",
@@ -5313,7 +5579,8 @@
       "protein_g": 14.0,
       "carbs_g": 56.0,
       "fat_g": 2.9
-    }
+    },
+    "grams_per_piece": 3
   },
   {
     "name": "fish sauce",
@@ -5334,7 +5601,8 @@
       "protein_g": 10.0,
       "carbs_g": 14.0,
       "fat_g": 0.1
-    }
+    },
+    "grams_per_piece": 18
   },
   {
     "name": "basmati rice",
@@ -5354,7 +5622,8 @@
       "protein_g": 2.7,
       "carbs_g": 28.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 185
   },
   {
     "name": "cluster beans",
@@ -5375,7 +5644,8 @@
       "protein_g": 3.0,
       "carbs_g": 5.5,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 5
   },
   {
     "name": "dried rose petals",
@@ -5394,7 +5664,8 @@
       "protein_g": 1.5,
       "carbs_g": 69.0,
       "fat_g": 0.5
-    }
+    },
+    "grams_per_piece": 1
   },
   {
     "name": "jackfruit",
@@ -5415,7 +5686,8 @@
       "protein_g": 1.9,
       "carbs_g": 23.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 150
   },
   {
     "name": "apricots",
@@ -5433,7 +5705,8 @@
       "protein_g": 1.4,
       "carbs_g": 11.0,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 35
   },
   {
     "name": "matta rice",
@@ -5454,7 +5727,8 @@
       "protein_g": 3.0,
       "carbs_g": 29.0,
       "fat_g": 0.4
-    }
+    },
+    "grams_per_piece": 190
   },
   {
     "name": "leek",
@@ -5473,6 +5747,7 @@
       "protein_g": 1.5,
       "carbs_g": 14.0,
       "fat_g": 0.3
-    }
+    },
+    "grams_per_piece": 90
   }
 ]

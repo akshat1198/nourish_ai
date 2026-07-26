@@ -146,8 +146,11 @@ def _to_ranked(
     score = round(_score(c, disliked_ids, taste_scores), 4)
 
     f = filters or SoftFilters()
+    # Nutrition is deliberately excluded from the binary count — it ranks by
+    # degree via nutrition_fit, so a goal nothing can satisfy still orders the
+    # results best-first instead of flattening them all to "matched 0".
     matched, requested = soft_filters_matched(
-        c, f.max_time, f.meal_type, f.nutrition_goals
+        c, f.max_time, f.meal_type, f.nutrition_goals, include_nutrition=False
     )
     in_cuisine = (
         cuisine_matches(c.cuisine, c.region, list(f.cuisines)) if f.cuisines else True

@@ -21,6 +21,13 @@ from app.core.allergens import ALLERGEN_SET, clean_allergens
 
 SEED = Path(__file__).resolve().parents[2] / "seed_data"
 
+# Largest bare quantity still read as a piece/cup count rather than grams.
+# Real recipes stay well under it (30 curry leaves, 24 shrimp); source rows that
+# dropped their "g" run far above it.
+PIECE_COUNT_MAX = 40
+# A kg figure above this is a source that wrote "kg" but meant grams.
+KG_AS_GRAMS_ABOVE = 20
+
 # --- keyword safety backstop (high-confidence tokens only) ------------------
 _NON_VEG_KW = {
     "chicken", "beef", "pork", "lamb", "mutton", "veal", "bacon", "ham",
@@ -61,23 +68,68 @@ def load_props() -> dict:
     return {i["name"]: i for i in ings}
 
 
+def _parse_qty(m: str) -> float:
+    """Leading quantity, including vulgar fractions.
+
+    Sources write "1/2 lb" and "1 1/2 cups" freely; reading only the first digit
+    turned every half into a whole and doubled those ingredients.
+    """
+    mixed = re.search(r"(\d+)\s+(\d+)\s*/\s*(\d+)", m)
+    if mixed:
+        whole, num, den = (int(g) for g in mixed.groups())
+        return whole + (num / den if den else 0)
+    frac = re.search(r"(\d+)\s*/\s*(\d+)", m)
+    if frac:
+        num, den = (int(g) for g in frac.groups())
+        return num / den if den else 1.0
+    plain = re.search(r"(\d+(?:\.\d+)?)", m)
+    return float(plain.group(1)) if plain else 1.0
+
+
 def measure_to_grams(props: dict, name: str, measure: str) -> float:
     """Best-effort grams for one ingredient line (nutrition is estimated)."""
     m = (measure or "").lower()
-    num = re.search(r"(\d+(?:\.\d+)?)", m)
-    qty = float(num.group(1)) if num else 1.0
+    qty = _parse_qty(m)
+    entry = props.get(name, {})
     if re.search(r"\bkg\b|kilogram", m):
-        return qty * 1000
-    if re.search(r"\bg\b|gram", m):
+        # Sources write "750 kg" meaning 750 g. No home recipe uses tens of
+        # kilos, so treat an implausible kg figure as the grams it must be.
+        return qty if qty > KG_AS_GRAMS_ABOVE else qty * 1000
+    # Imperial weights: TheMealDB uses them throughout, and unhandled they fell
+    # through to the piece path — "8 oz" chicken became 8 breasts.
+    if re.search(r"\blbs?\b|pound", m):
+        return qty * 453.6
+    if re.search(r"\boz\b|ounce", m):
+        return qty * 28.35
+    if re.search(r"pinch|dash|to taste|as needed|garnish", m):
+        return 0.5
+    # "\bg\b" cannot match "25g" — there is no word boundary between a digit and
+    # the g that follows it — so gram weights written without a space fell all
+    # the way through to the piece path (25 g of butter became 25 sticks).
+    if re.search(r"\d\s*g\b|\bgram", m):
         return qty
-    if re.search(r"\bml\b|litre|liter|\bl\b|cup", m):
-        return qty * (240 if "cup" in m else 1)   # ~1g/ml
+    if "cup" in m:
+        # A cup is a volume; only liquids weigh ~240 g. Prefer the ingredient's
+        # own cup weight (rice ~185 g, flour ~120 g) when we have one.
+        return qty * (entry.get("grams_per_piece") or 240)
+    if re.search(r"\bml\b|litre|liter|\bl\b", m):
+        return qty * 1  # ~1 g/ml
     if re.search(r"tbsp|tablespoon", m):
         return qty * 15
     if re.search(r"tsp|teaspoon", m):
         return qty * 5
-    gpu = props.get(name, {}).get("grams_per_unit") or 50
-    return qty * gpu
+    # No recognizable unit: the quantity counts bare units of this ingredient
+    # ("3 chicken breast"). grams_per_unit is grams-per-default_unit and is 1
+    # for everything stored in grams, so using it here shrank whole cuts to a
+    # few grams — grams_per_piece is what one bare unit actually weighs.
+    #
+    # Above PIECE_COUNT_MAX the number is a gram weight whose unit went missing
+    # in the source, not a piece count: no recipe calls for 500 chicken breasts,
+    # and multiplying by the piece weight there produced a 39,696 kcal fritter.
+    if qty > PIECE_COUNT_MAX:
+        return qty
+    per_piece = entry.get("grams_per_piece") or entry.get("grams_per_unit") or 50
+    return qty * per_piece
 
 
 def _kw_hit(text: str, kws: set[str]) -> bool:

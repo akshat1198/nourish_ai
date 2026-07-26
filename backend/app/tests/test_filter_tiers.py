@@ -163,13 +163,27 @@ def test_implausible_nutrition_is_treated_as_unknown():
     ranked = rank([absurd, real], limit=10,
                   filters=SoftFilters(nutrition_goals=("high_protein",)))
     assert ranked[0].title == "Real"
-    assert ranked[1].filters_matched == 0, "unusable nutrition can't satisfy a goal"
+    assert ranked[1].nutrition_fit == 0.0, "unusable nutrition can't score a goal"
 
-    # Calories with no macros at all is missing data, not a low-carb recipe.
+    # Calories but no protein is missing data, not a low-carb recipe.
     empty = _candidate("No Macros", nutrition={"calories": 130, "protein_g": 0,
                                                "carbs_g": 0, "fat_g": 0})
     assert rank([empty], limit=1, filters=SoftFilters(nutrition_goals=("low_carb",))
-                )[0].filters_matched == 0
+                )[0].nutrition_fit == 0.0
+
+
+def test_a_nutrition_goal_nothing_can_satisfy_still_orders_best_first():
+    # No vegetarian Thai recipe in the corpus reaches 25 g protein. Asking for
+    # high protein must still return the highest protein available, in order —
+    # a threshold that nothing clears must not flatten the ranking.
+    cands = [
+        _candidate("22g", nutrition={"calories": 400, "protein_g": 22, "carbs_g": 30}),
+        _candidate("8g", nutrition={"calories": 300, "protein_g": 8, "carbs_g": 30}),
+        _candidate("19g", nutrition={"calories": 350, "protein_g": 19, "carbs_g": 30}),
+    ]
+    ranked = rank(cands, limit=10, filters=SoftFilters(nutrition_goals=("high_protein",)))
+    assert [r.title for r in ranked] == ["22g", "19g", "8g"]
+    assert all(r.filters_matched == 0 for r in ranked), "goal is graded, not gated"
 
 
 def test_disliked_still_sinks_beneath_every_clean_recipe():

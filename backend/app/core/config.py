@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # Ranking weights. Bump RANKING_VERSION on any change so the
     # recommendation cache invalidates.
-    RANKING_VERSION: str = "v5"  # v5: filters outrank pantry fit; nutrition grades within
+    RANKING_VERSION: str = "v6"  # v6: nutrition goals graded, not gated; grams fixed
     RANK_W_COVERAGE: float = 0.6  # reward covering essential ingredients
     RANK_W_MISSING: float = 0.3  # penalize missing ingredients
     RANK_W_TIME: float = 0.1  # reward fitting the time budget

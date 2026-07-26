@@ -351,15 +351,24 @@ def soft_filters_matched(
     max_time: Optional[int] = None,
     meal_type: Optional[str] = None,
     nutrition_goals: Iterable[str] = (),
+    include_nutrition: bool = True,
 ) -> tuple[int, int]:
-    """(satisfied, requested) over the preference-tier filters."""
+    """(satisfied, requested) over the preference-tier filters.
+
+    `include_nutrition=False` for ranking: a nutrition goal is a direction to
+    optimize, not a box to tick. "High protein" should return the highest
+    protein available even when nothing clears 25 g — no vegetarian Thai recipe
+    in the corpus does — so nutrition is graded by `nutrition_fit` instead of
+    gating here. Strict callers keep it counted, since they ask literally.
+    """
     checks: list[bool] = []
     if max_time is not None:
         checks.append(c.time_minutes <= max_time)
     if meal_type:
         checks.append(meal_type in (c.meal_types or []))
-    for goal in nutrition_goals:
-        checks.append(_nutrition_ok(c.nutrition, [goal]))
+    if include_nutrition:
+        for goal in nutrition_goals:
+            checks.append(_nutrition_ok(c.nutrition, [goal]))
     return sum(checks), len(checks)
 
 
