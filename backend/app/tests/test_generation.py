@@ -8,7 +8,7 @@ about itself may be taken at face value.
 import pytest
 from sqlalchemy import select
 
-from app.models import GenerationEvent, Ingredient, Recipe
+from app.models import GenerationEvent, Ingredient, Recipe, RecipeIngredient
 from app.schemas.generation import (
     GeneratedIngredientLine,
     GeneratedRecipe,
@@ -190,4 +190,79 @@ def test_a_clean_recipe_is_stored_with_derived_labels_and_learned_ingredients(
         session.execute(
             Ingredient.__table__.delete().where(Ingredient.name == "test-yuzu-kosho")
         )
+        session.commit()
+
+
+# --------------------------------------------------------------------------- #
+# Endpoint behaviour after a successful generation
+# --------------------------------------------------------------------------- #
+def _endpoint(monkeypatch, cuisine, generated, in_cuisine=None):
+    """POST /v1/recommendations with generation stubbed to a known outcome.
+
+    Patches the endpoint's OWN bound names: recommendations.py does
+    `from app.services.cache import get_cached`, so patching the cache module
+    leaves its reference untouched and the assertion reads a cached response.
+    """
+    from fastapi.testclient import TestClient
+
+    from app.api import recommendations
+    from app.main import app
+
+    monkeypatch.setattr(recommendations, "get_cached", lambda k: None)
+    monkeypatch.setattr(recommendations, "set_cached", lambda k, v: None)
+    monkeypatch.setattr(recommendations, "can_generate", lambda session: True)
+    monkeypatch.setattr(
+        recommendations, "generate_recipes",
+        lambda session, req, pantry, user_key: generated,
+    )
+    if in_cuisine is not None:
+        monkeypatch.setattr(recommendations, "OFF_CUISINE_FLOOR", in_cuisine)
+    return TestClient(app).post(
+        "/v1/recommendations",
+        json={"pantry": ["rice"], "cuisines": [cuisine], "limit": 10},
+    ).json()
+
+
+# african/ethiopian has no recipes at all, so the padding path genuinely fires
+# here — with a cuisine the corpus can serve, this assertion passes vacuously.
+_EMPTY_CUISINE = "african/ethiopian"
+
+
+@requires_db
+def test_off_cuisine_padding_still_applies_when_generation_produced_nothing(monkeypatch):
+    body = _endpoint(monkeypatch, _EMPTY_CUISINE, generated=[])
+    assert body["mode"] == "off_cuisine"
+    assert body["results"] and all(not r["cuisine_matched"] for r in body["results"])
+    assert body["explanation"]
+
+
+@requires_db
+def test_off_cuisine_padding_is_skipped_when_generation_succeeded(session, monkeypatch):
+    # Writing recipes in the requested cuisine and then appending other cuisines
+    # under "we don't have many X recipes yet" contradicts what just happened.
+    # The stub has to actually leave a retrievable recipe behind: reporting
+    # success while surfacing nothing must still fall through to the divider,
+    # so a bare [id] would exercise the wrong branch.
+    rice = session.execute(select(Ingredient).where(Ingredient.name == "rice")).scalar_one()
+    recipe = Recipe(
+        title="Test Ethiopian Shiro Wat", description="", ingredients=[{"name": "rice"}],
+        steps=["Cook."], tags=[], diet_labels=["vegan", "vegetarian"], allergens=[],
+        cuisine="african", region="ethiopian", meal_types=["dinner"], time_minutes=30,
+        servings=2, nutrition={"calories": 400, "protein_g": 12, "carbs_g": 60, "fat_g": 8},
+        search_text="test ethiopian shiro wat rice", embedding=[0.0] * 384,
+        source="generated", nutrition_estimated=True,
+    )
+    session.add(recipe)
+    session.flush()
+    session.add(RecipeIngredient(recipe_id=recipe.id, ingredient_id=rice.id, essential=True))
+    session.commit()
+    try:
+        body = _endpoint(monkeypatch, _EMPTY_CUISINE, generated=[recipe.id])
+        assert body["mode"] != "off_cuisine"
+        assert body["results"], "the generated recipe should surface"
+        assert all(r["cuisine_matched"] for r in body["results"])
+    finally:
+        session.execute(RecipeIngredient.__table__.delete().where(
+            RecipeIngredient.recipe_id == recipe.id))
+        session.execute(Recipe.__table__.delete().where(Recipe.id == recipe.id))
         session.commit()

@@ -180,8 +180,10 @@ def recommend(
     # cuisine: write recipes for these exact filters, persist them, and re-run
     # so they flow through the same ranking as everything else. Fails open —
     # generate_recipes never raises, and an empty return just leaves `results`.
+    generated: list[int] = []
     if len(results) < settings.GENERATION_MIN_RESULTS and can_generate(session):
-        if generate_recipes(session, req, pantry, user_key):
+        generated = generate_recipes(session, req, pantry, user_key)
+        if generated:
             fb_mode, explanation, results = run(cuisines=req.cuisines)
 
     # Soft filters no longer empty the list — retrieval keeps near-misses in the
@@ -189,7 +191,15 @@ def recommend(
     # cuisine. It is never silently substituted: other cuisines are appended
     # below, carrying cuisine_matched=False, and can never outrank an in-cuisine
     # result because that flag is the top sort key.
-    if req.cuisines and len(results) < OFF_CUISINE_FLOOR:
+    #
+    # Skipped when generation just wrote recipes in this cuisine AND they came
+    # back: padding then contradicts what we did, appending other cuisines and
+    # announcing "we don't have many X recipes yet" immediately after producing
+    # X recipes. A short, wholly in-cuisine list is the better answer — but only
+    # if it isn't empty, so a generation that reported success while surfacing
+    # nothing still falls through to the divider rather than showing zero.
+    wrote_in_cuisine = bool(generated and results)
+    if req.cuisines and not wrote_in_cuisine and len(results) < OFF_CUISINE_FLOOR:
         _m, _e, other = run(cuisines=[])
         seen = {r.id for r in results}
         extra = [r for r in other if r.id not in seen and not r.cuisine_matched]
