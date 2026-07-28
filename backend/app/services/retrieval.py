@@ -23,6 +23,11 @@ from app.core.cuisines import cuisine_matches, parse_cuisine_id
 from app.models import Ingredient, Recipe, RecipeIngredient
 from app.schemas.recommend import RecipeCandidate
 
+# Lives in derivation.py because that is the single write path and the importers
+# and estimators need the same predicate; re-exported here so the long-standing
+# retrieval.nutrition_usable call sites keep resolving.
+from app.services.derivation import nutrition_usable, plausible_bounds  # noqa: F401
+
 RRF_K = 60  # RRF damping constant; larger => flatter rank contribution
 # Safe at this size because each arm is already filtered when it truncates; the
 # pool is compliant candidates, and memory stays bounded by the SQL LIMIT.
@@ -86,6 +91,7 @@ def _build_candidate(
         total_essential=total_essential,
         source=recipe.source,
         nutrition_estimated=recipe.nutrition_estimated,
+        nutrition_source=recipe.nutrition_source,
         matched_weight=round(matched_w, 4),
         missing_weight=round(missing_w, 4),
         matched_essential_weight=round(matched_ess_w, 4),
@@ -100,18 +106,31 @@ def _nutrition_order(goals: Iterable[str]) -> list:
     Needed in browse mode: with no pantry to rank against, an arbitrary slice of
     compliant recipes would hand ranking a pool that may exclude the corpus's
     genuinely highest-protein recipes entirely.
+
+    Clamped at NUTRI_FIT_CAP multiples of each threshold, mirroring nutrition_fit.
+    This sort SELECTS the candidate pool, so an unclamped ORDER BY made the pool
+    the corpus's most mis-parsed rows and ranking never saw a correct recipe to
+    promote. Clamping ties everything past the cap and lets Recipe.id settle it.
     """
     macro = {
-        "high_protein": (Recipe.nutrition["protein_g"].astext.cast(Float), False),
-        "low_calorie": (Recipe.nutrition["calories"].astext.cast(Float), True),
-        "low_fat": (Recipe.nutrition["fat_g"].astext.cast(Float), True),
-        "low_carb": (Recipe.nutrition["carbs_g"].astext.cast(Float), True),
+        "high_protein": (Recipe.nutrition["protein_g"].astext.cast(Float),
+                         settings.NUTRI_HIGH_PROTEIN_G, False),
+        "low_calorie": (Recipe.nutrition["calories"].astext.cast(Float),
+                        settings.NUTRI_LOW_CALORIE_KCAL, True),
+        "low_fat": (Recipe.nutrition["fat_g"].astext.cast(Float),
+                    settings.NUTRI_LOW_FAT_G, True),
+        "low_carb": (Recipe.nutrition["carbs_g"].astext.cast(Float),
+                     settings.NUTRI_LOW_CARB_G, True),
     }
     order = []
     for goal in goals:
         if goal in macro:
-            col, ascending = macro[goal]
-            order.append(col.asc() if ascending else col.desc())
+            col, threshold, ascending = macro[goal]
+            # least() for both directions: past the cap a row is either no better
+            # (protein) or uniformly bad (calories), and in each case should tie
+            # rather than dominate the ordering.
+            capped = func.least(col, settings.NUTRI_FIT_CAP * threshold)
+            order.append(capped.asc() if ascending else capped.desc())
     return order
 
 
@@ -179,34 +198,6 @@ def _pantry_ranked_recipe_ids(
         .limit(limit)
     )
     return list(session.execute(query).scalars())
-
-
-def nutrition_usable(nutrition: dict) -> bool:
-    """Whether the estimated per-serving nutrition is trustworthy enough to use.
-
-    Zero/absent calories means it was never derived, and values past the
-    plausibility ceilings mean a measure was mis-parsed upstream. Either way we
-    cannot honour a nutrition goal against it, so it is treated as unknown —
-    the same call `classify_and_derive` makes when it hides nutrition rather
-    than mislead.
-    """
-    n = nutrition or {}
-    calories = n.get("calories", 0.0)
-    if not (settings.NUTRI_MIN_CALORIES <= calories <= settings.NUTRI_MAX_CALORIES):
-        return False
-    protein = n.get("protein_g", 0.0)
-    fat = n.get("fat_g", 0.0)
-    carbs = n.get("carbs_g", 0.0)
-    # Real food with real calories always has some protein. Zero means the macro
-    # was never derived, and treating that as fact is how "low carb" started
-    # matching a squid dish reporting 0 g protein and 0 g carbs.
-    if protein <= 0:
-        return False
-    return (
-        protein <= settings.NUTRI_MAX_PROTEIN_G
-        and fat <= settings.NUTRI_MAX_FAT_G
-        and carbs <= settings.NUTRI_MAX_CARBS_G
-    )
 
 
 def _nutrition_ok(nutrition: dict, goals: Iterable[str]) -> bool:
@@ -280,19 +271,13 @@ def soft_clauses(
     if nutrition_goals:
         # Mirror nutrition_usable() in SQL: a goal can't be honoured against
         # nutrition we don't trust, so those rows are excluded here rather than
-        # surfacing as spurious top matches when ordering by a macro.
-        cal = Recipe.nutrition["calories"].astext.cast(Float)
-        protein = Recipe.nutrition["protein_g"].astext.cast(Float)
-        fat = Recipe.nutrition["fat_g"].astext.cast(Float)
-        carbs = Recipe.nutrition["carbs_g"].astext.cast(Float)
-        clauses += [
-            cal >= settings.NUTRI_MIN_CALORIES,
-            cal <= settings.NUTRI_MAX_CALORIES,
-            protein <= settings.NUTRI_MAX_PROTEIN_G,
-            fat <= settings.NUTRI_MAX_FAT_G,
-            carbs <= settings.NUTRI_MAX_CARBS_G,
-            protein > 0,
-        ]
+        # surfacing as spurious top matches when ordering by a macro. Built from
+        # the same bounds table the Python gate uses, so adding a bound there
+        # enforces it in both places.
+        for key, floor, ceiling in plausible_bounds():
+            macro = Recipe.nutrition[key].astext.cast(Float)
+            clauses += [macro >= floor, macro <= ceiling]
+        clauses.append(Recipe.nutrition["protein_g"].astext.cast(Float) > 0)
     for goal in nutrition_goals:
         # Missing nutrition yields NULL and drops the row, matching
         # _nutrition_ok's treatment of an absent macro as a failed goal.
@@ -326,21 +311,33 @@ def nutrition_fit(nutrition: dict, goals: Iterable[str]) -> float:
     own threshold, signed so higher is always better (protein up; calories,
     fat and carbs down), which keeps goals comparable when several are set.
     Returns 0.0 when no goals are requested, so ordering is unaffected.
+
+    Each term is clamped to NUTRI_FIT_CAP. Unclamped, the ratio rewards outliers
+    without limit, so the rows with the most badly mis-parsed measures sorted
+    above every correct recipe — the ranking actively hunted for the corpus's
+    worst data. Clamping ties them instead, letting pantry fit and score decide.
     """
     goals = list(goals)
     if not goals or not nutrition_usable(nutrition):
         return 0.0
     n = nutrition or {}
+    # (goal, json key, threshold setting, higher_is_better)
+    terms = (
+        ("high_protein", "protein_g", settings.NUTRI_HIGH_PROTEIN_G, True),
+        ("low_calorie", "calories", settings.NUTRI_LOW_CALORIE_KCAL, False),
+        ("low_fat", "fat_g", settings.NUTRI_LOW_FAT_G, False),
+        ("low_carb", "carbs_g", settings.NUTRI_LOW_CARB_G, False),
+    )
+    cap = settings.NUTRI_FIT_CAP
     score = 0.0
-    for goal in goals:
-        if goal == "high_protein":
-            score += n.get("protein_g", 0.0) / settings.NUTRI_HIGH_PROTEIN_G
-        elif goal == "low_calorie":
-            score -= n.get("calories", 0.0) / settings.NUTRI_LOW_CALORIE_KCAL
-        elif goal == "low_fat":
-            score -= n.get("fat_g", 0.0) / settings.NUTRI_LOW_FAT_G
-        elif goal == "low_carb":
-            score -= n.get("carbs_g", 0.0) / settings.NUTRI_LOW_CARB_G
+    for goal, key, threshold, higher_is_better in terms:
+        if goal not in goals:
+            continue
+        ratio = (n.get(key, 0.0) / threshold) if threshold else 0.0
+        signed = ratio if higher_is_better else -ratio
+        # Clamped both ways so per-goal terms stay commensurate on multi-goal
+        # requests, which is the whole point of normalizing by the threshold.
+        score += max(-cap, min(cap, signed))
     return round(score, 4)
 
 

@@ -6,6 +6,7 @@ that a matched spice does not count for as much as a matched protein.
 """
 from sqlalchemy import func, select
 
+from app.core.config import settings
 from app.models import Recipe, RecipeIngredient
 from app.schemas.recommend import RecipeCandidate
 from app.services.ingredients import resolve_pantry
@@ -149,6 +150,36 @@ def test_nutrition_ordering_is_inert_without_a_goal():
     assert ranked[0].title == "B"
 
 
+def test_a_wildly_high_macro_cannot_outrank_a_merely_high_one():
+    # The reported bug: nutrition_fit was an uncapped ratio, so the rows with the
+    # most badly mis-parsed measures sorted above every correct recipe. Both rows
+    # here sit inside the plausibility ceilings on purpose — this must exercise
+    # the cap, not the gate, or it would still pass with the cap removed.
+    inflated = _candidate("Inflated", nutrition={"calories": 900, "protein_g": 75,
+                                                 "carbs_g": 10, "fat_g": 20},
+                          missing_substantive=3, matched_weight=0.5)
+    genuine = _candidate("Genuine", nutrition={"calories": 600, "protein_g": 50,
+                                               "carbs_g": 10, "fat_g": 15},
+                         missing_substantive=0, matched_weight=3.0)
+    ranked = rank([inflated, genuine], limit=10,
+                  filters=SoftFilters(nutrition_goals=("high_protein",)))
+    fits = {r.title: r.nutrition_fit for r in ranked}
+    assert fits["Inflated"] == fits["Genuine"], "past the cap both are simply 'lots'"
+    # Tied on the goal, the next ordering key decides — here pantry fit.
+    assert ranked[0].title == "Genuine"
+
+
+def test_the_cap_leaves_grading_below_it_intact():
+    # Clamping must not flatten the range the goal actually discriminates over.
+    lots = _candidate("Lots", nutrition={"calories": 600, "protein_g": 45, "carbs_g": 10})
+    some = _candidate("Some", nutrition={"calories": 500, "protein_g": 35, "carbs_g": 10})
+    barely = _candidate("Barely", nutrition={"calories": 400, "protein_g": 26, "carbs_g": 10})
+    ranked = rank([barely, lots, some], limit=10,
+                  filters=SoftFilters(nutrition_goals=("high_protein",)))
+    assert [r.title for r in ranked] == ["Lots", "Some", "Barely"]
+    assert len({r.nutrition_fit for r in ranked}) == 3, "below the cap, grading is intact"
+
+
 def test_implausible_nutrition_is_treated_as_unknown():
     # The corpus holds a recipe at 46,502 g protein. Ordering by a macro floats
     # exactly those rows to the top unless they're excluded outright.
@@ -248,6 +279,25 @@ def test_hard_tier_is_never_violated(session):
 
 
 @requires_db
+def test_the_sql_nutrition_filter_agrees_with_the_python_gate(session):
+    # soft_clauses mirrors _nutrition_ok in SQL by hand. Nothing caught the two
+    # drifting apart, and they disagreeing means a recipe is filtered one way
+    # during retrieval and judged another way in ranking. Run over the real
+    # corpus so the comparison spans every boundary the data actually reaches.
+    from app.services.retrieval import _nutrition_ok, soft_clauses
+
+    goals = ["high_protein"]
+    rows = session.execute(select(Recipe.id, Recipe.nutrition)).all()
+    expected = {rid for rid, n in rows if _nutrition_ok(n or {}, goals)}
+    got = set(session.execute(
+        select(Recipe.id).where(*soft_clauses(nutrition_goals=goals))
+    ).scalars())
+    assert got == expected, (
+        f"SQL and Python disagree on {len(got ^ expected)} recipes"
+    )
+
+
+@requires_db
 def test_browse_mode_returns_recipes_but_an_unresolved_pantry_does_not(session):
     # Entering no ingredients at all used to come back completely empty, because
     # the pantry-match query returns nothing when there is no pantry.
@@ -255,8 +305,13 @@ def test_browse_mode_returns_recipes_but_an_unresolved_pantry_does_not(session):
         session, [], [], limit=10, nutrition_goals=["high_protein"], browse=True
     )
     assert got, "browsing with no ingredients must still surface recipes"
-    proteins = [(c.nutrition or {}).get("protein_g", 0) for c in got]
-    assert proteins == sorted(proteins, reverse=True), "browse mode orders by the goal"
+    # Ordered by the goal, but only up to the cap: past NUTRI_FIT_CAP multiples of
+    # the threshold, more protein is a data-quality artifact rather than a better
+    # match, so those rows tie and a later key settles them. Comparing raw grams
+    # here would assert an ordering the ranking deliberately no longer promises.
+    ceiling = settings.NUTRI_FIT_CAP * settings.NUTRI_HIGH_PROTEIN_G
+    capped = [min((c.nutrition or {}).get("protein_g", 0), ceiling) for c in got]
+    assert capped == sorted(capped, reverse=True), "browse mode orders by the goal"
 
     # But a pantry that was typed and resolved to nothing is a different thing:
     # returning arbitrary recipes there would imply we matched what they typed.

@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     # Ranking weights. Bump RANKING_VERSION on any change so the
     # recommendation cache invalidates.
-    RANKING_VERSION: str = "v7"  # v7: cooking time no longer filtered, ranked or shown
+    RANKING_VERSION: str = "v8"  # v8: nutrition_fit capped, tighter plausibility ceilings
     RANK_W_COVERAGE: float = 0.6  # reward covering essential ingredients
     RANK_W_MISSING: float = 0.3  # penalize missing ingredients
     # Per-category match weight. Counting every ingredient equally biased results
@@ -105,16 +105,29 @@ class Settings(BaseSettings):
     # protein and one at 247,577 kcal. Ordering by a macro floats exactly those
     # rows to the top, so anything past these bounds is treated as unknown
     # rather than trusted: it fails nutrition goals and contributes nothing to
-    # ranking. Generous on purpose — a large real meal sits well inside them.
+    # ranking.
+    #
+    # Sized from the corpus's own p99 (1,167 kcal / 68.7 g protein / 74.5 g fat
+    # / 135 g carbs), not from appetite. The earlier ceilings were set generously
+    # enough that a card reading 984 kcal and 133 g protein passed as a large
+    # real meal; at one serving that is a parse error, not dinner.
+    #
     # Floor too: an estimate under this, or one whose macros are all zero, means
     # too few ingredients resolved to trust it. Without it, "low carb" matches
     # recipes showing 0 g carbs simply because nothing was measured — a squid
     # dish reporting 0 g protein is not low-carb data, it is missing data.
     NUTRI_MIN_CALORIES: float = 25.0
-    NUTRI_MAX_CALORIES: float = 3000.0
-    NUTRI_MAX_PROTEIN_G: float = 150.0
-    NUTRI_MAX_FAT_G: float = 250.0
-    NUTRI_MAX_CARBS_G: float = 400.0
+    NUTRI_MAX_CALORIES: float = 1200.0
+    NUTRI_MAX_PROTEIN_G: float = 80.0
+    NUTRI_MAX_FAT_G: float = 120.0
+    NUTRI_MAX_CARBS_G: float = 200.0
+    # Ceiling on any single goal's contribution to nutrition_fit, in multiples of
+    # that goal's threshold. Past 2x, "more protein" stops being a preference and
+    # starts being a data-quality artifact: a row reporting 133 g scored 5.3 and
+    # outranked every genuinely high-protein recipe. Clamping makes those a tie,
+    # so the next ordering key decides instead. 2x is 50 g protein — above the
+    # corpus p95 of 37 g, below the p99 of 68.7 g.
+    NUTRI_FIT_CAP: float = 2.0
 
     # Recipe generation. Fills gaps the corpus genuinely can't serve (a Korean
     # vegan dinner) instead of substituting another cuisine. Fails open: any
