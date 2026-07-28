@@ -117,21 +117,50 @@ def test_recommendations_high_protein_goal():
     assert all(rec["nutrition"].get("protein_g", 0) >= 25 for rec in results)
 
 
+def _photo(name: str = "shelf.jpg", data: bytes = b"jpegbytes", mime: str = "image/jpeg"):
+    return ("images", (name, data, mime))
+
+
 @requires_db
-def test_pantry_parse_freetext(monkeypatch):
-    # LLM extraction is mocked; the endpoint resolves terms to canonical/generic
+def test_pantry_parse_images(monkeypatch):
+    # Vision extraction is mocked; the endpoint resolves terms to canonical/generic
     # items and reports what it couldn't place.
     from app.api import pantry as pantry_api
 
     monkeypatch.setattr(
-        pantry_api, "parse_pantry_text",
-        lambda text: ["spinach", "eggs", "chicken", "unicorn tears"],
+        pantry_api, "parse_pantry_images",
+        lambda images: ["spinach", "eggs", "chicken", "unicorn tears"],
     )
-    body = client.post("/v1/pantry/parse", json={"text": "whatever"}).json()
+    body = client.post("/v1/pantry/parse-images", files=[_photo(), _photo("fridge.png")]).json()
     recognized = {r["name"]: r for r in body["recognized"]}
     assert {"spinach", "eggs"} <= recognized.keys()
     assert recognized.get("chicken", {}).get("is_group") is True  # generic
     assert "unicorn tears" in body["unmatched"]
+
+
+@requires_db
+def test_pantry_parse_images_fails_open_when_llm_disabled(monkeypatch):
+    # No API key: the request still succeeds with nothing recognised, rather
+    # than 500ing on a feature the deterministic pantry doesn't depend on.
+    from app.api import pantry as pantry_api
+
+    monkeypatch.setattr(pantry_api, "parse_pantry_images", lambda images: [])
+    r = client.post("/v1/pantry/parse-images", files=[_photo()])
+    assert r.status_code == 200
+    assert r.json() == {"recognized": [], "unmatched": []}
+
+
+def test_pantry_parse_images_rejects_bad_uploads():
+    from app.core.config import settings
+
+    over_cap = [_photo(f"{i}.jpg") for i in range(settings.PANTRY_IMAGE_MAX_COUNT + 1)]
+    assert client.post("/v1/pantry/parse-images", files=over_cap).status_code == 400
+
+    oversized = _photo(data=b"x" * (settings.PANTRY_IMAGE_MAX_BYTES + 1))
+    assert client.post("/v1/pantry/parse-images", files=[oversized]).status_code == 400
+
+    wrong_type = _photo("notes.pdf", b"%PDF-1.4", "application/pdf")
+    assert client.post("/v1/pantry/parse-images", files=[wrong_type]).status_code == 400
 
 
 @requires_db

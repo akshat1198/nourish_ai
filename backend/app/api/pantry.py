@@ -1,28 +1,24 @@
-"""Persistent pantry endpoints: GET/PUT /v1/pantry.
+"""Persistent pantry endpoints: GET/PUT /v1/pantry, plus photo intake.
 
 Keyed by the authed identity (`get_current_user_key`): in disabled mode that's
 the `X-User-Key` header; in jwt mode it's `google:{sub}` from the verified token.
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel, Field
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.auth import get_current_user_key
 from app.api.deps import get_session
-from app.models import Ingredient
+from app.core.config import settings
 from app.schemas.ingredient import IngredientSuggestion
 from app.schemas.pantry import PantryReplaceIn, PantryResponse
-from app.services.ingredient_groups import load_groups
-from app.services.ingredients import normalize
+from app.services.ingredients import resolve_names_to_suggestions
 from app.services.pantry import get_pantry, replace_pantry
-from app.services.pantry_text import parse_pantry_text
+from app.services.pantry_image import parse_pantry_images
 
 router = APIRouter(prefix="/v1", tags=["pantry"])
 
-
-class PantryParseIn(BaseModel):
-    text: str = Field(..., max_length=1000)
+ALLOWED_PANTRY_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 
 class PantryParseResponse(BaseModel):
@@ -38,47 +34,44 @@ def read_pantry(
     return PantryResponse(items=get_pantry(session, user_key))
 
 
-@router.post("/pantry/parse", response_model=PantryParseResponse)
-def parse_pantry(
-    body: PantryParseIn,
+@router.post("/pantry/parse-images", response_model=PantryParseResponse)
+async def parse_pantry_photos(
+    images: list[UploadFile] = File(...),
     session: Session = Depends(get_session),
+    user_key: str = Depends(get_current_user_key),
 ):
-    """Free-text → recognized pantry items (LLM parse + canonical resolve). Does
-    NOT mutate the pantry; the client adds the recognized items via PUT /pantry.
-    No auth needed — pure text → ingredient resolution."""
-    names = parse_pantry_text(body.text)
+    """Pantry photos → recognized pantry items (vision parse + canonical resolve).
+
+    Does NOT mutate the pantry; the client adds the recognized items via PUT
+    /pantry. Photos are read into memory, base64'd for the one vision call, and
+    dropped when the request ends — nothing is stored.
+
+    Authed, unlike the rest of the parse path: a multi-image call on the main
+    model is expensive enough to be worth tying to an identity.
+    """
+    if not images:
+        raise HTTPException(400, "No photos provided")
+    if len(images) > settings.PANTRY_IMAGE_MAX_COUNT:
+        raise HTTPException(400, f"Up to {settings.PANTRY_IMAGE_MAX_COUNT} photos at a time")
+
+    # Reject a bad file rather than skipping it: a silently dropped photo reads
+    # to the user as the model having missed everything on that shelf.
+    payload: list[tuple[bytes, str]] = []
+    for img in images:
+        if img.content_type not in ALLOWED_PANTRY_IMAGE_TYPES:
+            raise HTTPException(400, f"Unsupported image type: {img.filename}")
+        data = await img.read()
+        if not data:
+            raise HTTPException(400, f"Empty file: {img.filename}")
+        if len(data) > settings.PANTRY_IMAGE_MAX_BYTES:
+            mb = settings.PANTRY_IMAGE_MAX_BYTES // (1024 * 1024)
+            raise HTTPException(400, f"Photo is too large (max {mb}MB): {img.filename}")
+        payload.append((data, img.content_type))
+
+    names = parse_pantry_images(payload)
     if not names:
         return PantryParseResponse(recognized=[], unmatched=[])
-
-    # Resolve each parsed term to a single canonical/generic display item (mirrors
-    # the autocomplete: generics preferred, no member expansion, deduped).
-    index: dict[str, Ingredient] = {}
-    for ing in session.execute(select(Ingredient)).scalars():
-        index.setdefault(normalize(ing.name), ing)
-        for alias in ing.aliases or []:
-            index.setdefault(normalize(alias), ing)
-    generics: dict[str, tuple[str, str]] = {}
-    for g in load_groups():
-        for key in (g["generic"], *g.get("aliases", [])):
-            generics.setdefault(normalize(key), (g["generic"], g.get("category")))
-
-    recognized: list[IngredientSuggestion] = []
-    unmatched: list[str] = []
-    seen: set[str] = set()
-    for raw in names:
-        n = normalize(raw)
-        if n in generics:
-            gname, cat = generics[n]
-            if gname not in seen:
-                seen.add(gname)
-                recognized.append(IngredientSuggestion(name=gname, category=cat, is_group=True))
-        elif n in index:
-            ing = index[n]
-            if ing.name not in seen:
-                seen.add(ing.name)
-                recognized.append(IngredientSuggestion(name=ing.name, category=ing.category))
-        elif raw.strip():
-            unmatched.append(raw.strip())
+    recognized, unmatched = resolve_names_to_suggestions(session, names)
     return PantryParseResponse(recognized=recognized, unmatched=unmatched)
 
 

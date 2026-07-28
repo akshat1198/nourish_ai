@@ -29,6 +29,34 @@ def is_enabled() -> bool:
     return bool(settings.ANTHROPIC_API_KEY)
 
 
+def build_image_message(text: str, images: list[tuple[bytes, str]]) -> dict:
+    """One user message carrying N images plus a trailing instruction.
+
+    Images lead and the instruction follows, which is the ordering Anthropic
+    documents for multi-image prompts. The raw bytes are base64'd here and
+    nowhere else — nothing is written to disk or persisted at any point.
+
+    Feeding the result to `generate_structured` keeps vision on the same call
+    path as every other structured request: one `messages.parse`, one place
+    errors become LLMError.
+    """
+    import base64
+
+    content: list[dict] = [
+        {
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": media_type,
+                "data": base64.standard_b64encode(raw).decode("ascii"),
+            },
+        }
+        for raw, media_type in images
+    ]
+    content.append({"type": "text", "text": text})
+    return {"role": "user", "content": content}
+
+
 class LLMClient:
     def __init__(self) -> None:
         self._client = None  # lazy

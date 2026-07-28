@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     LLM_MODEL_FAST: str = "claude-haiku-4-5"  # cheap/fast (pantry-text parsing)
     LLM_MODEL_JUDGE: str = "claude-opus-4-8"  # offline eval judge only
     LLM_TIMEOUT_SECONDS: float = 20.0
+    # Reading several pantry photos is far slower than the short prompts
+    # LLM_TIMEOUT_SECONDS was sized for; that default aborts the call mid-flight.
+    PANTRY_IMAGE_TIMEOUT_SECONDS: float = 60.0
+    PANTRY_IMAGE_MAX_COUNT: int = 6  # photos per batch; one vision call carries them all
+    PANTRY_IMAGE_MAX_BYTES: int = 4 * 1024 * 1024  # headroom under Anthropic's 5MB/image
     PROMPT_VERSION: str = "v1"  # logged per run; real versioning tracked separately
     REPAIR_MAX_ATTEMPTS: int = 2  # repair turns before deterministic fallback
 

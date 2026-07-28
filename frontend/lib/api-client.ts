@@ -46,11 +46,14 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  parsePantry: (text: string) =>
-    apiFetch<PantryParseResponse>("/v1/pantry/parse", {
+  parsePantryImages: (files: File[]) => {
+    const form = new FormData();
+    files.forEach((f) => form.append("images", f, f.name));
+    return apiFetch<PantryParseResponse>("/v1/pantry/parse-images", {
       method: "POST",
-      body: JSON.stringify({ text }),
-    }),
+      body: form,
+    });
+  },
 
   getProfile: () =>
     apiFetch<Profile>(`/v1/profile/${encodeURIComponent(getUserKey())}`),

@@ -13,7 +13,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import Ingredient, Recipe
-from app.services.ingredient_groups import generic_members
+from app.schemas.ingredient import IngredientSuggestion
+from app.services.ingredient_groups import generic_members, load_groups
 
 
 def normalize(name: str) -> str:
@@ -91,6 +92,47 @@ def resolve_pantry(session: Session, raw_names: list[str]) -> ResolvedPantry:
         _add(ing_id)
 
     return ResolvedPantry(ingredient_ids=ids, matched_names=matched, unmatched=unmatched)
+
+
+def resolve_names_to_suggestions(
+    session: Session, raw_names: list[str]
+) -> tuple[list[IngredientSuggestion], list[str]]:
+    """Resolve loosely-worded ingredient names to displayable pantry items.
+
+    Distinct from `resolve_pantry`, which resolves to ingredient *ids* for
+    retrieval: this mirrors the autocomplete, so a generic stays a single
+    "chicken" chip rather than expanding into its members. Returns the
+    recognized items plus the names that matched nothing, which the caller
+    reports back to the user verbatim.
+    """
+    index: dict[str, Ingredient] = {}
+    for ing in session.execute(select(Ingredient)).scalars():
+        index.setdefault(normalize(ing.name), ing)
+        for alias in ing.aliases or []:
+            index.setdefault(normalize(alias), ing)
+    generics: dict[str, tuple[str, str]] = {}
+    for g in load_groups():
+        for key in (g["generic"], *g.get("aliases", [])):
+            generics.setdefault(normalize(key), (g["generic"], g.get("category")))
+
+    recognized: list[IngredientSuggestion] = []
+    unmatched: list[str] = []
+    seen: set[str] = set()
+    for raw in raw_names:
+        n = normalize(raw)
+        if n in generics:
+            gname, cat = generics[n]
+            if gname not in seen:
+                seen.add(gname)
+                recognized.append(IngredientSuggestion(name=gname, category=cat, is_group=True))
+        elif n in index:
+            ing = index[n]
+            if ing.name not in seen:
+                seen.add(ing.name)
+                recognized.append(IngredientSuggestion(name=ing.name, category=ing.category))
+        elif raw.strip():
+            unmatched.append(raw.strip())
+    return recognized, unmatched
 
 
 def disliked_recipe_ids(
