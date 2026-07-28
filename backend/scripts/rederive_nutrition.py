@@ -87,6 +87,7 @@ def main() -> int:
     changed = 0
     emptied = 0
     rejected = 0
+    kept_llm = 0
     samples: list[str] = []
     label_delta: list[tuple] = []
 
@@ -142,6 +143,14 @@ def main() -> int:
             if after and not nutrition_usable(after):
                 rejected += 1
                 after = {}
+            # A row we could not derive but previously estimated keeps its
+            # estimate. Wiping it would discard paid-for work on every re-run and
+            # silently strip the corpus of nutrition if this is run without the
+            # backfill afterwards. A usable derivation still wins: computed beats
+            # guessed whenever we have the choice.
+            if not after and recipe.nutrition_source == "llm" and recipe.nutrition:
+                kept_llm += 1
+                continue
             source = "derived" if after else "none"
             if before == after and recipe.nutrition_source == source:
                 continue
@@ -165,7 +174,8 @@ def main() -> int:
 
     print(f"\nchanged {changed}{' (dry run)' if args.dry else ''}; "
           f"{emptied} now have no usable nutrition "
-          f"({rejected} of those rejected as implausible, awaiting an estimate)")
+          f"({rejected} of those rejected as implausible, awaiting an estimate); "
+          f"{kept_llm} kept an existing estimate")
     if args.labels:
         gained = sum(1 for d in label_delta if "vegan" in d[1])
         lost = sum(1 for d in label_delta if "vegan" in d[2])

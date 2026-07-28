@@ -121,6 +121,12 @@ class Settings(BaseSettings):
     NUTRI_MAX_PROTEIN_G: float = 80.0
     NUTRI_MAX_FAT_G: float = 120.0
     NUTRI_MAX_CARBS_G: float = 200.0
+    # Ceiling on the resolved weight of food on one plate. Independent of the
+    # macro bounds because it catches what they structurally cannot: a mass error
+    # in a low-calorie ingredient stays inside every calorie and macro ceiling.
+    # Corpus p99 is 805 g/serving, so this sits far enough above a genuinely
+    # large portion that only a parse error reaches it.
+    NUTRI_MAX_GRAMS_PER_SERVING: float = 1500.0
     # Ceiling on any single goal's contribution to nutrition_fit, in multiples of
     # that goal's threshold. Past 2x, "more protein" stops being a preference and
     # starts being a data-quality artifact: a row reporting 133 g scored 5.3 and

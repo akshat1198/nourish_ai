@@ -214,6 +214,30 @@ def test_props_without_a_category_still_resolve():
     assert measure_to_grams({"mystery": {}}, "mystery", "") > 0
 
 
+def test_kilograms_of_food_on_one_plate_is_not_trusted():
+    # "12" cauliflower means florets; read as twelve whole heads it is 7 kg for
+    # two servings. The macro ceilings cannot catch this — cauliflower is 25
+    # kcal/100 g, so the calories stay in range while the protein does not.
+    props = {
+        "cauliflower": {"category": "vegetable", "grams_per_piece": 600.0,
+                        "per_100g": {"calories": 25, "protein_g": 1.9,
+                                     "carbs_g": 5.0, "fat_g": 0.3}},
+        "onion": {"category": "vegetable", "grams_per_piece": 110.0,
+                  "per_100g": {"calories": 40, "protein_g": 1.1,
+                               "carbs_g": 9.3, "fat_g": 0.1}},
+    }
+    items = [("cauliflower", 7200.0, True), ("onion", 110.0, False)]
+    d = classify_and_derive(props, items, ["cauliflower", "onion"], servings=2)
+    assert d["nutrition"] == {}, "kilograms per serving is a parse error, not a big dinner"
+
+    # A normal plate of the same dish still reports.
+    ok = classify_and_derive(
+        props, [("cauliflower", 600.0, True), ("onion", 110.0, False)],
+        ["cauliflower", "onion"], servings=2,
+    )
+    assert ok["nutrition"]["calories"] > 0
+
+
 def test_litres_are_not_read_as_grams():
     # The litre branch shared the millilitre path and returned grams 1:1.
     props = {"milk": {"category": "dairy"}}

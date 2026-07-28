@@ -370,6 +370,13 @@ def classify_and_derive(
     # If we matched too little to trust it, hide nutrition rather than mislead.
     if len(matched_items) < 2 or total["calories"] <= 0:
         nutrition = {}
+    # Weigh the food as well as its macros. A bare count of something heavy —
+    # "12" cauliflower, meaning florets, read as twelve whole heads — puts
+    # kilograms on the plate, and the macro ceilings cannot catch it: cauliflower
+    # is 25 kcal/100 g, so 3.7 kg of it is under every calorie and macro bound
+    # while still reporting 71 g of protein. Mass is the axis that sees it.
+    if sum(g for _, g, _ in matched_items) / servings > settings.NUTRI_MAX_GRAMS_PER_SERVING:
+        nutrition = {}
 
     labels: list[str] = []
     if vegan:
