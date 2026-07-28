@@ -88,3 +88,10 @@ archana_*.csv
 # Derived analysis output (regenerable from the CSV)
 backend/seed_data/unmatched_cores.json
 backend/seed_data/ingredients_enriched.json
+
+# Photos used to exercise the pantry-photo intake by hand. These are personal
+# camera-roll shots, not fixtures — the repo is public, so keep them out of it.
+*.heic
+*.HEIC
+*.heif
+*.HEIF
