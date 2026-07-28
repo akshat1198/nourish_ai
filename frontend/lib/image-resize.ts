@@ -8,15 +8,45 @@ const MAX_LONG_EDGE = 1568;
 const JPEG_QUALITY = 0.85;
 
 /**
- * Returns a resized JPEG, or null when the browser can't decode the file —
- * an actual .heic off an iPhone being the usual case. Callers surface that as
- * "unsupported" rather than uploading bytes the API will reject.
+ * Decode to a bitmap, reaching for the HEIC decoder only if the browser can't
+ * do it natively.
+ *
+ * iPhones shoot HEIC and no browser decodes it, but the decoder is a ~3MB wasm
+ * bundle -- far too much to load for the jpeg/png/webp that everything else
+ * produces. Native decode failing is the precise signal that it's worth
+ * fetching, so the import stays dynamic and the common path never pays.
  */
-export async function compressImage(file: File): Promise<File | null> {
+async function decode(file: File): Promise<ImageBitmap | null> {
   try {
     // from-image honours the EXIF rotation phones record instead of baking in;
     // without it a portrait shot reaches the model on its side.
-    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    return await createImageBitmap(file, { imageOrientation: "from-image" });
+  } catch {
+    // Not a format this browser reads — try HEIC below.
+  }
+
+  try {
+    const { isHeic, heicTo } = await import("heic-to");
+    if (!(await isHeic(file))) return null;
+    return await heicTo({
+      blob: file,
+      type: "bitmap",
+      options: { imageOrientation: "from-image" },
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Returns a resized JPEG, or null if the image can't be read at all. Callers
+ * surface that as "unsupported" rather than uploading bytes the API will reject.
+ */
+export async function compressImage(file: File): Promise<File | null> {
+  const bitmap = await decode(file);
+  if (!bitmap) return null;
+
+  try {
     const scale = Math.min(1, MAX_LONG_EDGE / Math.max(bitmap.width, bitmap.height));
     const width = Math.round(bitmap.width * scale);
     const height = Math.round(bitmap.height * scale);
@@ -27,7 +57,6 @@ export async function compressImage(file: File): Promise<File | null> {
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
     ctx.drawImage(bitmap, 0, 0, width, height);
-    bitmap.close();
 
     const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY),
@@ -36,7 +65,7 @@ export async function compressImage(file: File): Promise<File | null> {
     return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", {
       type: "image/jpeg",
     });
-  } catch {
-    return null;
+  } finally {
+    bitmap.close();
   }
 }

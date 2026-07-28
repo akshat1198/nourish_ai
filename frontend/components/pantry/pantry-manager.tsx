@@ -124,7 +124,7 @@ export function PantryManager() {
             onAnalyze={addFromImages}
             isAnalyzing={parseImages.isPending}
             onUnsupported={(names) =>
-              setNote(`Couldn't open ${names.join(", ")} — save as JPEG or PNG and retry.`)
+              setNote(`Couldn't read ${names.join(", ")} — that file may be damaged.`)
             }
           />
           {note && <p className="text-xs text-muted-foreground">{note}</p>}

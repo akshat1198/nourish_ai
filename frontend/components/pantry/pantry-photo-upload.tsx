@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Camera, Loader2, Sparkles, X } from "lucide-react";
+import { Camera, ImageIcon, Loader2, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { compressImage } from "@/lib/image-resize";
 
@@ -11,6 +11,10 @@ const MAX_PHOTOS = 6;
 interface Staged {
   file: File;
   previewUrl: string;
+  // HEIC has no browser-renderable preview, and decoding one just to draw a
+  // 64px tile would pull in the wasm decoder on every pick. Fall back to a
+  // labelled tile instead; the file still converts fine on analyze.
+  previewBroken?: boolean;
 }
 
 /**
@@ -78,10 +82,11 @@ export function PantryPhotoUpload({
 
   return (
     <div className="space-y-2">
+      {/* .heic/.heif by extension too: macOS often reports no MIME type for them. */}
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
         multiple
         className="hidden"
         onChange={(e) => addFiles(e.target.files)}
@@ -136,9 +141,27 @@ export function PantryPhotoUpload({
               key={s.previewUrl}
               className="group relative size-16 overflow-hidden rounded-lg border border-border"
             >
-              {/* Transient blob: URLs — nothing for next/image to optimize. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={s.previewUrl} alt="" className="size-full object-cover" />
+              {s.previewBroken ? (
+                <span className="flex size-full flex-col items-center justify-center gap-0.5 bg-secondary/50 px-1 text-center">
+                  <ImageIcon className="size-4 text-muted-foreground" aria-hidden />
+                  <span className="w-full truncate text-[9px] leading-tight text-muted-foreground">
+                    {s.file.name}
+                  </span>
+                </span>
+              ) : (
+                /* Transient blob: URLs — nothing for next/image to optimize. */
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={s.previewUrl}
+                  alt=""
+                  className="size-full object-cover"
+                  onError={() =>
+                    setStaged((prev) =>
+                      prev.map((p, idx) => (idx === i ? { ...p, previewBroken: true } : p)),
+                    )
+                  }
+                />
+              )}
               {!isAnalyzing && (
                 <button
                   type="button"
