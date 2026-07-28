@@ -21,6 +21,7 @@ from typing import Optional
 from sqlalchemy import select as sa_select
 
 from app.core.allergens import ALLERGEN_SET, clean_allergens
+from app.core.config import settings
 
 SEED = Path(__file__).resolve().parents[2] / "seed_data"
 
@@ -30,6 +31,17 @@ SEED = Path(__file__).resolve().parents[2] / "seed_data"
 PIECE_COUNT_MAX = 40
 # A kg figure above this is a source that wrote "kg" but meant grams.
 KG_AS_GRAMS_ABOVE = 20
+# Grams for a line carrying neither a quantity nor a unit. Ingestion strips the
+# source qualifier ("Salt - to taste" loses everything after the dash), so its
+# absence is the only signal left that the amount is a trace. Reading it as one
+# whole piece instead put 6 g of salt and 15 g of oil into 9,124 of the corpus's
+# 75,899 ingredient rows — the pantry category alone contributed ~205,000 kcal.
+# Spices and herbs dominate by count; pantry items dominate by calories.
+_TRACE_GRAMS = {"spice": 1.0, "herb": 1.0, "pantry": 5.0, "sauce": 5.0}
+_TRACE_DEFAULT_GRAMS = 5.0
+# Weight of one bare unit when the ingredient records no piece weight. Reached
+# only by vocabulary added at runtime; every seeded row carries grams_per_piece.
+DEFAULT_PIECE_GRAMS = 30
 
 # --- keyword safety backstop (high-confidence tokens only) ------------------
 _NON_VEG_KW = {
@@ -125,11 +137,16 @@ def ingredient_columns(spec: dict) -> dict:
     }
 
 
-def _parse_qty(m: str) -> float:
-    """Leading quantity, including vulgar fractions.
+def _parse_qty(m: str) -> Optional[float]:
+    """Leading quantity, including vulgar fractions. None when there is no number.
 
     Sources write "1/2 lb" and "1 1/2 cups" freely; reading only the first digit
     turned every half into a whole and doubled those ingredients.
+
+    Returns None rather than 1.0 for a measure with no digits at all. Defaulting
+    to 1 was indistinguishable from a genuine "1", so a quantity-less line was
+    silently priced as one whole piece of the ingredient; callers decide what an
+    absent quantity means for the unit they matched.
     """
     mixed = re.search(r"(\d+)\s+(\d+)\s*/\s*(\d+)", m)
     if mixed:
@@ -140,13 +157,16 @@ def _parse_qty(m: str) -> float:
         num, den = (int(g) for g in frac.groups())
         return num / den if den else 1.0
     plain = re.search(r"(\d+(?:\.\d+)?)", m)
-    return float(plain.group(1)) if plain else 1.0
+    return float(plain.group(1)) if plain else None
 
 
 def measure_to_grams(props: dict, name: str, measure: str) -> float:
     """Best-effort grams for one ingredient line (nutrition is estimated)."""
     m = (measure or "").lower()
-    qty = _parse_qty(m)
+    raw_qty = _parse_qty(m)
+    # A named unit with no number means one of it ("a tablespoon of oil"); an
+    # absent quantity only changes the reading on the bare-number path below.
+    qty = 1.0 if raw_qty is None else raw_qty
     entry = props.get(name, {})
     if re.search(r"\bkg\b|kilogram", m):
         # Sources write "750 kg" meaning 750 g. No home recipe uses tens of
@@ -158,7 +178,7 @@ def measure_to_grams(props: dict, name: str, measure: str) -> float:
         return qty * 453.6
     if re.search(r"\boz\b|ounce", m):
         return qty * 28.35
-    if re.search(r"pinch|dash|to taste|as needed|garnish", m):
+    if re.search(r"pinch|dash|to taste|as needed|garnish|handful|sprinkle|drizzle", m):
         return 0.5
     # "\bg\b" cannot match "25g" — there is no word boundary between a digit and
     # the g that follows it — so gram weights written without a space fell all
@@ -171,8 +191,12 @@ def measure_to_grams(props: dict, name: str, measure: str) -> float:
         # NOT grams_per_piece: for anything counted individually the two differ
         # by orders of magnitude (a peanut is 0.5 g, a cup of them is 146 g).
         return qty * (entry.get("grams_per_cup") or entry.get("grams_per_piece") or 240)
-    if re.search(r"\bml\b|litre|liter|\bl\b", m):
+    if re.search(r"\bml\b", m):
         return qty * 1  # ~1 g/ml
+    # Litres were lumped in with millilitres and returned grams 1:1, reading
+    # "2 litre" as 2 g. Latent today (no litre rows in the corpus) but wrong.
+    if re.search(r"litre|liter|\bl\b", m):
+        return qty * 1000
     if re.search(r"tbsp|tablespoon", m):
         return qty * 15
     if re.search(r"tsp|teaspoon", m):
@@ -185,10 +209,78 @@ def measure_to_grams(props: dict, name: str, measure: str) -> float:
     # Above PIECE_COUNT_MAX the number is a gram weight whose unit went missing
     # in the source, not a piece count: no recipe calls for 500 chicken breasts,
     # and multiplying by the piece weight there produced a 39,696 kcal fritter.
+    #
+    # No quantity either: the line named an ingredient and nothing else, which
+    # in this corpus means "to taste". Scale the trace by category — a bare spice
+    # is a pinch, a bare oil or sugar is a spoonful and carries real calories.
+    if raw_qty is None:
+        return _TRACE_GRAMS.get(entry.get("category") or "", _TRACE_DEFAULT_GRAMS)
     if qty > PIECE_COUNT_MAX:
         return qty
-    per_piece = entry.get("grams_per_piece") or entry.get("grams_per_unit") or 50
+    # `or` would treat a recorded 0 as missing; only an absent weight falls back.
+    per_piece = entry.get("grams_per_piece")
+    if per_piece is None:
+        per_piece = entry.get("grams_per_unit")
+    if per_piece is None:
+        per_piece = DEFAULT_PIECE_GRAMS
     return qty * per_piece
+
+
+# Per-serving plausibility bounds as (json key, floor setting, ceiling setting).
+# Attribute names rather than values so the bounds resolve at call time: a test
+# that overrides a ceiling gets the override, and the SQL mirror in
+# retrieval.soft_clauses builds from this same table so the two cannot drift.
+_PLAUSIBLE: tuple[tuple[str, Optional[str], str], ...] = (
+    ("calories", "NUTRI_MIN_CALORIES", "NUTRI_MAX_CALORIES"),
+    ("protein_g", None, "NUTRI_MAX_PROTEIN_G"),
+    ("fat_g", None, "NUTRI_MAX_FAT_G"),
+    ("carbs_g", None, "NUTRI_MAX_CARBS_G"),
+)
+
+
+def plausible_bounds() -> list[tuple[str, float, float]]:
+    """(json key, floor, ceiling) for each macro, resolved from settings."""
+    return [
+        (key, getattr(settings, lo) if lo else 0.0, getattr(settings, hi))
+        for key, lo, hi in _PLAUSIBLE
+    ]
+
+
+def nutrition_usable(nutrition: dict) -> bool:
+    """Whether the estimated per-serving nutrition is trustworthy enough to use.
+
+    Zero/absent calories means it was never derived, and values past the
+    plausibility ceilings mean a measure was mis-parsed upstream. Either way we
+    cannot honour a nutrition goal against it, so it is treated as unknown —
+    the same call `classify_and_derive` makes when it hides nutrition rather
+    than mislead.
+    """
+    n = nutrition or {}
+    for key, floor, ceiling in plausible_bounds():
+        if not (floor <= n.get(key, 0.0) <= ceiling):
+            return False
+    # Real food with real calories always has some protein. Zero means the macro
+    # was never derived, and treating that as fact is how "low carb" started
+    # matching a squid dish reporting 0 g protein and 0 g carbs. This is a
+    # missing-data rule rather than a bound, which is why it sits outside the
+    # table above.
+    return n.get("protein_g", 0.0) > 0
+
+
+def reconciles(nutrition: dict, tolerance: float = 0.3) -> bool:
+    """Do the macros add up to the calorie total (4/4/9 kcal per gram)?
+
+    Worth little against derived nutrition — calories and macros are summed from
+    the same grams and the same per_100g table, so they agree by construction
+    (21 of 7,533 corpus rows fail). It earns its keep only where the four numbers
+    are produced independently, i.e. anything a model asserts.
+    """
+    n = nutrition or {}
+    cal = n.get("calories", 0) or 0
+    if not cal:
+        return True
+    implied = 4 * n.get("protein_g", 0) + 4 * n.get("carbs_g", 0) + 9 * n.get("fat_g", 0)
+    return abs(cal - implied) <= tolerance * cal
 
 
 # A dairy word preceded by one of these is a plant product, not dairy: coconut

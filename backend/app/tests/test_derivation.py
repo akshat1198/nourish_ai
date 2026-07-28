@@ -173,3 +173,49 @@ def test_a_bare_count_is_pieces_not_cups():
     props = {"peanuts": {"grams_per_piece": 0.5, "grams_per_cup": 146}}
     assert measure_to_grams(props, "peanuts", "10") == 5.0
     assert measure_to_grams(props, "peanuts", "1 cup") == 146.0
+
+
+def test_a_line_with_no_measure_is_a_trace_not_a_whole_piece():
+    # "Salt - to taste" reaches derivation as an empty measure: ingestion splits
+    # on " - " and drops the qualifier. Reading the absent quantity as 1 priced
+    # it as one whole piece of salt.
+    props = {"salt": {"category": "spice", "grams_per_piece": 6.0}}
+    grams = measure_to_grams(props, "salt", "")
+    assert grams < 2.0
+    assert grams != 6.0, "an absent quantity must not be read as one piece"
+
+
+def test_trace_amounts_scale_by_category():
+    # Same piece weight, different category: spices are pinches, but a bare
+    # pantry line is oil or sugar and carries real calories.
+    props = {
+        "cumin": {"category": "spice", "grams_per_piece": 6.0},
+        "vegetable oil": {"category": "pantry", "grams_per_piece": 6.0},
+    }
+    assert measure_to_grams(props, "cumin", "") < measure_to_grams(props, "vegetable oil", "")
+
+
+def test_an_explicit_quantity_is_unaffected_by_the_trace_path():
+    # Guards the _parse_qty change: only a measure with no digits at all may
+    # take the trace path. "1" is a real count and must stay one piece.
+    props = {"onion": {"category": "vegetable", "grams_per_piece": 110.0}}
+    assert measure_to_grams(props, "onion", "1") == 110.0
+    assert measure_to_grams(props, "onion", "2") == 220.0
+
+
+def test_qualifier_measures_resolve_to_a_trace():
+    props = {"coriander": {"category": "herb", "grams_per_piece": 20.0}}
+    for measure in ("to taste", "a pinch", "a handful", "for garnish", "as needed"):
+        assert measure_to_grams(props, "coriander", measure) <= 1.0, measure
+
+
+def test_props_without_a_category_still_resolve():
+    # Inline props in tests and any runtime vocabulary may omit category.
+    assert measure_to_grams({"mystery": {}}, "mystery", "") > 0
+
+
+def test_litres_are_not_read_as_grams():
+    # The litre branch shared the millilitre path and returned grams 1:1.
+    props = {"milk": {"category": "dairy"}}
+    assert measure_to_grams(props, "milk", "2 litre") == 2000.0
+    assert measure_to_grams(props, "milk", "200 ml") == 200.0
