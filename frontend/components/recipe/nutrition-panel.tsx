@@ -1,3 +1,5 @@
+import type { NutritionSource } from "@/types/api";
+
 const MACROS: { key: string; label: string; unit: string }[] = [
   { key: "calories", label: "Calories", unit: "kcal" },
   { key: "protein_g", label: "Protein", unit: "g" },
@@ -14,10 +16,15 @@ function deltaLabel(d: number): string {
 export function NutritionPanel({
   nutrition,
   estimated,
+  source,
   delta,
 }: {
   nutrition: Record<string, number>;
   estimated: boolean;
+  // How the figures were arrived at. "llm" means we could not compute them from
+  // the ingredient list at all, which is a weaker claim than "computed roughly"
+  // and has to read that way.
+  source?: NutritionSource;
   // Signed per-macro change from a swap; when present the figures are
   // post-swap estimates.
   delta?: Record<string, number>;
@@ -27,6 +34,7 @@ export function NutritionPanel({
   if (shown.length === 0) return null;
 
   const swapped = delta != null;
+  const guessed = !swapped && source === "llm";
 
   return (
     <section className="space-y-3">
@@ -35,6 +43,14 @@ export function NutritionPanel({
           Nutrition
         </h2>
         <span className="text-xs text-muted-foreground">per serving</span>
+        {guessed && (
+          <span
+            className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground"
+            title="We couldn't work these out from the ingredient list, so our assistant estimated them."
+          >
+            Approximate
+          </span>
+        )}
       </div>
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {shown.map((m) => {
@@ -64,7 +80,9 @@ export function NutritionPanel({
         <p className="text-xs text-muted-foreground">
           {swapped
             ? "Estimated for your swap — treat as a rough guide."
-            : "Estimated from ingredients — treat as a rough guide."}
+            : guessed
+              ? "Approximate — we couldn't work these out from the ingredient list, so our assistant estimated them."
+              : "Estimated from ingredients — treat as a rough guide."}
         </p>
       )}
     </section>

@@ -3,6 +3,9 @@
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack" | "dessert";
 export type NutritionGoal = "high_protein" | "low_calorie" | "low_fat" | "low_carb";
+// "derived" summed the ingredient grams; "llm" means that sum was implausible
+// and a model estimated instead; "none" means neither produced a usable answer.
+export type NutritionSource = "derived" | "llm" | "none";
 export type RecommendMode =
   | "normal"
   | "substitution_first"
@@ -73,6 +76,9 @@ export interface RankedRecipe {
   source: string;
   // True when nutrition was estimated from ingredients rather than measured.
   nutrition_estimated: boolean;
+  // How that estimate was reached: summed from the ingredient list, guessed by
+  // the model when that sum was implausible, or neither.
+  nutrition_source: NutritionSource;
 }
 
 export interface RecommendResponse {
@@ -104,6 +110,7 @@ export interface RecipeDetail {
   servings: number;
   nutrition: Record<string, number>;
   nutrition_estimated: boolean;
+  nutrition_source: NutritionSource;
   ingredients: RecipeIngredientLine[];
   steps: string[];
   steps_enriched: boolean; // whether the method is already LLM-enriched

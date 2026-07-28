@@ -39,6 +39,7 @@ class RecipeDetail(BaseModel):
     servings: int
     nutrition: dict = Field(default_factory=dict)
     nutrition_estimated: bool = False
+    nutrition_source: str = "derived"
     ingredients: list[RecipeIngredientLine] = Field(default_factory=list)
     steps: list[str] = Field(default_factory=list)
     # Whether the method has been LLM-enriched yet. When False, the client

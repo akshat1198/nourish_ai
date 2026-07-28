@@ -18,6 +18,16 @@ Re-baseline — 7,580-recipe corpus (+708 themealdb +6,728 archanas):
     fuzzy (fuzzy_queries.jsonl):      sql 0.125  hybrid 0.75   (hybrid still 6x
                                       SQL; drop from 1.0 is corpus competition,
                                       NOT pool size — RRF_POOL 30->200 unchanged)
+
+Re-baseline — capped nutrition_fit + tightened plausibility ceilings (v8):
+    structured (queries.jsonl):       sql 0.9    hybrid 1.0
+    regional (queries_regional.jsonl):sql 1.0    hybrid 0.875
+    fuzzy (fuzzy_queries.jsonl):      sql 0.25   hybrid 0.75
+    Movement is one case either way on 8-40 case sets, in both directions, and
+    follows from the data rather than the ranking: 3,619 recipes were re-derived
+    and 423 lost their nutrition to the tighter ceilings, so any goal-filtered
+    query reshuffles. violations stayed 0 throughout, which is the number that
+    may never move.
     violations=0 on every set (cuisine/region/meal/diet/allergen filters hold).
 
 Run:  python -m app.evals.run_retrieval --mode both

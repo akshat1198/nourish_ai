@@ -130,3 +130,26 @@ class RemovalPlan(BaseModel):
     note: str = Field(
         "", description="One line: what you did and how to compensate, e.g. 'Left out the cashews — add 1 tbsp cream for richness.'"
     )
+
+
+class EstimatedNutrition(BaseModel):
+    """Per-serving macros for one recipe whose derived nutrition was unusable.
+
+    Five flat scalars on purpose — nested or enum fields blow the
+    structured-output grammar budget (see RemovalPlan). Nothing here is trusted
+    on arrival: the values are range-checked and reconciled against each other
+    before anything is stored.
+    """
+
+    # Required, unlike the other schemas here: with defaults the model could
+    # return an empty object and the result parsed as a confident set of zeros,
+    # indistinguishable from a real answer. Roughly a third of rows came back
+    # that way. There is no sensible default for "how many calories".
+    calories: float = Field(..., description="Calories in ONE serving, kcal")
+    protein_g: float = Field(..., description="Protein in ONE serving, grams")
+    carbs_g: float = Field(..., description="Carbohydrate in ONE serving, grams")
+    fat_g: float = Field(..., description="Fat in ONE serving, grams")
+    serves: int = Field(
+        0,
+        description="How many people the listed quantities realistically serve, whatever the recipe claims",
+    )

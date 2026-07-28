@@ -20,22 +20,53 @@ import sys
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from app.core.config import settings
 from app.db import SessionLocal
 from app.models import Ingredient, Recipe
-from app.services.derivation import classify_and_derive, load_props, measure_to_grams
+from app.services.derivation import (
+    classify_and_derive,
+    load_props,
+    measure_to_grams,
+    nutrition_usable,
+)
 
 
-def _reconciles(n: dict, tolerance: float = 0.3) -> bool:
-    """Do the macros add up to the calorie total (4/4/9 kcal per gram)?
+def _percentiles(values: list[float], points=(50, 90, 95, 99)) -> str:
+    if not values:
+        return "n=0"
+    values = sorted(values)
+    out = []
+    for p in points:
+        idx = min(len(values) - 1, int(round(p / 100 * (len(values) - 1))))
+        out.append(f"p{p}={values[idx]:.1f}")
+    return "  ".join(out)
 
-    A cheap internal-consistency check: it can't prove the grams are right, but
-    it catches a macro being computed on a different basis from the total.
+
+def _print_stats() -> int:
+    """Per-serving distribution of the stored nutrition. Writes nothing.
+
+    Lives here rather than in a query so the before and after of a re-derivation
+    are produced by the same code and are actually comparable.
     """
-    cal = n.get("calories", 0)
-    if not cal:
-        return True
-    implied = 4 * n.get("protein_g", 0) + 4 * n.get("carbs_g", 0) + 9 * n.get("fat_g", 0)
-    return abs(cal - implied) <= tolerance * cal
+    with SessionLocal() as session:
+        rows = [r.nutrition or {} for r in session.execute(select(Recipe)).scalars()]
+    have = [n for n in rows if n.get("calories")]
+    print(f"n={len(have)} with nutrition, {len(rows) - len(have)} without")
+    for key in ("calories", "protein_g", "fat_g", "carbs_g"):
+        print(f"  {key:10} {_percentiles([n.get(key, 0.0) for n in have])}")
+    over = {
+        "cal>%g" % settings.NUTRI_MAX_CALORIES:
+            sum(1 for n in have if n.get("calories", 0) > settings.NUTRI_MAX_CALORIES),
+        "protein>%g" % settings.NUTRI_MAX_PROTEIN_G:
+            sum(1 for n in have if n.get("protein_g", 0) > settings.NUTRI_MAX_PROTEIN_G),
+        "fat>%g" % settings.NUTRI_MAX_FAT_G:
+            sum(1 for n in have if n.get("fat_g", 0) > settings.NUTRI_MAX_FAT_G),
+        "carbs>%g" % settings.NUTRI_MAX_CARBS_G:
+            sum(1 for n in have if n.get("carbs_g", 0) > settings.NUTRI_MAX_CARBS_G),
+    }
+    print("  over ceilings: " + " | ".join(f"{k}: {v}" for k, v in over.items()))
+    print(f"  unusable overall: {sum(1 for n in have if not nutrition_usable(n))}")
+    return 0
 
 
 def main() -> int:
@@ -44,20 +75,30 @@ def main() -> int:
     ap.add_argument("--sample", type=int, default=5, help="before/after rows to print")
     ap.add_argument("--labels", action="store_true",
                     help="also rewrite diet_labels/allergens (safety-bearing; review the delta)")
+    ap.add_argument("--source", help="only this source (seed, themealdb, archanas, generated)")
+    ap.add_argument("--limit", type=int, help="stop after this many recipes")
+    ap.add_argument("--stats", action="store_true",
+                    help="print the per-serving distribution and exit, writing nothing")
     args = ap.parse_args()
+
+    if args.stats:
+        return _print_stats()
 
     changed = 0
     emptied = 0
-    inconsistent = 0
+    rejected = 0
     samples: list[str] = []
     label_delta: list[tuple] = []
 
     with SessionLocal() as session:
         props = load_props(session)
         names = {i.id: i.name for i in session.execute(select(Ingredient)).scalars()}
-        recipes = session.execute(
-            select(Recipe).options(selectinload(Recipe.recipe_ingredients))
-        ).scalars().all()
+        query = select(Recipe).options(selectinload(Recipe.recipe_ingredients))
+        if args.source:
+            query = query.where(Recipe.source == args.source)
+        if args.limit:
+            query = query.limit(args.limit)
+        recipes = session.execute(query).scalars().all()
         print(f"re-deriving {len(recipes)} recipes...")
 
         for recipe in recipes:
@@ -94,20 +135,27 @@ def main() -> int:
                     recipe.allergens = sorted(new_alg)
 
             before, after = recipe.nutrition or {}, derived["nutrition"]
-            if before == after:
+            # An implausible sum is worse than no sum: ordering by a macro floats
+            # exactly those rows to the top. Dropping it here rather than merely
+            # counting it also gives the LLM backfill a queryable work queue
+            # instead of a printed statistic.
+            if after and not nutrition_usable(after):
+                rejected += 1
+                after = {}
+            source = "derived" if after else "none"
+            if before == after and recipe.nutrition_source == source:
                 continue
 
             if not after:
                 emptied += 1
-            elif not _reconciles(after):
-                inconsistent += 1
             if len(samples) < args.sample:
                 samples.append(
                     f"  {recipe.title[:38]:40}\n"
                     f"     before {before}\n     after  {after}"
                 )
             recipe.nutrition = after
-            recipe.nutrition_estimated = True
+            recipe.nutrition_estimated = bool(after)
+            recipe.nutrition_source = source
             changed += 1
 
         if args.dry:
@@ -116,8 +164,8 @@ def main() -> int:
             session.commit()
 
     print(f"\nchanged {changed}{' (dry run)' if args.dry else ''}; "
-          f"{emptied} now have no usable nutrition; "
-          f"{inconsistent} do not reconcile with their calorie total")
+          f"{emptied} now have no usable nutrition "
+          f"({rejected} of those rejected as implausible, awaiting an estimate)")
     if args.labels:
         gained = sum(1 for d in label_delta if "vegan" in d[1])
         lost = sum(1 for d in label_delta if "vegan" in d[2])

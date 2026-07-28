@@ -62,6 +62,13 @@ class Recipe(Base):
     nutrition_estimated: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=func.false()
     )
+    # How that estimate was arrived at: "derived" summed the ingredient grams,
+    # "llm" means the sum was implausible and a model estimated instead, "none"
+    # means neither produced a usable answer. Invariant:
+    # nutrition_estimated == (nutrition_source != "none").
+    nutrition_source: Mapped[str] = mapped_column(
+        Text, default="derived", server_default="derived"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

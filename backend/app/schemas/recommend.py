@@ -73,6 +73,7 @@ class RecipeCandidate(BaseModel):
     # always estimated from ingredients rather than measured.
     source: str = "seed"
     nutrition_estimated: bool = False
+    nutrition_source: str = "derived"
 
     # Category-weighted match stats. Retrieval fills these in (it is where
     # ingredient categories are known); ranking prefers them and falls back to

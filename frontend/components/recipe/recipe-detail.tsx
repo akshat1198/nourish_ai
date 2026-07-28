@@ -167,6 +167,7 @@ export function RecipeDetailView({ id }: { id: number }) {
         <NutritionPanel
           nutrition={swapNutrition ? swapNutrition.nutrition : recipe.nutrition}
           estimated={swapNutrition ? true : recipe.nutrition_estimated}
+          source={recipe.nutrition_source}
           delta={swapNutrition ? swapNutrition.nutrition_delta : undefined}
         />
       </Reveal>

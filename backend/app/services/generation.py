@@ -321,6 +321,8 @@ def _persist(
         source="generated",
         attribution="Written for this request",
         nutrition_estimated=True,
+        # classify_and_derive produced these by summing grams, same as ingestion.
+        nutrition_source="derived",
     )
     session.add(recipe)
     session.flush()

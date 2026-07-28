@@ -106,6 +106,17 @@ export function RecipeCard({
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
         {protein != null && <span className="tabular">{protein}g protein</span>}
         {calories != null && <span className="tabular">{calories} kcal</span>}
+        {/* The card is where a number is most likely taken at face value, so an
+            estimate we couldn't compute says so here and not only on the detail
+            page. */}
+        {recipe.nutrition_source === "llm" && (protein != null || calories != null) && (
+          <span
+            className="text-xs"
+            title="We couldn't work these out from the ingredient list, so our assistant estimated them."
+          >
+            approx.
+          </span>
+        )}
         {recipe.diet_labels.slice(0, 3).map((d) => (
           <Badge key={d} variant="outline" className="font-normal">
             {titleCase(d.replace("_", " "))}
