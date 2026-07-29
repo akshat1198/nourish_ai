@@ -95,3 +95,7 @@ backend/seed_data/ingredients_enriched.json
 *.HEIC
 *.heif
 *.HEIF
+
+# Generated marketing/demo clips. Large binaries, regenerable, and not part of
+# the build.
+*.mp4
