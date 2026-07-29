@@ -141,15 +141,19 @@ export function ReviewActions() {
     });
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
       <Button
         variant="outline"
         onClick={saveDefaults}
         disabled={updateProfile.isPending}
+        className="w-full sm:w-auto"
       >
         {updateProfile.isPending ? "Saving…" : "Save as my defaults"}
       </Button>
-      <Button className="glow-primary" onClick={goToResults}>
+      <Button
+        className="glow-primary w-full sm:w-auto"
+        onClick={goToResults}
+      >
         <Sparkles /> Find recipes
       </Button>
     </div>

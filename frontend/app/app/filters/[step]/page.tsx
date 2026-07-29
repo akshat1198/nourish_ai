@@ -80,8 +80,10 @@ export default function FilterStepPage() {
           </div>
         )}
 
-        {/* footer nav */}
-        <div className="flex items-center justify-between border-t border-border pt-5">
+        {/* footer nav — wraps because buttons are whitespace-nowrap and cannot
+            shrink; the review step puts two of them opposite Back, which
+            overflows a phone viewport on one line */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
           <Button variant="ghost" onClick={goBack}>
             <ArrowLeft /> Back
           </Button>
