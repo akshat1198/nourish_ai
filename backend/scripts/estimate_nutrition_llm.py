@@ -15,6 +15,9 @@ against the same ceilings a derived value must clear and reconciles the macros
 against the calorie total before this script ever sees it. A rejected estimate
 leaves the row untouched at 'none'.
 
+Step 4 of the rollout in scripts/rederive_nutrition.py — run that first, and do
+not skip the cache flush that follows this.
+
 Run from backend/ (DB must be up, ANTHROPIC_API_KEY must be set):
   ../.venv/bin/python -m scripts.estimate_nutrition_llm --dry --limit 20
   ../.venv/bin/python -m scripts.estimate_nutrition_llm

@@ -8,9 +8,39 @@ alone — they are safety-bearing, were derived by the same function at import,
 and silently churning them from a nutrition fix is exactly the kind of change
 that should be its own reviewed pass.
 
+Idempotent. A row that still cannot be derived keeps an existing `llm` estimate
+rather than being wiped, so re-running costs nothing and never strips the corpus
+of nutrition; a usable derivation still replaces an estimate, since computed
+beats guessed.
+
 Run from backend/ (DB must be up):
   ../.venv/bin/python -m scripts.rederive_nutrition --dry
   ../.venv/bin/python -m scripts.rederive_nutrition
+  ../.venv/bin/python -m scripts.rederive_nutrition --stats   # writes nothing
+
+Against production, in this order — the last two steps are the ones that get
+forgotten, and skipping either leaves the fix invisible:
+
+  1. Snapshot. Cheap, and the undo is one statement:
+       CREATE TABLE recipes_nutrition_backup_<date> AS
+         SELECT id, nutrition, nutrition_estimated FROM recipes;
+  2. --stats, and keep the output. It is the only "before" you get.
+  3. --dry, then apply. Stage it with --source if you want to inspect between
+     batches (seed, generated, themealdb, archanas).
+  4. scripts.estimate_nutrition_llm, which fills the rows this one rejected.
+     Without it those recipes show no nutrition at all.
+  5. Clear the cached recommendations, or users keep being served the old
+     numbers. RANKING_VERSION does NOT cover this — the code did not change,
+     only the data, so the cache keys are identical:
+       redis-cli -u "$REDIS_URL" --scan --pattern 'rec:*' \
+         | xargs -r redis-cli -u "$REDIS_URL" DEL
+  6. --stats again and compare against step 2. p99 calories should fall; p50
+     should barely move. A large p50 shift means the gram changes over-corrected
+     and deflated the whole corpus, which is the failure mode to watch for.
+
+Alembic runs inside the API container on boot (see backend/Dockerfile CMD), so
+schema changes need no separate step — but this script does, because it rewrites
+data rather than schema.
 """
 from __future__ import annotations
 
