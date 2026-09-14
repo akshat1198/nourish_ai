@@ -1,23 +1,41 @@
 name: Keepalive
 
-# The free tiers idle out at two different timescales, so this pings on two.
+# The free tiers idle out on two different clocks, and the two pings below are
+# deliberately independent of each other.
+#
 # Render suspends a web service after ~15 minutes with no request and takes
 # roughly a minute to come back, which the first real visitor would otherwise
-# pay. Supabase pauses a free project after a week with no query, and that one
-# needs a dashboard click to undo.
+# pay for.
 #
-# Requires repo variable API_BASE_URL (Settings -> Secrets and variables ->
-# Actions -> Variables), e.g. https://nourishai-api.onrender.com -- it is a
-# public URL, so a variable rather than a secret.
+# Supabase pauses a free project after 7 days with no database activity, and a
+# paused project does not merely sleep -- its tenant stops resolving on the
+# pooler, so every connection fails with "Tenant or user not found". Because the
+# image runs `alembic upgrade head` before uvicorn, that turns into a container
+# that cannot boot and a deploy marked failed. That is exactly what took the
+# service down from 2026-07-29 to 2026-09-14.
+#
+# The database ping therefore connects to Postgres DIRECTLY rather than going
+# through an API endpoint. An API-mediated touch cannot break the cycle it is
+# meant to prevent: once the API is down, the ping fails, the database keeps
+# idling, and the pause that broke the API is never cleared.
+#
+# Daily, not weekly, because GitHub's cron is best-effort -- a couple of skipped
+# or delayed runs must not eat into a 7-day budget.
+#
+# Setup (Settings -> Secrets and variables -> Actions):
+#   Variables -> API_BASE_URL   e.g. https://nourishai-api.onrender.com
+#                               (a public URL, so a variable, not a secret)
+#   Secrets   -> DATABASE_URL   the same Supabase Session-pooler string Render
+#                               uses. The +psycopg2 driver suffix is stripped
+#                               below; psql does not understand it.
 #
 # Caveat: GitHub disables scheduled workflows on a repo with no commits for 60
-# days, and cron firing is best-effort rather than punctual. If either bites,
-# move this to an external uptime pinger.
+# days. If that bites, move these to an external uptime pinger.
 
 on:
   schedule:
     - cron: "*/10 * * * *" # keep Render awake
-    - cron: "17 6 * * 1" # Mondays: touch the DB so Supabase never pauses
+    - cron: "17 6 * * *" # daily: keep Supabase from pausing
   workflow_dispatch:
 
 concurrency:
@@ -25,23 +43,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ping:
+  api:
+    name: wake the API
     runs-on: ubuntu-latest
-    # A missing variable would otherwise curl an empty URL every 10 minutes.
-    if: vars.API_BASE_URL != ''
     steps:
-      - name: Wake the API
+      - name: Ping /health
+        # A missing variable would otherwise curl an empty URL every 10 minutes.
+        if: vars.API_BASE_URL != ''
         run: |
           curl -fsS --max-time 90 --retry 2 --retry-delay 15 \
             -o /dev/null -w 'health: %{http_code} in %{time_total}s\n' \
             "${{ vars.API_BASE_URL }}/health"
 
-      - name: Touch the database
-        # Weekly schedule only. /v1/cuisines aggregates over the recipes table,
-        # so it is a real query against Postgres rather than a health check the
-        # API can answer from memory -- that is the part Supabase counts.
-        if: github.event.schedule == '17 6 * * 1' || github.event_name == 'workflow_dispatch'
+  database:
+    name: keep the database awake
+    runs-on: ubuntu-latest
+    # Runs on the daily cron and on a manual dispatch, but not on the 10-minute
+    # one -- a connection every 10 minutes buys nothing against a 7-day timer.
+    if: github.event.schedule != '*/10 * * * *'
+    steps:
+      - name: Connect to Postgres
+        env:
+          RAW_DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          curl -fsS --max-time 90 --retry 2 --retry-delay 15 \
-            -o /dev/null -w 'cuisines: %{http_code} in %{time_total}s\n' \
-            "${{ vars.API_BASE_URL }}/v1/cuisines"
+          if [ -z "$RAW_DATABASE_URL" ]; then
+            echo "DATABASE_URL secret is not set -- skipping (see header)."
+            exit 0
+          fi
+          # SQLAlchemy's driver suffix is not valid libpq. Mask the rewritten
+          # value too: GitHub only masks the secret exactly as stored, and this
+          # derived string still carries the password.
+          # The runner image ships psql today, but this job's entire value is
+          # not failing silently, so do not depend on that staying true.
+          command -v psql >/dev/null || {
+            echo "psql missing from the runner image; installing"
+            sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+          }
+          DB_URL="${RAW_DATABASE_URL/+psycopg2/}"
+          echo "::add-mask::$DB_URL"
+          # A real query, not just a handshake, and one that touches the corpus
+          # rather than a constant -- activity is what Supabase counts.
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -qtA \
+            -c "select 'recipes=' || count(*) from recipes;"
