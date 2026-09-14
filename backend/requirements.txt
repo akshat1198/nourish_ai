@@ -42,8 +42,15 @@ anthropic==0.116.0
 # MCP server — now in the main image (needs Python >=3.10, fastapi 0.139)
 mcp==1.13.0
 
-# NOTE: the LangGraph orchestrator stack lives in requirements-dev.txt, not here.
-# It costs ~172 MB resident and /v1/orchestrate/plan has no caller in the
-# deployed UI yet; api/orchestrate.py returns 503 when the import is absent.
-# Move langgraph/langchain-anthropic/langgraph-checkpoint-postgres back into this
-# file the moment the endpoint gets a front door.
+# Multi-agent orchestration — POST /v1/orchestrate/plan.
+# Back in the runtime image now that the UI calls this endpoint. It is ~172 MB
+# resident, which only fits because api/orchestrate.py imports it lazily: the
+# process idles near 90 MB and pays for the graph on the first planning request,
+# not at every boot.
+langgraph==1.2.9
+langchain-anthropic==1.4.8
+
+# Orchestrator checkpointing — Postgres saver uses psycopg(3)
+langgraph-checkpoint-postgres==3.1.0
+psycopg[binary]==3.3.4
+psycopg-pool==3.3.1

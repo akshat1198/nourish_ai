@@ -9,8 +9,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.agent.tracing import persist_trace
-from app.api.agent import _apply_profile
+from app.api.agent import _apply_profile, authorize_llm_call
+from app.api.auth import get_current_user_key
 from app.api.deps import get_session
+from app.core.config import settings
 from app.llm.client import is_enabled
 from app.schemas.agent import (
     AgentRequest,
@@ -43,7 +45,13 @@ def _graph(checkpointed: bool):
 
 
 @router.post("/orchestrate/plan", response_model=OrchestrateResponse)
-def orchestrate(req: AgentRequest, session: Session = Depends(get_session)):
+def orchestrate(
+    req: AgentRequest,
+    session: Session = Depends(get_session),
+    user_key: str = Depends(get_current_user_key),
+):
+    if not settings.ORCHESTRATE_ENABLED:
+        raise HTTPException(503, "The planner is turned off right now.")
     if not is_enabled():
         raise HTTPException(503, "orchestrator requires ANTHROPIC_API_KEY")
     try:
@@ -53,6 +61,7 @@ def orchestrate(req: AgentRequest, session: Session = Depends(get_session)):
         # rather than 500ing on an import the deployment deliberately left out.
         raise HTTPException(503, f"orchestrator not available in this deployment: {e}")
 
+    authorize_llm_call(req, user_key, "orchestrate")
     _apply_profile(session, req)
     # Per-turn fields reset each call; pantry/draft persist via the checkpoint.
     state_in = {"request": req.model_dump(), "repair_count": 0, "violations": [], "trace": []}

@@ -9,9 +9,9 @@ mypy==1.14.1
 
 # Below: everything the deployed image deliberately does NOT carry.
 #
-# Split out of requirements.txt because the free-tier box is 512 MB and these
-# two stacks account for ~340 MB of it. Both stay fully available here, so
-# tests, the eval harnesses and local runs are unaffected.
+# Split out of requirements.txt because the free-tier box is 512 MB. torch is
+# only needed to cross-check the ONNX embedder, so it stays here; the LangGraph
+# stack moved back to the runtime set once the UI started calling it.
 
 # CPU-only torch wheels keep the download lean on linux; on macOS pip falls back
 # to the platform wheel from PyPI automatically.
@@ -23,13 +23,3 @@ mypy==1.14.1
 # 1.26.4 rather than letting it float to 2.x.
 torch==2.2.2
 sentence-transformers==5.1.0
-
-# Multi-agent orchestration — POST /v1/orchestrate/plan, exercised by
-# test_orchestrator.py and evals/run_agent.py --engine graph.
-langgraph==1.2.9
-langchain-anthropic==1.4.8
-
-# Orchestrator checkpointing — Postgres saver uses psycopg(3)
-langgraph-checkpoint-postgres==3.1.0
-psycopg[binary]==3.3.4
-psycopg-pool==3.3.1

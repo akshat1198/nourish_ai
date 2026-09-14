@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.agent.tracing import fetch_trace
+from app.api.auth import get_current_user_key, scope_session_id
 from app.api.deps import get_session
 from app.schemas.trace import TraceEvent, TraceResponse
 
@@ -15,8 +16,16 @@ router = APIRouter(prefix="/v1", tags=["traces"])
 
 
 @router.get("/traces/{session_id}", response_model=TraceResponse)
-def get_traces(session_id: str, session: Session = Depends(get_session)):
-    rows = fetch_trace(session, session_id)
+def get_traces(
+    session_id: str,
+    session: Session = Depends(get_session),
+    user_key: str = Depends(get_current_user_key),
+):
+    # Traces carry the caller's pantry and their plan. Read through the same
+    # scoping the writer used, so a session id names only its owner's trail --
+    # a 404 for someone else's id, not a 403, since existence is not theirs
+    # to learn either.
+    rows = fetch_trace(session, scope_session_id(user_key, session_id))
     if not rows:
         raise HTTPException(404, f"no traces for session {session_id!r}")
     events = [

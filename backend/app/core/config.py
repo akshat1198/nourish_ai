@@ -92,6 +92,14 @@ class Settings(BaseSettings):
     # Orchestrator checkpointing: memory | postgres
     CHECKPOINT_BACKEND: str = "memory"
 
+    # Kill switch for POST /v1/orchestrate/plan. A graph run costs roughly $0.21,
+    # so there has to be a way to stop it that does not need a redeploy.
+    ORCHESTRATE_ENABLED: bool = True
+    # Per-user planning calls per UTC day, shared across both LLM endpoints.
+    # 0 or less disables the quota. Enforced fail-closed: if Redis cannot be
+    # reached the call is refused rather than waved through (rate_limit.py).
+    AGENT_DAILY_LIMIT: int = 25
+
     # Auth. "disabled" (default) keeps the API open and honours an
     # X-User-Key header (dev/test); "jwt" verifies an HS256 bearer minted by the
     # Next.js Auth.js layer with AUTH_SHARED_SECRET.
