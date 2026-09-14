@@ -12,8 +12,6 @@ from app.agent.tracing import persist_trace
 from app.api.agent import _apply_profile
 from app.api.deps import get_session
 from app.llm.client import is_enabled
-from app.orchestrator.checkpoint import get_checkpointer
-from app.orchestrator.graph import build_graph, invoke_graph
 from app.schemas.agent import (
     AgentRequest,
     MealPlanItem,
@@ -24,15 +22,36 @@ from app.services.profile import record_recommendations
 
 router = APIRouter(prefix="/v1", tags=["orchestrate"])
 
-# Compile once. The checkpointed graph persists PlanState per thread_id.
-_plain_graph = build_graph()
-_checkpointed_graph = build_graph(checkpointer=get_checkpointer())
+# Graphs are built on first use, not at import. Importing app.orchestrator pulls
+# in langchain_anthropic (~172 MB resident) and get_checkpointer() opens a
+# Postgres pool -- at module scope both happen during boot, before uvicorn binds
+# the port, on every deploy that never serves this endpoint. Same lazy-singleton
+# shape as services.embedder.get_embedder().
+_graphs: dict[str, object] = {}
+
+
+def _graph(checkpointed: bool):
+    key = "checkpointed" if checkpointed else "plain"
+    if key not in _graphs:
+        from app.orchestrator.checkpoint import get_checkpointer
+        from app.orchestrator.graph import build_graph
+
+        _graphs[key] = (
+            build_graph(checkpointer=get_checkpointer()) if checkpointed else build_graph()
+        )
+    return _graphs[key]
 
 
 @router.post("/orchestrate/plan", response_model=OrchestrateResponse)
 def orchestrate(req: AgentRequest, session: Session = Depends(get_session)):
     if not is_enabled():
         raise HTTPException(503, "orchestrator requires ANTHROPIC_API_KEY")
+    try:
+        from app.orchestrator.graph import invoke_graph
+    except ImportError as e:
+        # The runtime image can ship without langgraph/langchain-anthropic; say so
+        # rather than 500ing on an import the deployment deliberately left out.
+        raise HTTPException(503, f"orchestrator not available in this deployment: {e}")
 
     _apply_profile(session, req)
     # Per-turn fields reset each call; pantry/draft persist via the checkpoint.
@@ -41,9 +60,9 @@ def orchestrate(req: AgentRequest, session: Session = Depends(get_session)):
     t0 = time.perf_counter()
     if req.session_id:
         config = {"configurable": {"thread_id": req.session_id}}
-        final, tin, tout = invoke_graph(_checkpointed_graph, state_in, config)
+        final, tin, tout = invoke_graph(_graph(True), state_in, config)
     else:
-        final, tin, tout = invoke_graph(_plain_graph, state_in)
+        final, tin, tout = invoke_graph(_graph(False), state_in)
     latency_ms = int((time.perf_counter() - t0) * 1000)
 
     draft = final.get("draft", {"recipes": []})

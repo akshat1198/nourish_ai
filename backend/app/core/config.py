@@ -20,6 +20,15 @@ class Settings(BaseSettings):
     PANTRY_IMAGE_TIMEOUT_SECONDS: float = 60.0
     PANTRY_IMAGE_MAX_COUNT: int = 6  # photos per batch; one vision call carries them all
     PANTRY_IMAGE_MAX_BYTES: int = 4 * 1024 * 1024  # headroom under Anthropic's 5MB/image
+    # "fastembed" (ONNX) or "sentence-transformers" (torch). Both emit identical
+    # vectors; ONNX is the default because torch needs ~337 MB resident, which
+    # does not fit the deployed box alongside the API. Env-switchable so a
+    # regression can be checked against the torch path without a code change.
+    EMBEDDER_BACKEND: str = "fastembed"
+    # ONNX intra-op threads. 1 because the deployed instance has a fraction of a
+    # core -- extra threads there cost ~15 MB and only contend. Raise it via env
+    # for bulk offline work (scripts/embed_recipes.py over the whole corpus).
+    EMBEDDER_THREADS: int = 1
     PROMPT_VERSION: str = "v1"  # logged per run; real versioning tracked separately
     REPAIR_MAX_ATTEMPTS: int = 2  # repair turns before deterministic fallback
 
