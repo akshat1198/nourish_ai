@@ -317,3 +317,50 @@ export interface HealthResponse {
   db: boolean;
   redis: boolean;
 }
+
+// --- Planner (POST /v1/orchestrate/plan) ------------------------------------
+// Mirrors backend/app/schemas/agent.py. `user_key` is deliberately absent: the
+// backend overwrites it from the bearer token and ignores anything the body
+// claims, so sending it would be misleading.
+export interface PlannerRequest {
+  pantry: string[];
+  question: string;
+  session_id?: string | null;
+  diet?: string | null;
+  exclude_allergens?: string[];
+  disliked_ingredients?: string[];
+  cuisine_prefs?: string[];
+  limit?: number;
+}
+
+export interface PlannerRecipe {
+  recipe_id: number;
+  title: string;
+  why: string;
+}
+
+export interface PlannerTraceEvent {
+  node?: string;
+  event_type?: string;
+  latency_ms?: number;
+  tokens?: number;
+  [k: string]: unknown;
+}
+
+export interface AppliedConstraints {
+  diet: string | null;
+  exclude_allergens: string[];
+}
+
+export interface PlannerResponse {
+  plan: { recipes: PlannerRecipe[]; summary: string } | null;
+  applied_constraints: AppliedConstraints;
+  degraded: boolean;
+  violations: Record<string, unknown>[];
+  nutrition: Record<string, unknown>[];
+  shopping_list: Record<string, unknown>;
+  repair_count: number;
+  input_tokens: number;
+  output_tokens: number;
+  trace: PlannerTraceEvent[];
+}

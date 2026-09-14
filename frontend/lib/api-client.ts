@@ -10,6 +10,8 @@ import type {
   HealthResponse,
   IngredientSuggestion,
   PantryParseResponse,
+  PlannerRequest,
+  PlannerResponse,
   PantryReplaceIn,
   PantryResponse,
   ModifyRequest,
@@ -137,6 +139,14 @@ export const api = {
 
   getPlanShoppingList: (planId: number) =>
     apiFetch<ShoppingListResponse>(`/v1/plans/${planId}/shopping-list`),
+
+  // Conversational planner — the LangGraph supervisor graph. Slow (~7s p50) and
+  // metered server-side, so it is a mutation, never a background refetch.
+  plan: (req: PlannerRequest) =>
+    apiFetch<PlannerResponse>("/v1/orchestrate/plan", {
+      method: "POST",
+      body: JSON.stringify(req),
+    }),
 
   // Online analytics
   track: (body: EventIn) =>

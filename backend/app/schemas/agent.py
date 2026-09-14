@@ -38,8 +38,21 @@ class DraftPlan(BaseModel):
     recipes: list[MealPlanItem]
 
 
+class AppliedConstraints(BaseModel):
+    """Hard constraints read out of the free-text question and enforced in SQL.
+
+    Returned so the UI can show what was actually excluded. A phrasing the
+    matcher does not recognise is absent here rather than silently assumed --
+    the user can then see it was not applied and set it explicitly.
+    """
+
+    diet: Optional[str] = None
+    exclude_allergens: list[str] = Field(default_factory=list)
+
+
 class OrchestrateResponse(BaseModel):
     plan: Optional[MealPlanResponse] = None
+    applied_constraints: AppliedConstraints = Field(default_factory=lambda: AppliedConstraints())
     degraded: bool = False
     violations: list[dict] = Field(default_factory=list)
     nutrition: list[dict] = Field(default_factory=list)

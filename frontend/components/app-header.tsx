@@ -20,6 +20,9 @@ export function AppHeader() {
           <Link href="/app" className="transition-colors hover:text-foreground">
             Kitchen
           </Link>
+          <Link href="/app/plan" className="transition-colors hover:text-foreground">
+            Ask
+          </Link>
           <Link href="/app/saved" className="transition-colors hover:text-foreground">
             Saved
           </Link>

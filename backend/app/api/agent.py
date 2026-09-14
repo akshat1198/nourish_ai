@@ -13,6 +13,7 @@ from app.services.profile import (
     recent_recommended,
     record_recommendations,
 )
+from app.services.question_constraints import merge_into_request
 from app.services.rate_limit import (
     RateLimitExceeded,
     RateLimitUnavailable,

@@ -16,11 +16,13 @@ from app.core.config import settings
 from app.llm.client import is_enabled
 from app.schemas.agent import (
     AgentRequest,
+    AppliedConstraints,
     MealPlanItem,
     MealPlanResponse,
     OrchestrateResponse,
 )
 from app.services.profile import record_recommendations
+from app.services.question_constraints import merge_into_request
 
 router = APIRouter(prefix="/v1", tags=["orchestrate"])
 
@@ -63,6 +65,11 @@ def orchestrate(
 
     authorize_llm_call(req, user_key, "orchestrate")
     _apply_profile(session, req)
+    # Read the hard constraints out of the question BEFORE retrieval, so "no
+    # dairy" typed in prose reaches the SQL exclude and the validator, not just
+    # the model's discretion. Without this the planner returned dairy recipes
+    # for exactly that phrasing, with violations empty.
+    applied = merge_into_request(req, req.question)
     # Per-turn fields reset each call; pantry/draft persist via the checkpoint.
     state_in = {"request": req.model_dump(), "repair_count": 0, "violations": [], "trace": []}
 
@@ -96,6 +103,7 @@ def orchestrate(
 
     return OrchestrateResponse(
         plan=plan,
+        applied_constraints=AppliedConstraints(**applied),
         degraded=final.get("degraded", False),
         violations=final.get("violations", []),
         nutrition=final.get("nutrition", []),
