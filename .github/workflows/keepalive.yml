@@ -1,0 +1,47 @@
+name: Keepalive
+
+# The free tiers idle out at two different timescales, so this pings on two.
+# Render suspends a web service after ~15 minutes with no request and takes
+# roughly a minute to come back, which the first real visitor would otherwise
+# pay. Supabase pauses a free project after a week with no query, and that one
+# needs a dashboard click to undo.
+#
+# Requires repo variable API_BASE_URL (Settings -> Secrets and variables ->
+# Actions -> Variables), e.g. https://nourishai-api.onrender.com -- it is a
+# public URL, so a variable rather than a secret.
+#
+# Caveat: GitHub disables scheduled workflows on a repo with no commits for 60
+# days, and cron firing is best-effort rather than punctual. If either bites,
+# move this to an external uptime pinger.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # keep Render awake
+    - cron: "17 6 * * 1" # Mondays: touch the DB so Supabase never pauses
+  workflow_dispatch:
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    # A missing variable would otherwise curl an empty URL every 10 minutes.
+    if: vars.API_BASE_URL != ''
+    steps:
+      - name: Wake the API
+        run: |
+          curl -fsS --max-time 90 --retry 2 --retry-delay 15 \
+            -o /dev/null -w 'health: %{http_code} in %{time_total}s\n' \
+            "${{ vars.API_BASE_URL }}/health"
+
+      - name: Touch the database
+        # Weekly schedule only. /v1/cuisines aggregates over the recipes table,
+        # so it is a real query against Postgres rather than a health check the
+        # API can answer from memory -- that is the part Supabase counts.
+        if: github.event.schedule == '17 6 * * 1' || github.event_name == 'workflow_dispatch'
+        run: |
+          curl -fsS --max-time 90 --retry 2 --retry-delay 15 \
+            -o /dev/null -w 'cuisines: %{http_code} in %{time_total}s\n' \
+            "${{ vars.API_BASE_URL }}/v1/cuisines"

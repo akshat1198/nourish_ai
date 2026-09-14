@@ -1,10 +1,6 @@
 # NourishAI backend — runtime dependencies (intentional pins, Python 3.12).
 # Local venv and the Docker image are both 3.12, so there's one dep set.
 
-# CPU-only torch wheels keep the image lean on linux (Risk 1); on macOS pip
-# falls back to the platform wheel from PyPI automatically.
---extra-index-url https://download.pytorch.org/whl/cpu
-
 # Web/API — fastapi 0.139 accepts starlette 1.x (same as mcp needs, so they
 # coexist; the old 0.116 pin was the source of the mcp<->fastapi clash).
 fastapi==0.139.0
@@ -28,10 +24,16 @@ alembic==1.16.4
 redis==6.4.0
 
 # Embeddings & vector search
-# numpy pinned <2: torch 2.2.2 is built against the NumPy 1.x ABI.
+# numpy is a direct runtime dependency (services/personalization.py taste
+# vectors, services/metrics.py), not just fastembed's transitive one -- the
+# recommend path must not break because an upstream package drops it. Held at
+# 1.x so the dev-only torch 2.2.2 (NumPy 1.x ABI) shares one resolved version;
+# fastembed needs >=1.26 on 3.12, so this satisfies both.
 numpy==1.26.4
-torch==2.2.2
-sentence-transformers==5.1.0
+# ONNX runtime, not torch: identical all-MiniLM-L6-v2 vectors for ~230 MB
+# resident instead of ~337 MB. The torch path lives in requirements-dev.txt and
+# stays reachable via EMBEDDER_BACKEND=sentence-transformers.
+fastembed==0.8.0
 pgvector==0.3.6
 
 # LLM — Claude adapter
@@ -40,11 +42,8 @@ anthropic==0.116.0
 # MCP server — now in the main image (needs Python >=3.10, fastapi 0.139)
 mcp==1.13.0
 
-# Multi-agent orchestration
-langgraph==1.2.9
-langchain-anthropic==1.4.8
-
-# Orchestrator checkpointing — Postgres saver uses psycopg(3)
-langgraph-checkpoint-postgres==3.1.0
-psycopg[binary]==3.3.4
-psycopg-pool==3.3.1
+# NOTE: the LangGraph orchestrator stack lives in requirements-dev.txt, not here.
+# It costs ~172 MB resident and /v1/orchestrate/plan has no caller in the
+# deployed UI yet; api/orchestrate.py returns 503 when the import is absent.
+# Move langgraph/langchain-anthropic/langgraph-checkpoint-postgres back into this
+# file the moment the endpoint gets a front door.

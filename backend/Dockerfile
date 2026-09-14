@@ -3,11 +3,20 @@ FROM python:3.12-slim
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    FASTEMBED_CACHE_PATH=/opt/models
 
 # Install dependencies first for layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Bake the embedding weights into the image. Without this the first request that
+# touches pgvector retrieval downloads ~90 MB from HuggingFace onto the host's
+# ephemeral disk -- on every cold start, since the filesystem does not survive a
+# restart. Build-time failure here is deliberate: shipping an image that has to
+# reach HuggingFace to answer a recipe query is the bug.
+RUN python -c "from fastembed import TextEmbedding; \
+TextEmbedding(model_name='sentence-transformers/all-MiniLM-L6-v2').embed(['warm'])"
 
 # Copy application code
 COPY app ./app
