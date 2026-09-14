@@ -1,11 +1,15 @@
+import json
+import logging
 import os
 import subprocess
-import json
 from pathlib import Path
+
 from fastapi import APIRouter
 from sqlalchemy import text
 from app.db import engine
 from app.cache import redis_client
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -65,13 +69,17 @@ def health():
         ok_db = True
     except Exception as e:
         ok_db = False
-        print(f"Database connection error: {str(e)}")
+        logger.warning("health: database unreachable: %s", e)
 
     # Check Redis
     try:
         ok_redis = redis_client.ping() if redis_client else False
-    except Exception:
+    except Exception as e:
         ok_redis = False
+        # Log it. A bare `redis: false` gives no way to tell a wrong scheme from
+        # a wrong host from bad credentials, and the cache fails open, so the
+        # only symptom is every request quietly missing the cache forever.
+        logger.warning("health: redis unreachable (%s): %s", type(e).__name__, e)
 
     # Top-level status for monitoring tools
     status = ok_db and ok_redis
